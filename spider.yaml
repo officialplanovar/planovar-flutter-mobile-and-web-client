@@ -1,0 +1,21 @@
+groups:
+  - path: assets/images
+    class_name: Images
+    package: planovar_client
+    use_references_list: true
+    types:
+      - .png
+      - .jpg
+      - .jpeg
+      - .webp
+
+  - path: assets/icons
+    class_name: AppIcons
+    package: planovar_client
+    use_references_list: true
+    types:
+      - .png
+      - .svg
+
+output_folder: lib/gen
+use_part_of: false
