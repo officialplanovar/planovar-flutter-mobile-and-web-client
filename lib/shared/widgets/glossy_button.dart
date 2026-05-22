@@ -72,7 +72,6 @@ class _GlossyButtonState extends State<GlossyButton>
             height: widget.height,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(widget.radius),
-              // Base gradient — slightly lighter at top-left, deeper at bottom-right
               gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
@@ -95,67 +94,73 @@ class _GlossyButtonState extends State<GlossyButton>
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(widget.radius),
-              child: Stack(
-                children: [
-                  // Glass highlight — top half semi-transparent white sheen
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: widget.height * 0.52,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.white.withValues(alpha: 0.28),
-                            Colors.white.withValues(alpha: 0.0),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Left specular highlight
-                  Positioned(
-                    top: 4,
-                    left: widget.width * 0.12,
-                    child: Container(
-                      width: widget.width * 0.3,
-                      height: widget.height * 0.22,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        gradient: RadialGradient(
-                          colors: [
-                            Colors.white.withValues(alpha: 0.18),
-                            Colors.transparent,
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Label / spinner
-                  Center(
-                    child: widget.isLoading
-                        ? const SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2.5,
-                              color: Colors.white,
-                            ),
-                          )
-                        : Text(
-                            widget.label,
-                            style: GoogleFonts.urbanist(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white,
-                              letterSpacing: 0.2,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final w = constraints.maxWidth;
+                  final h = widget.height;
+                  return Stack(
+                    children: [
+                      // Glass highlight — top half semi-transparent white sheen
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: h * 0.52,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.white.withValues(alpha: 0.28),
+                                Colors.white.withValues(alpha: 0.0),
+                              ],
                             ),
                           ),
-                  ),
-                ],
+                        ),
+                      ),
+                      // Left specular highlight
+                      Positioned(
+                        top: 4,
+                        left: w * 0.12,
+                        child: Container(
+                          width: w * 0.3,
+                          height: h * 0.22,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            gradient: RadialGradient(
+                              colors: [
+                                Colors.white.withValues(alpha: 0.18),
+                                Colors.transparent,
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      // Label / spinner
+                      Center(
+                        child: widget.isLoading
+                            ? const SizedBox(
+                                width: 22,
+                                height: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.5,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : Text(
+                                widget.label,
+                                style: GoogleFonts.urbanist(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.white,
+                                  letterSpacing: 0.2,
+                                ),
+                              ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ),

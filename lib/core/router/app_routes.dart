@@ -17,6 +17,9 @@ class AppRoutes {
   static const messages = '/home/messages';
   static const profile = '/home/profile';
 
+  static const categoryResults = '/categories/:slug';
+  static String categoryResultsPath(String slug) => '/categories/$slug';
+
   static const vendorProfile = '/vendors/:id';
   static String vendorProfilePath(String id) => '/vendors/$id';
 
@@ -33,6 +36,20 @@ class AppRoutes {
 
   static const conversationDetail = '/conversations/:id';
   static String conversationDetailPath(String id) => '/conversations/$id';
+
+  static const serviceDetails = '/service-details';
+  static const confirmQuote = '/bookings/confirm';
+  static const awaitingResponse = '/bookings/awaiting';
+  static const checkout = '/checkout';
+  static const rentProduct = '/rent-product';
+  static const processPayment = '/payments/process';
+  static const paymentSuccess = '/payments/success';
+  static const bookingConfirmed = '/bookings/confirmed';
+
+  static const createEventStep1 = '/events/create/step1';
+  static const createEventStep2 = '/events/create/step2';
+  static const createEventStep3 = '/events/create/step3';
+  static const createEventStep4 = '/events/create/step4';
 
   static const payments = '/payments';
   static const notifications = '/notifications';

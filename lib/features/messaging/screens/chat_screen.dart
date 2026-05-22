@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 import '../../../core/mock/mock_messaging_service.dart';
+import '../../../core/router/app_routes.dart';
+import '../../../core/state/overlay_state.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_text_styles.dart';
-import '../../../shared/models/message_model.dart';
 import '../../../shared/models/conversation_model.dart';
-import '../../../shared/widgets/network_image_widget.dart';
-import '../../../core/utils/formatters.dart';
+import '../../../shared/models/message_model.dart';
+import '../../../shared/models/quote_model.dart';
 
 class ChatScreen extends StatefulWidget {
   final String conversationId;
@@ -18,7 +20,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final _messagingService = MockMessagingService();
+  final _service = MockMessagingService();
   final _msgCtrl = TextEditingController();
   final _scrollCtrl = ScrollController();
 
@@ -34,15 +36,24 @@ class _ChatScreenState extends State<ChatScreen> {
     _load();
   }
 
+  @override
+  void dispose() {
+    _msgCtrl.dispose();
+    _scrollCtrl.dispose();
+    super.dispose();
+  }
+
   Future<void> _load() async {
-    final convos = await _messagingService.getConversations();
-    final msgs = await _messagingService.getMessages(widget.conversationId);
-    setState(() {
-      _conversation = convos.where((c) => c.id == widget.conversationId).firstOrNull;
-      _messages = msgs;
-      _loading = false;
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+    final convos = await _service.getConversations();
+    final msgs = await _service.getMessages(widget.conversationId);
+    if (mounted) {
+      setState(() {
+        _conversation = convos.where((c) => c.id == widget.conversationId).firstOrNull;
+        _messages = msgs;
+        _loading = false;
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+    }
   }
 
   void _scrollToBottom() {
@@ -59,8 +70,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final text = _msgCtrl.text.trim();
     if (text.isEmpty) return;
     _msgCtrl.clear();
-
-    final msg = await _messagingService.sendMessage(
+    final msg = await _service.sendMessage(
       conversationId: widget.conversationId,
       content: text,
     );
@@ -68,344 +78,867 @@ class _ChatScreenState extends State<ChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
   }
 
-  @override
-  void dispose() {
-    _msgCtrl.dispose();
-    _scrollCtrl.dispose();
-    super.dispose();
+  bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
+  String _fmt(double amount) {
+    final s = amount.toInt().toString();
+    final buf = StringBuffer();
+    for (var i = 0; i < s.length; i++) {
+      if (i > 0 && (s.length - i) % 3 == 0) buf.write(',');
+      buf.write(s[i]);
+    }
+    return buf.toString();
+  }
+
+  void _showReviewInvoice(QuoteModel quote) {
+    bottomSheetCount.value++;
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      bottomSheetCount.value--;
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+              Container(
+                width: 60,
+                height: 60,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFEF3C7),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.warning_amber_rounded,
+                  color: Color(0xFFD97706),
+                  size: 32,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Review Invoice',
+                style: GoogleFonts.urbanist(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF1A1A2E),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Review and respond to the invoice from\n${_conversation?.vendor?.businessName ?? 'the vendor'}?',
+                style: GoogleFonts.urbanist(
+                  fontSize: 14,
+                  color: const Color(0xFF6B7280),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFFBEB),
+                  border: Border.all(color: const Color(0xFFFDE68A)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.all(14),
+                child: Column(
+                  children: [
+                    ...quote.lineItems.map(
+                      (item) => Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                item.label,
+                                style: GoogleFonts.urbanist(
+                                  fontSize: 13,
+                                  color: const Color(0xFF6B7280),
+                                ),
+                              ),
+                            ),
+                            Text(
+                              '₦${_fmt(item.amount)}',
+                              style: GoogleFonts.urbanist(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF1A1A2E),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const Divider(),
+                    Row(
+                      children: [
+                        Text(
+                          'Total',
+                          style: GoogleFonts.urbanist(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: const Color(0xFF6B7280),
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '₦${_fmt(quote.amount)}',
+                          style: GoogleFonts.urbanist(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFFD97706),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => _acceptInvoice(quote),
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFAB52F5), Color(0xFF7420D0)],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Accept & Book',
+                            style: GoogleFonts.urbanist(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        bottomSheetCount.value--;
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEF4444),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Decline',
+                            style: GoogleFonts.urbanist(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    ).then((_) {
+      if (bottomSheetCount.value > 0) bottomSheetCount.value--;
+    });
+  }
+
+  void _acceptInvoice(QuoteModel quote) {
+    bottomSheetCount.value--;
+    Navigator.pop(context);
+    setState(() {
+      _messages.add(MessageModel(
+        id: 'msg-accept',
+        conversationId: widget.conversationId,
+        senderId: 'system',
+        content: 'Invoice accepted',
+        type: 'invoice_accepted',
+        isRead: true,
+        createdAt: DateTime.now(),
+      ));
+      _messages.add(MessageModel(
+        id: 'msg-confirmed',
+        conversationId: widget.conversationId,
+        senderId: 'system',
+        content: 'booking_confirmed:${quote.amount}',
+        type: 'booking_confirmed',
+        isRead: true,
+        createdAt: DateTime.now(),
+        quote: quote,
+      ));
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
   }
 
   @override
   Widget build(BuildContext context) {
+    final vendor = _conversation?.vendor;
+
     return Scaffold(
-      appBar: AppBar(
-        leading: BackButton(onPressed: () => context.pop()),
-        title: _conversation != null
-            ? Row(
-                children: [
-                  CircleAvatar(
-                    radius: 18,
-                    child: ClipOval(
-                      child: AppNetworkImage(url: _conversation!.vendor?.coverUrl, width: 36, height: 36),
+      backgroundColor: const Color(0xFFF8F5FF),
+      body: Column(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0xFFECDEFA), Colors.white],
+              ),
+            ),
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => context.pop(),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.08),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          color: Color(0xFF1A1A2E),
+                          size: 16,
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _conversation!.vendor?.businessName ?? 'Vendor',
-                        style: AppTextStyles.label,
-                      ),
-                      Row(
-                        children: [
-                          Container(
-                            width: 7,
-                            height: 7,
-                            decoration: const BoxDecoration(color: AppColors.success, shape: BoxShape.circle),
+                    const SizedBox(width: 12),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: vendor?.coverUrl != null
+                          ? Image.network(
+                              vendor!.coverUrl!,
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => CircleAvatar(
+                                radius: 20,
+                                backgroundColor: AppColors.primaryLight,
+                                child: Text(
+                                  vendor.businessName.isNotEmpty
+                                      ? vendor.businessName[0]
+                                      : 'V',
+                                  style: GoogleFonts.urbanist(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            )
+                          : CircleAvatar(
+                              radius: 20,
+                              backgroundColor: AppColors.primaryLight,
+                              child: const Icon(Icons.store, color: AppColors.primary),
+                            ),
+                    ),
+                    const SizedBox(width: 10),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          vendor?.businessName ?? 'Vendor',
+                          style: GoogleFonts.urbanist(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF1A1A2E),
                           ),
-                          const SizedBox(width: 4),
-                          Text('Online', style: AppTextStyles.caption.copyWith(color: AppColors.success)),
-                        ],
+                        ),
+                        Text(
+                          'Online',
+                          style: GoogleFonts.urbanist(
+                            fontSize: 12,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Color(0xFFAB52F5), Color(0xFF7420D0)],
+                        ),
+                        shape: BoxShape.circle,
                       ),
-                    ],
-                  ),
-                ],
-              )
-            : const Text('Chat'),
-        actions: [
-          IconButton(icon: const Icon(Icons.phone_outlined), onPressed: () {}),
-        ],
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                Expanded(
-                  child: ListView.builder(
+                      child: const Icon(Icons.phone_rounded, color: Colors.white, size: 20),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: _loading
+                ? const Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  )
+                : ListView.builder(
                     controller: _scrollCtrl,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.all(16),
                     itemCount: _messages.length,
                     itemBuilder: (context, i) {
                       final msg = _messages[i];
-                      // Date separator
                       final showDate = i == 0 ||
                           !_isSameDay(_messages[i - 1].createdAt, msg.createdAt);
                       return Column(
                         children: [
-                          if (showDate) _DateSeparator(date: msg.createdAt),
-                          _MessageBubble(
-                            message: msg,
-                            isMe: msg.senderId == _currentUserId,
-                          ),
+                          if (showDate) _buildDateSeparator(msg.createdAt),
+                          _buildMessage(msg),
                         ],
                       );
                     },
                   ),
+          ),
+          _buildInputBar(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateSeparator(DateTime date) {
+    final now = DateTime.now();
+    final isToday = date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
+    final label = isToday ? 'Today' : '${date.day}/${date.month}/${date.year}';
+    return Center(
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(
+          label,
+          style: GoogleFonts.urbanist(fontSize: 12, color: Colors.grey),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMessage(MessageModel msg) {
+    final isMe = msg.senderId == _currentUserId;
+
+    if (msg.type == 'quote' && msg.quote != null) {
+      return _buildQuoteMessage(msg.quote!);
+    }
+
+    if (msg.type == 'invoice' && msg.quote != null) {
+      return _buildInvoiceMessage(msg);
+    }
+
+    if (msg.type == 'invoice_accepted') {
+      return Container(
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        child: Center(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.primaryLight,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              'Invoice accepted',
+              style: GoogleFonts.urbanist(
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                color: AppColors.primary,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (msg.type == 'booking_confirmed' && msg.quote != null) {
+      return _buildBookingConfirmed(msg.quote!);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          if (!isMe) ...[
+            CircleAvatar(
+              radius: 10,
+              backgroundColor: AppColors.primaryLight,
+              backgroundImage: _conversation?.vendor?.coverUrl != null
+                  ? NetworkImage(_conversation!.vendor!.coverUrl!)
+                  : null,
+              child: _conversation?.vendor?.coverUrl == null
+                  ? const Icon(Icons.store, size: 10, color: AppColors.primary)
+                  : null,
+            ),
+            const SizedBox(width: 6),
+          ],
+          Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.72,
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              gradient: isMe
+                  ? const LinearGradient(
+                      colors: [Color(0xFFAB52F5), Color(0xFF7420D0)],
+                    )
+                  : null,
+              color: isMe ? null : Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(18),
+                topRight: const Radius.circular(18),
+                bottomLeft: Radius.circular(isMe ? 18 : 4),
+                bottomRight: Radius.circular(isMe ? 4 : 18),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 4,
+                  offset: const Offset(0, 1),
                 ),
-                // Input bar
-                Container(
-                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        blurRadius: 10,
-                        offset: const Offset(0, -2),
+              ],
+            ),
+            child: Text(
+              msg.content ?? '',
+              style: GoogleFonts.urbanist(
+                fontSize: 14,
+                color: isMe ? Colors.white : const Color(0xFF1A1A2E),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuoteMessage(QuoteModel quote) {
+    final vendorName = _conversation?.vendor?.businessName ?? 'Vendor';
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBEB),
+        border: Border.all(color: const Color(0xFFFBBF24), width: 1.5),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.description_outlined,
+                  color: Color(0xFFD97706),
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Quote from $vendorName',
+                    style: GoogleFonts.urbanist(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF1A1A2E),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.access_time_outlined,
+                        color: Color(0xFFD97706),
+                        size: 12,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Valid till Midnight',
+                        style: GoogleFonts.urbanist(
+                          fontSize: 12,
+                          color: const Color(0xFFD97706),
+                        ),
                       ),
                     ],
                   ),
-                  child: SafeArea(
-                    top: false,
-                    child: Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.attach_file_rounded, color: AppColors.textSecondary),
-                          onPressed: () {},
-                        ),
-                        Expanded(
-                          child: TextField(
-                            controller: _msgCtrl,
-                            maxLines: null,
-                            decoration: InputDecoration(
-                              hintText: 'Type a message...',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(24),
-                                borderSide: const BorderSide(color: AppColors.border),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(24),
-                                borderSide: const BorderSide(color: AppColors.border),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(24),
-                                borderSide: const BorderSide(color: AppColors.primary),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                              fillColor: AppColors.divider,
-                              filled: true,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        GestureDetector(
-                          onTap: _sendMessage,
-                          child: Container(
-                            width: 44,
-                            height: 44,
-                            decoration: const BoxDecoration(
-                              color: AppColors.primary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
-                          ),
-                        ),
-                      ],
+                ],
+              ),
+            ],
+          ),
+          const Divider(color: Color(0xFFFDE68A), height: 24),
+          ...quote.lineItems.map(
+            (item) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      item.label,
+                      style: GoogleFonts.urbanist(
+                        fontSize: 13,
+                        color: const Color(0xFF6B7280),
+                      ),
                     ),
+                  ),
+                  Text(
+                    '₦${_fmt(item.amount)}',
+                    style: GoogleFonts.urbanist(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: const Color(0xFF1A1A2E),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Divider(),
+          Row(
+            children: [
+              Text(
+                'Total',
+                style: GoogleFonts.urbanist(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF6B7280),
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '₦${_fmt(quote.amount)}',
+                style: GoogleFonts.urbanist(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFFD97706),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInvoiceMessage(MessageModel msg) {
+    final quote = msg.quote!;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.07),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppColors.primaryLight,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.description_outlined,
+                  color: AppColors.primary,
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    msg.content ?? 'Invoice',
+                    style: GoogleFonts.urbanist(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF1A1A2E),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.access_time_outlined,
+                        color: AppColors.primary,
+                        size: 12,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Valid till Midnight',
+                        style: GoogleFonts.urbanist(
+                          fontSize: 12,
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () => _showReviewInvoice(quote),
+            child: Container(
+              height: 44,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFAB52F5), Color(0xFF7420D0)],
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Center(
+                child: Text(
+                  'View Invoice',
+                  style: GoogleFonts.urbanist(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBookingConfirmed(QuoteModel quote) {
+    final vendor = _conversation?.vendor;
+    final now = DateTime.now();
+    final dateStr = '${now.day}/${now.month}/${now.year}';
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.primaryLight,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          Center(
+            child: Container(
+              width: 56,
+              height: 56,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFF4CAF50), Color(0xFF2E7D32)],
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.check_rounded, color: Colors.white, size: 28),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: 'Booking ',
+                  style: GoogleFonts.urbanist(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF1A1A2E),
+                  ),
+                ),
+                TextSpan(
+                  text: 'confirmed!',
+                  style: GoogleFonts.urbanist(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: const Color(0xFF4CAF50),
                   ),
                 ),
               ],
             ),
-    );
-  }
-
-  bool _isSameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
-}
-
-class _DateSeparator extends StatelessWidget {
-  final DateTime date;
-
-  const _DateSeparator({required this.date});
-
-  @override
-  Widget build(BuildContext context) {
-    final now = DateTime.now();
-    final isToday = date.year == now.year && date.month == now.month && date.day == now.day;
-    final label = isToday ? 'Today' : Formatters.date(date);
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            color: AppColors.divider,
-            borderRadius: BorderRadius.circular(12),
+            textAlign: TextAlign.center,
           ),
-          child: Text(label, style: AppTextStyles.caption),
-        ),
-      ),
-    );
-  }
-}
-
-class _MessageBubble extends StatelessWidget {
-  final MessageModel message;
-  final bool isMe;
-
-  const _MessageBubble({required this.message, required this.isMe});
-
-  @override
-  Widget build(BuildContext context) {
-    if (message.type == 'quote' && message.quote != null) {
-      return _QuoteCard(message: message, isMe: isMe);
-    }
-    if (message.type == 'system') {
-      return _SystemCard(message: message);
-    }
-
-    return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
-        decoration: BoxDecoration(
-          color: isMe ? AppColors.primary : AppColors.surface,
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(16),
-            topRight: const Radius.circular(16),
-            bottomLeft: Radius.circular(isMe ? 16 : 4),
-            bottomRight: Radius.circular(isMe ? 4 : 16),
+          const SizedBox(height: 8),
+          Text(
+            'Service booking created for $dateStr.\nProceed to payment.',
+            style: GoogleFonts.urbanist(
+              fontSize: 13,
+              color: const Color(0xFF6B7280),
+            ),
+            textAlign: TextAlign.center,
           ),
-          border: isMe ? null : Border.all(color: AppColors.border),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              message.content ?? '',
-              style: AppTextStyles.body2.copyWith(
-                color: isMe ? Colors.white : AppColors.textPrimary,
-              ),
+          const SizedBox(height: 16),
+          GestureDetector(
+            onTap: () => context.push(
+              AppRoutes.processPayment,
+              extra: {
+                'quoteId': quote.id,
+                'vendorName': vendor?.businessName,
+              },
             ),
-            const SizedBox(height: 2),
-            Text(
-              Formatters.time(message.createdAt),
-              style: AppTextStyles.caption.copyWith(
-                color: isMe ? Colors.white70 : AppColors.textHint,
-                fontSize: 10,
+            child: Container(
+              height: 44,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFAB52F5), Color(0xFF7420D0)],
+                ),
+                borderRadius: BorderRadius.circular(12),
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _QuoteCard extends StatelessWidget {
-  final MessageModel message;
-  final bool isMe;
-
-  const _QuoteCard({required this.message, required this.isMe});
-
-  @override
-  Widget build(BuildContext context) {
-    final quote = message.quote!;
-    return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.82),
-        decoration: BoxDecoration(
-          color: const Color(0xFFFFF8E1),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFFFFE082)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 12, 14, 8),
-              child: Row(
-                children: [
-                  const Icon(Icons.receipt_outlined, size: 16, color: Color(0xFFE65100)),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Quote from ${quote.vendor?.businessName ?? 'Vendor'}',
-                    style: AppTextStyles.label.copyWith(color: const Color(0xFFE65100)),
+              child: Center(
+                child: Text(
+                  'Proceed to Payment',
+                  style: GoogleFonts.urbanist(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
                   ),
-                ],
-              ),
-            ),
-            const Divider(height: 1, color: Color(0xFFFFE082)),
-            Padding(
-              padding: const EdgeInsets.all(14),
-              child: Column(
-                children: [
-                  ...quote.lineItems.take(3).map((item) => Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: Row(
-                      children: [
-                        Expanded(child: Text(item.label, style: AppTextStyles.caption)),
-                        Text(Formatters.currency(item.amount), style: AppTextStyles.caption),
-                      ],
-                    ),
-                  )),
-                  if (quote.lineItems.length > 3)
-                    Text('+${quote.lineItems.length - 3} more items', style: AppTextStyles.caption.copyWith(color: AppColors.textHint)),
-                  const Divider(),
-                  Row(
-                    children: [
-                      Text('Total', style: AppTextStyles.label),
-                      const Spacer(),
-                      Text(Formatters.currency(quote.amount), style: AppTextStyles.label.copyWith(color: AppColors.primary)),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-              child: SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () {},
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(0, 36),
-                    foregroundColor: const Color(0xFFE65100),
-                    side: const BorderSide(color: Color(0xFFFFE082)),
-                  ),
-                  child: const Text('View Invoice'),
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
-}
 
-class _SystemCard extends StatelessWidget {
-  final MessageModel message;
-
-  const _SystemCard({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
+  Widget _buildInputBar() {
+    return Container(
+      color: Colors.white,
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).padding.bottom,
+      ),
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 12),
-        padding: const EdgeInsets.all(16),
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.82),
-        decoration: BoxDecoration(
-          color: const Color(0xFFE8F5E9),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.success),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: const BoxDecoration(
+          border: Border(
+            top: BorderSide(color: Color(0xFFE5E7EB), width: 0.5),
+          ),
         ),
-        child: Column(
+        child: Row(
           children: [
-            const Icon(Icons.check_circle_rounded, color: AppColors.success, size: 28),
-            const SizedBox(height: 6),
-            Text('Invoice accepted', style: AppTextStyles.label.copyWith(color: AppColors.success)),
-            const SizedBox(height: 2),
-            Text(
-              'Booking confirmed!',
-              style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
+            Container(
+              width: 40,
+              height: 40,
+              decoration: const BoxDecoration(
+                color: Color(0xFFF3F4F6),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.attach_file_rounded,
+                color: Colors.grey,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF9FAFB),
+                  borderRadius: BorderRadius.circular(22),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                child: TextField(
+                  controller: _msgCtrl,
+                  maxLines: null,
+                  style: GoogleFonts.urbanist(fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: 'Type a message',
+                    hintStyle: GoogleFonts.urbanist(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: EdgeInsets.zero,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              width: 40,
+              height: 40,
+              decoration: const BoxDecoration(
+                color: Color(0xFFF3F4F6),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.mic_rounded, color: Colors.grey, size: 20),
+            ),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: _sendMessage,
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFFAB52F5), Color(0xFF7420D0)],
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.send_rounded, color: Colors.white, size: 18),
+              ),
             ),
           ],
         ),

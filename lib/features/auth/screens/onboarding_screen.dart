@@ -39,8 +39,8 @@ final _slides = [
     titleBlack: 'The finest talent, at your',
     titlePurple: 'fingertips.',
     body:
-        'Access our curated network of top-tier caterers, decorators, and photographers. Verified quality, every time.',
-    overlay: const _VendorCardOverlay(),
+        'Access our curated network of top-tier caterers, decorators, and photographers. Verified quality, every time.'
+    // overlay: const _VendorCardOverlay(),
   ),
   _Slide(
     assetPath: 'assets/images/onboarding_3.png',
@@ -48,7 +48,7 @@ final _slides = [
     titlePurple: 'planners.',
     body:
         'Don\'t miss out on exclusive vendor rates. Join over 50,000 users hosting unforgettable moments.',
-    overlay: const _EventsPlannedBadge(),
+    // overlay: const _EventsPlannedBadge(),
     belowDotsWidget: const _CommunityAvatars(),
   ),
 ];
@@ -74,14 +74,22 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   Future<void> _next() async {
     if (_current < _slides.length - 1) {
+      debugPrint('next');
       _controller.nextPage(
         duration: const Duration(milliseconds: 380),
         curve: Curves.easeInOut,
       );
-    } else {
+      return;
+    }
+    try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('seenOnboarding', true);
-      if (mounted) context.go(AppRoutes.login);
+      debugPrint('seenOnboarding set; mounted=$mounted');
+      if (!mounted) return;
+      context.go(AppRoutes.login);
+      debugPrint('navigated to login');
+    } catch (e, st) {
+      debugPrint('onboarding _next error: $e\n$st');
     }
   }
 
@@ -264,104 +272,104 @@ class _TitleText extends StatelessWidget {
 
 // ─── Slide 2 — Vendor card overlay ───────────────────────────────────────────
 
-class _VendorCardOverlay extends StatelessWidget {
-  const _VendorCardOverlay();
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.82),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.6),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                // Avatar with purple ring
-                Container(
-                  padding: const EdgeInsets.all(2),
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [AppColors.primary, AppColors.primaryDark],
-                    ),
-                  ),
-                  child: CircleAvatar(
-                    radius: 24,
-                    backgroundColor: Colors.grey[200],
-                    backgroundImage:
-                        const AssetImage('assets/images/ob2_vendor.png'),
-                    onBackgroundImageError: (_, __) {},
-                  ),
-                ),
-                const SizedBox(width: 12),
-                // Name + badge
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text(
-                        'Bloom & Co.',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15,
-                          color: Color(0xFF1A1A2E),
-                        ),
-                      ),
-                      const SizedBox(height: 3),
-                      Row(
-                        children: const [
-                          Icon(Icons.star_rounded,
-                              size: 14, color: AppColors.starColor),
-                          SizedBox(width: 4),
-                          Text(
-                            'Top Rated Vendor',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0xFF6B7280),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                // Chat button
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.primary,
-                  ),
-                  child: const Icon(Icons.chat_bubble_rounded,
-                      color: Colors.white, size: 20),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+// class _VendorCardOverlay extends StatelessWidget {
+//   const _VendorCardOverlay();
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Align(
+//       alignment: Alignment.bottomCenter,
+//       child: Padding(
+//         padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+//         child: ClipRRect(
+//           borderRadius: BorderRadius.circular(20),
+//           child: Container(
+//             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+//             decoration: BoxDecoration(
+//               color: Colors.white.withValues(alpha: 0.82),
+//               borderRadius: BorderRadius.circular(20),
+//               border: Border.all(
+//                 color: Colors.white.withValues(alpha: 0.6),
+//               ),
+//               boxShadow: [
+//                 BoxShadow(
+//                   color: Colors.black.withValues(alpha: 0.08),
+//                   blurRadius: 12,
+//                   offset: const Offset(0, 4),
+//                 ),
+//               ],
+//             ),
+//             child: Row(
+//               children: [
+//                 // Avatar with purple ring
+//                 Container(
+//                   padding: const EdgeInsets.all(2),
+//                   decoration: const BoxDecoration(
+//                     shape: BoxShape.circle,
+//                     gradient: LinearGradient(
+//                       colors: [AppColors.primary, AppColors.primaryDark],
+//                     ),
+//                   ),
+//                   child: CircleAvatar(
+//                     radius: 24,
+//                     backgroundColor: Colors.grey[200],
+//                     backgroundImage:
+//                         const AssetImage('assets/images/ob2_vendor.png'),
+//                     onBackgroundImageError: (_, __) {},
+//                   ),
+//                 ),
+//                 const SizedBox(width: 12),
+//                 // Name + badge
+//                 Expanded(
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     mainAxisSize: MainAxisSize.min,
+//                     children: [
+//                       const Text(
+//                         'Bloom & Co.',
+//                         style: TextStyle(
+//                           fontWeight: FontWeight.w700,
+//                           fontSize: 15,
+//                           color: Color(0xFF1A1A2E),
+//                         ),
+//                       ),
+//                       const SizedBox(height: 3),
+//                       Row(
+//                         children: const [
+//                           Icon(Icons.star_rounded,
+//                               size: 14, color: AppColors.starColor),
+//                           SizedBox(width: 4),
+//                           Text(
+//                             'Top Rated Vendor',
+//                             style: TextStyle(
+//                               fontSize: 12,
+//                               color: Color(0xFF6B7280),
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//                 // Chat button
+//                 Container(
+//                   width: 44,
+//                   height: 44,
+//                   decoration: const BoxDecoration(
+//                     shape: BoxShape.circle,
+//                     color: AppColors.primary,
+//                   ),
+//                   child: const Icon(Icons.chat_bubble_rounded,
+//                       color: Colors.white, size: 20),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 // ─── Slide 3 — "🔥 Events planned" badge (inside image, top) ─────────────────
 

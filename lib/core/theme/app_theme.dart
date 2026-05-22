@@ -13,12 +13,12 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: AppColors.backgroundLight,
       textTheme: GoogleFonts.urbanistTextTheme(),
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: AppColors.surface,
         elevation: 0,
         scrolledUnderElevation: 0,
-        iconTheme: IconThemeData(color: AppColors.textPrimary),
-        titleTextStyle: TextStyle(
+        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        titleTextStyle: GoogleFonts.urbanist(
           color: AppColors.textPrimary,
           fontSize: 18,
           fontWeight: FontWeight.bold,
@@ -116,12 +116,12 @@ class AppTheme {
       ),
       scaffoldBackgroundColor: AppColors.darkBackground,
       textTheme: GoogleFonts.urbanistTextTheme(ThemeData.dark().textTheme),
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: AppColors.darkSurface,
         elevation: 0,
         scrolledUnderElevation: 0,
-        iconTheme: IconThemeData(color: AppColors.darkTextPrimary),
-        titleTextStyle: TextStyle(
+        iconTheme: const IconThemeData(color: AppColors.darkTextPrimary),
+        titleTextStyle: GoogleFonts.urbanist(
           color: AppColors.darkTextPrimary,
           fontSize: 18,
           fontWeight: FontWeight.bold,

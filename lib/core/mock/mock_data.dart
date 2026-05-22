@@ -2,6 +2,7 @@ import '../../shared/models/category_model.dart';
 import '../../shared/models/vendor_model.dart';
 import '../../shared/models/listing_model.dart';
 import '../../shared/models/booking_model.dart';
+import '../../shared/models/event_model.dart';
 import '../../shared/models/quote_model.dart';
 import '../../shared/models/conversation_model.dart';
 import '../../shared/models/message_model.dart';
@@ -94,6 +95,11 @@ class MockData {
       id: 'cat-12', name: 'Confectionery', slug: 'confectionery', sortOrder: 12,
       imageUrl: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400',
       description: 'Custom cakes and desserts',
+    ),
+    CategoryModel(
+      id: 'cat-13', name: 'Products', slug: 'products', sortOrder: 0,
+      imageUrl: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=400',
+      description: 'Browse all event products to buy or rent',
     ),
   ];
 
@@ -361,6 +367,140 @@ class MockData {
         ),
       ],
     ),
+    // ── Lumiere Gourmet Catering – products (fixed price) ──────────────────────
+    ListingModel(
+      id: 'listing-p01', vendorId: 'vendor-01', vendor: vendors[0],
+      categoryId: 'cat-03', title: 'Wedding Cake',
+      description: 'Award-winning custom cakes for every occasion in Lagos. We bring your vision to life with edible artistry, from classic tiers to sculpted showpieces. A variety of cakes available in so many sizes.',
+      pricingType: 'fixed', basePrice: 100000, priceUnit: 'per cake',
+      isActive: true, isFeatured: true,
+      media: [
+        'https://images.unsplash.com/photo-1535141192574-5d4897c12636?w=800',
+        'https://images.unsplash.com/photo-1464349153735-7db50ed83c84?w=800',
+        'https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?w=800',
+        'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800',
+      ],
+      packages: [],
+      reviewCount: 33,
+      sizes: ['4x', '3x', '2x', '1x', '0.5x'],
+      colors: ['#E53935', '#FB8C00', '#FDD835', '#E0E0E0', '#43A047', '#7E57C2', '#F48FB1'],
+    ),
+    ListingModel(
+      id: 'listing-p02', vendorId: 'vendor-01', vendor: vendors[0],
+      categoryId: 'cat-03', title: 'Balloon',
+      description: 'A variety of cakes available in so many sizes. Stunning balloon arch and décor setups for all event types.',
+      pricingType: 'fixed', basePrice: 10000, priceUnit: 'per set',
+      isActive: true, isFeatured: false,
+      media: [
+        'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=800',
+        'https://images.unsplash.com/photo-1559181567-c3190bbb8de4?w=800',
+        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800',
+        'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=800',
+      ],
+      packages: [],
+      reviewCount: 27,
+      sizes: ['4x', '3x', '2x', '1x', '0.5x'],
+      colors: ['#E53935', '#FB8C00', '#FDD835', '#E0E0E0', '#43A047', '#7E57C2', '#F48FB1'],
+    ),
+    ListingModel(
+      id: 'listing-p03', vendorId: 'vendor-01', vendor: vendors[0],
+      categoryId: 'cat-03', title: 'Gold Cake Stand',
+      description: 'Premium gold cake stand rental for weddings and events. Elegant centrepiece for your reception table.',
+      pricingType: 'fixed', basePrice: 100000, priceUnit: 'per rental',
+      isActive: true, isFeatured: false,
+      isRentable: true, perDayRate: 8000, depositAmount: 20000,
+      media: [
+        'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800',
+        'https://images.unsplash.com/photo-1478146059778-26028b07395a?w=800',
+      ],
+      packages: [],
+      reviewCount: 19,
+    ),
+    ListingModel(
+      id: 'listing-p04', vendorId: 'vendor-01', vendor: vendors[0],
+      categoryId: 'cat-03', title: 'Custom Birthday Cake',
+      description: 'Custom birthday cakes in every flavour and design. Made fresh for your special day.',
+      pricingType: 'fixed', basePrice: 10000, priceUnit: 'per cake',
+      isActive: true, isFeatured: false,
+      media: [
+        'https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?w=800',
+        'https://images.unsplash.com/photo-1557308536-ee471ef2c390?w=800',
+      ],
+      packages: [],
+      reviewCount: 21,
+      sizes: ['4x', '3x', '2x', '1x'],
+      colors: ['#E53935', '#FB8C00', '#FDD835', '#43A047', '#7E57C2'],
+    ),
+    ListingModel(
+      id: 'listing-p05', vendorId: 'vendor-01', vendor: vendors[0],
+      categoryId: 'cat-03', title: 'Gender Reveal Cake',
+      description: 'Surprise gender reveal cakes with hidden colour fillings. Order in blue or pink!',
+      pricingType: 'fixed', basePrice: 35000, priceUnit: 'per cake',
+      isActive: true, isFeatured: false,
+      media: [
+        'https://images.unsplash.com/photo-1562777717-dc6984f65a63?w=800',
+        'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w=800',
+      ],
+      packages: [],
+      reviewCount: 14,
+      sizes: ['2x', '1x', '0.5x'],
+      colors: ['#E53935', '#7E57C2', '#F48FB1'],
+    ),
+    ListingModel(
+      id: 'listing-p06', vendorId: 'vendor-01', vendor: vendors[0],
+      categoryId: 'cat-03', title: 'Cupcakes',
+      description: 'Freshly baked cupcakes in a variety of flavours and decorations for any occasion.',
+      pricingType: 'fixed', basePrice: 2500, priceUnit: 'per dozen',
+      isActive: true, isFeatured: false,
+      media: [
+        'https://images.unsplash.com/photo-1486427944299-d1955d23e34d?w=800',
+        'https://images.unsplash.com/photo-1587668178277-295251f900ce?w=800',
+      ],
+      packages: [],
+      reviewCount: 42,
+      colors: ['#E53935', '#FB8C00', '#F48FB1', '#7E57C2'],
+    ),
+    // ── Lumiere Gourmet Catering – services (quote) ────────────────────────────
+    ListingModel(
+      id: 'listing-s01', vendorId: 'vendor-01', vendor: vendors[0],
+      categoryId: 'cat-03', title: 'Wedding Decoration',
+      description: 'Award-winning custom cakes for every occasion in Lagos. We bring your vision to life with edible artistry, from classic tiers to sculpted showpieces.',
+      pricingType: 'quote', isActive: true, isFeatured: true,
+      media: ['https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800',
+               'https://images.unsplash.com/photo-1478146059778-26028b07395a?w=800'],
+      packages: [
+        const ListingPackageModel(id: 'pkg-s01-a', listingId: 'listing-s01', name: 'Standard', price: 200000,
+          features: ['Venue styling', 'Centrepieces', 'Floral arch']),
+        const ListingPackageModel(id: 'pkg-s01-b', listingId: 'listing-s01', name: 'Premium', price: 500000,
+          features: ['Full venue transformation', 'Floral arch', 'Sweetheart table', 'Lighting']),
+      ],
+    ),
+    ListingModel(
+      id: 'listing-s02', vendorId: 'vendor-01', vendor: vendors[0],
+      categoryId: 'cat-03', title: 'Dining Arrangement',
+      description: 'Elegant dining table arrangements and settings for events of all sizes.',
+      pricingType: 'quote', isActive: true, isFeatured: false,
+      media: ['https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800'],
+      packages: [
+        const ListingPackageModel(id: 'pkg-s02-a', listingId: 'listing-s02', name: 'Standard', price: 200000,
+          features: ['Table settings', 'Centrepieces', 'Linen']),
+        const ListingPackageModel(id: 'pkg-s02-b', listingId: 'listing-s02', name: 'Luxury', price: 500000,
+          features: ['Premium settings', 'Floral centrepieces', 'Charger plates', 'Custom menu cards']),
+      ],
+    ),
+    ListingModel(
+      id: 'listing-s03', vendorId: 'vendor-01', vendor: vendors[0],
+      categoryId: 'cat-03', title: 'Wedding Dressing',
+      description: 'Full styling and dressing service for brides and bridal parties.',
+      pricingType: 'quote', isActive: true, isFeatured: false,
+      media: ['https://images.unsplash.com/photo-1549417229-aa67d3263c09?w=800'],
+      packages: [
+        const ListingPackageModel(id: 'pkg-s03-a', listingId: 'listing-s03', name: 'Bride Only', price: 200000,
+          features: ['Bridal styling', 'Makeup', 'Hair']),
+        const ListingPackageModel(id: 'pkg-s03-b', listingId: 'listing-s03', name: 'Full Party', price: 500000,
+          features: ['Bride + 4 bridesmaids', 'Full makeup & hair', 'Touch-up kit']),
+      ],
+    ),
     // Wilson Fisk Entertainment
     ListingModel(
       id: 'listing-07',
@@ -395,6 +535,31 @@ class MockData {
           features: ['12 hours', 'DJ + MC + Assistant', 'Premium line array speakers', 'Moving head lights + LED wall', '2 wireless mics', 'Photo booth integration', 'Live Instagram feed display'],
         ),
       ],
+    ),
+  ];
+
+  // ─── User Events ─────────────────────────────────────────────────────────────
+  static final List<EventModel> events = [
+    EventModel(
+      id: 'event-01', clientId: 'user-001', name: 'Wedding Party',
+      date: DateTime(2026, 3, 14), location: 'Eko Hotel & Suites, Lagos',
+      guestCount: 200, durationHours: 3,
+      budgetMin: 200000, budgetMax: 500000,
+      coverUrl: 'https://images.unsplash.com/photo-1535141192574-5d4897c12636?w=400',
+    ),
+    EventModel(
+      id: 'event-02', clientId: 'user-001', name: 'Photoshoot',
+      date: DateTime(2026, 4, 5), location: 'Victoria Island, Lagos',
+      guestCount: 10, durationHours: 4,
+      budgetMin: 230000, budgetMax: 340000,
+      coverUrl: 'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=400',
+    ),
+    EventModel(
+      id: 'event-03', clientId: 'user-001', name: 'Birthday Party',
+      date: DateTime(2026, 6, 20), location: 'Lekki Phase 1, Lagos',
+      guestCount: 80, durationHours: 5,
+      budgetMin: 200000, budgetMax: 500000,
+      coverUrl: 'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?w=400',
     ),
   ];
 
@@ -479,45 +644,63 @@ class MockData {
     ),
   ];
 
+  // ─── Extra vendors for conversations ─────────────────────────────────────────
+  static const _winesWinery = VendorModel(
+    id: 'vendor-06', businessName: 'Wines Winery', slug: 'wines-winery',
+    description: 'Premium wine and cocktail bar services for events.',
+    coverUrl: 'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400',
+    location: 'Lagos, Nigeria', ratingAvg: 4.4, reviewCount: 38,
+    subscriptionTier: 'basic', isVerified: true, categories: ['Drinks'],
+  );
+  static const _davisonNail = VendorModel(
+    id: 'vendor-07', businessName: 'Davison Nail tech', slug: 'davison-nail',
+    description: 'Professional nail art and beauty services for events.',
+    coverUrl: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=400',
+    location: 'Lagos, Nigeria', ratingAvg: 4.3, reviewCount: 21,
+    subscriptionTier: 'basic', isVerified: false, categories: ['Beauty'],
+  );
+
   // ─── Conversations ────────────────────────────────────────────────────────────
   static final List<ConversationModel> conversations = [
     ConversationModel(
-      id: 'conv-01',
-      vendorId: 'vendor-01',
-      vendor: vendors[0],
-      lastMessage: 'Here is our revised quote for your event.',
+      id: 'conv-01', vendorId: 'vendor-01', vendor: vendors[0],
+      lastMessage: 'Quote sent',
       lastMessageAt: DateTime.now().subtract(const Duration(minutes: 23)),
-      unreadCount: 2,
+      unreadCount: 1, pendingQuoteAmount: 100000,
     ),
     ConversationModel(
-      id: 'conv-02',
-      vendorId: 'vendor-03',
-      vendor: vendors[2],
-      lastMessage: 'Looking forward to shooting your big day!',
+      id: 'conv-02', vendorId: 'vendor-03', vendor: vendors[2],
+      lastMessage: 'Thanks for reaching out',
       lastMessageAt: DateTime.now().subtract(const Duration(hours: 2)),
       unreadCount: 0,
     ),
     ConversationModel(
-      id: 'conv-03',
-      vendorId: 'vendor-05',
-      vendor: vendors[4],
-      lastMessage: 'We have availability on that date.',
-      lastMessageAt: DateTime.now().subtract(const Duration(hours: 5)),
-      unreadCount: 1,
+      id: 'conv-03', vendorId: 'vendor-06', vendor: _winesWinery,
+      lastMessage: 'Hello',
+      lastMessageAt: DateTime.now().subtract(const Duration(hours: 3)),
+      unreadCount: 0,
     ),
     ConversationModel(
-      id: 'conv-04',
-      vendorId: 'vendor-04',
-      vendor: vendors[3],
-      lastMessage: 'Sounds beautiful, let us discuss the flowers.',
+      id: 'conv-04', vendorId: 'vendor-07', vendor: _davisonNail,
+      lastMessage: 'Oga that is our final quote',
+      lastMessageAt: DateTime.now().subtract(const Duration(hours: 4)),
+      unreadCount: 0,
+    ),
+    ConversationModel(
+      id: 'conv-05', vendorId: 'vendor-04', vendor: vendors[3],
+      lastMessage: 'Yes, we can provide lilac',
       lastMessageAt: DateTime.now().subtract(const Duration(days: 1)),
       unreadCount: 0,
     ),
     ConversationModel(
-      id: 'conv-05',
-      vendorId: 'vendor-02',
-      vendor: vendors[1],
-      lastMessage: 'Your cake design has been approved!',
+      id: 'conv-06', vendorId: 'vendor-05', vendor: vendors[4],
+      lastMessage: 'That sounds perfect. When would you like to schedule a call?',
+      lastMessageAt: DateTime.now().subtract(const Duration(days: 1, hours: 2)),
+      unreadCount: 0,
+    ),
+    ConversationModel(
+      id: 'conv-07', vendorId: 'vendor-02', vendor: vendors[1],
+      lastMessage: 'That sounds perfect. When would you like to discuss the design?',
       lastMessageAt: DateTime.now().subtract(const Duration(days: 2)),
       unreadCount: 0,
     ),
@@ -565,16 +748,40 @@ class MockData {
           createdAt: DateTime.now().subtract(const Duration(days: 2)),
         ),
         MessageModel(
-          id: 'msg-07', conversationId: 'conv-01', senderId: 'vendor-01',
-          content: 'Of course! I\'ve revised the quote and reduced the waitstaff to 8 members. New total: ₦790,000.',
-          type: 'text', isRead: false,
-          createdAt: DateTime.now().subtract(const Duration(minutes: 23)),
+          id: 'msg-07', conversationId: 'conv-01', senderId: 'user-001',
+          content: 'Ahh Oga this is too much now please can u reduce the man power I don\'t mind just one person',
+          type: 'text', isRead: true,
+          createdAt: DateTime.now().subtract(const Duration(minutes: 50)),
         ),
         MessageModel(
           id: 'msg-08', conversationId: 'conv-01', senderId: 'vendor-01',
-          content: 'Here is our revised quote for your event.',
-          type: 'text', isRead: false,
-          createdAt: DateTime.now().subtract(const Duration(minutes: 22)),
+          content: 'Okay that would be ₦25,000 your total will be ₦75,000 that is the last price',
+          type: 'text', isRead: true,
+          createdAt: DateTime.now().subtract(const Duration(minutes: 40)),
+        ),
+        MessageModel(
+          id: 'msg-09', conversationId: 'conv-01', senderId: 'user-001',
+          content: 'Hmm okay o no wahala lets do it, send invoice',
+          type: 'text', isRead: true,
+          createdAt: DateTime.now().subtract(const Duration(minutes: 35)),
+        ),
+        MessageModel(
+          id: 'msg-10', conversationId: 'conv-01', senderId: 'vendor-01',
+          content: 'Invoice for wedding decoration',
+          type: 'invoice', isRead: true,
+          createdAt: DateTime.now().subtract(const Duration(minutes: 30)),
+          quote: QuoteModel(
+            id: 'invoice-01', bookingId: 'booking-01', vendorId: 'vendor-01',
+            vendor: vendors[0], amount: 100000,
+            description: 'Invoice for wedding decoration',
+            lineItems: const [
+              QuoteLineItem(label: 'Man power', amount: 75000),
+              QuoteLineItem(label: 'Setup & delivery (Lekki)', amount: 15000),
+              QuoteLineItem(label: 'Platform Fee', amount: 10000),
+            ],
+            validUntil: DateTime.now().add(const Duration(hours: 12)),
+            status: 'pending',
+          ),
         ),
       ];
     }

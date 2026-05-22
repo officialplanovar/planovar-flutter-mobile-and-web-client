@@ -72,7 +72,7 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
                           const SizedBox(height: 28),
                           Center(
                             child: AuthIllustration(
-                              svgPath: 'assets/icons/auth_location.svg',
+                              pngPath: 'assets/icons/auth_location.png',
                               fallbackIcon: Icons.location_on_rounded,
                               bgColor: const Color(0xFFFFEBEB),
                               iconColor: const Color(0xFFEF5350),

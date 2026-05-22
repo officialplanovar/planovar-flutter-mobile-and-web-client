@@ -70,7 +70,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         const SizedBox(height: 28),
                         Center(
                           child: AuthIllustration(
-                            svgPath: 'assets/icons/auth_forgot_password.svg',
+                            pngPath: 'assets/icons/auth_forgot_password.png',
                             fallbackIcon: Icons.lock_reset_rounded,
                             bgColor: const Color(0xFFBBDEFB),
                             iconColor: const Color(0xFF1565C0),

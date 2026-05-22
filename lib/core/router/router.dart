@@ -1,5 +1,7 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../state/overlay_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/splash/splash_screen.dart';
 import '../../features/auth/screens/onboarding_screen.dart';
@@ -20,17 +22,31 @@ import '../../features/listing/screens/listing_detail_screen.dart';
 import '../../features/booking/screens/bookings_screen.dart';
 import '../../features/booking/screens/booking_detail_screen.dart';
 import '../../features/booking/screens/new_booking_screen.dart';
+import '../../features/booking/screens/service_details_screen.dart';
+import '../../features/booking/screens/awaiting_response_screen.dart';
+import '../../features/booking/screens/confirm_quote_screen.dart';
 import '../../features/quote/screens/quote_detail_screen.dart';
 import '../../features/messaging/screens/messages_screen.dart';
 import '../../features/messaging/screens/chat_screen.dart';
 import '../../features/payments/screens/payments_screen.dart';
+import '../../features/payments/screens/process_payment_screen.dart';
+import '../../features/payments/screens/payment_success_screen.dart';
+import '../../features/explore/screens/category_results_screen.dart';
+import '../../features/booking/screens/checkout_screen.dart';
+import '../../features/booking/screens/rent_product_screen.dart';
+import '../../features/booking/screens/booking_confirmed_screen.dart';
 import '../../features/notifications/screens/notifications_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../../features/profile/screens/favourites_screen.dart';
 import '../../features/profile/screens/reviews_screen.dart';
 import '../../features/profile/screens/settings_screens.dart' show
     ThemeSettingsScreen, NotificationSettingsScreen, PrivacyScreen,
-    HelpScreen, FaqScreen, DeleteAccountScreen, EventsScreen;
+    HelpScreen, FaqScreen, DeleteAccountScreen;
+import '../../features/events/screens/my_events_screen.dart';
+import '../../features/events/screens/create_event_step1_screen.dart';
+import '../../features/events/screens/create_event_step2_screen.dart';
+import '../../features/events/screens/create_event_step3_screen.dart';
+import '../../features/events/screens/create_event_step4_screen.dart';
 import 'app_routes.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
@@ -42,8 +58,12 @@ GoRouter createRouter() {
     navigatorKey: _rootNavigatorKey,
     initialLocation: AppRoutes.splash,
     redirect: (context, state) async {
+      debugPrint('[router] redirect fired for matchedLocation=${state.matchedLocation} uri=${state.uri}');
       // Splash handles its own navigation — no redirect needed for '/'
-      if (state.matchedLocation == AppRoutes.splash) return null;
+      if (state.matchedLocation == AppRoutes.splash) {
+        debugPrint('[router] on splash, no redirect');
+        return null;
+      }
       final prefs = await SharedPreferences.getInstance();
       final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
       final authPaths = [
@@ -55,14 +75,22 @@ GoRouter createRouter() {
       ];
       final currentPath = state.matchedLocation;
       final isOnAuthRoute = authPaths.any((p) => currentPath.startsWith(p.replaceAll(':id', '')));
-      if (!isLoggedIn && !isOnAuthRoute) return AppRoutes.onboarding;
+      debugPrint('[router] isLoggedIn=$isLoggedIn isOnAuthRoute=$isOnAuthRoute currentPath=$currentPath');
+      if (!isLoggedIn && !isOnAuthRoute) {
+        debugPrint('[router] redirecting to onboarding');
+        return AppRoutes.onboarding;
+      }
+      debugPrint('[router] no redirect');
       return null;
     },
     routes: [
       GoRoute(path: AppRoutes.splash, builder: (_, __) => const SplashScreen()),
       // Auth routes
       GoRoute(path: AppRoutes.onboarding, builder: (_, __) => const OnboardingScreen()),
-      GoRoute(path: AppRoutes.login, builder: (_, __) => const LoginScreen()),
+      GoRoute(path: AppRoutes.login, builder: (_, __) {
+        debugPrint('[router] building LoginScreen route');
+        return const LoginScreen();
+      }),
       GoRoute(path: AppRoutes.register, builder: (_, __) => const RegisterScreen()),
       GoRoute(
         path: AppRoutes.verifyOtp,
@@ -98,7 +126,7 @@ GoRouter createRouter() {
             routes: [GoRoute(path: AppRoutes.explore, builder: (_, __) => const ExploreScreen())],
           ),
           StatefulShellBranch(
-            routes: [GoRoute(path: AppRoutes.events, builder: (_, __) => const EventsScreen())],
+            routes: [GoRoute(path: AppRoutes.events, builder: (_, __) => const MyEventsScreen())],
           ),
           StatefulShellBranch(
             routes: [GoRoute(path: AppRoutes.messages, builder: (_, __) => const MessagesScreen())],
@@ -121,7 +149,7 @@ GoRouter createRouter() {
         builder: (_, state) => ListingDetailScreen(listingId: state.pathParameters['id']!),
       ),
 
-      // Bookings
+      // Bookings — literal paths must come before /bookings/:id
       GoRoute(path: AppRoutes.bookings, builder: (_, __) => const BookingsScreen()),
       GoRoute(
         path: AppRoutes.newBooking,
@@ -130,9 +158,92 @@ GoRouter createRouter() {
           return NewBookingScreen(listingId: extra['listingId'] as String? ?? '');
         },
       ),
+
+      // Service details & quote flow (all before /bookings/:id to avoid param capture)
+      GoRoute(
+        path: AppRoutes.serviceDetails,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return ServiceDetailsScreen(
+            listingId: extra['listingId'] as String? ?? '',
+            eventId: extra['eventId'] as String? ?? '',
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.confirmQuote,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return ConfirmQuoteScreen(
+            listingId: extra['listingId'] as String? ?? '',
+            eventId: extra['eventId'] as String? ?? '',
+            preferredDate: extra['preferredDate'] as String?,
+            notes: extra['notes'] as String?,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.awaitingResponse,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return AwaitingResponseScreen(
+            vendorName: extra['vendorName'] as String? ?? 'Vendor',
+            bookingRef: extra['bookingRef'] as String? ?? '#PN-49204',
+            date: extra['date'] as String? ?? 'TBD',
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.bookingConfirmed,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return BookingConfirmedScreen(
+            vendorName: extra['vendorName'] as String? ?? 'Vendor',
+            bookingRef: extra['bookingRef'] as String? ?? '#PN-49204',
+            date: extra['date'] as String? ?? 'TBD',
+          );
+        },
+      ),
+
+      // Event creation flow
+      GoRoute(path: AppRoutes.createEventStep1, builder: (_, __) => const CreateEventStep1Screen()),
+      GoRoute(
+        path: AppRoutes.createEventStep2,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return CreateEventStep2Screen(eventType: extra['eventType'] as String? ?? '');
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.createEventStep3,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return CreateEventStep3Screen(eventData: extra);
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.createEventStep4,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return CreateEventStep4Screen(eventData: extra);
+        },
+      ),
+
       GoRoute(
         path: AppRoutes.bookingDetail,
         builder: (_, state) => BookingDetailScreen(bookingId: state.pathParameters['id']!),
+      ),
+
+      // Category results
+      GoRoute(
+        path: AppRoutes.categoryResults,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return CategoryResultsScreen(
+            categorySlug: state.pathParameters['slug']!,
+            categoryName: extra['categoryName'] as String? ?? '',
+          );
+        },
       ),
 
       // Quotes
@@ -148,7 +259,48 @@ GoRouter createRouter() {
       ),
 
       // Payments
+      GoRoute(
+        path: AppRoutes.checkout,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return CheckoutScreen(
+            listingId: extra['listingId'] as String? ?? '',
+            eventId: extra['eventId'] as String? ?? '',
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.rentProduct,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return RentProductScreen(
+            listingId: extra['listingId'] as String? ?? '',
+            eventId: extra['eventId'] as String? ?? '',
+          );
+        },
+      ),
       GoRoute(path: AppRoutes.payments, builder: (_, __) => const PaymentsScreen()),
+      GoRoute(
+        path: AppRoutes.processPayment,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return ProcessPaymentScreen(
+            vendorName: extra['vendorName'] as String?,
+            amount: extra['amount'] as double?,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.paymentSuccess,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return PaymentSuccessScreen(
+            eventId: extra['eventId'] as String? ?? '',
+            vendorName: extra['vendorName'] as String? ?? 'Vendor',
+            eventDate: extra['eventDate'] as DateTime? ?? DateTime.now(),
+          );
+        },
+      ),
 
       // Notifications
       GoRoute(path: AppRoutes.notifications, builder: (_, __) => const NotificationsScreen()),
@@ -179,59 +331,113 @@ class _AppShell extends StatelessWidget {
     (icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded, label: 'Profile'),
   ];
 
+  Widget _buildNavBar(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    return ClipRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.72),
+            border: const Border(
+              top: BorderSide(color: Color(0x18000000), width: 0.5),
+            ),
+          ),
+          height: 56 + bottomPadding,
+          padding: EdgeInsets.only(bottom: bottomPadding),
+          child: Row(
+            children: _tabs.asMap().entries.map((entry) {
+              final i = entry.key;
+              final tab = entry.value;
+              final isActive = shell.currentIndex == i;
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () => shell.goBranch(i,
+                      initialLocation: i == shell.currentIndex),
+                  behavior: HitTestBehavior.opaque,
+                  child: Center(
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 220),
+                      curve: Curves.easeInOut,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: isActive ? 14 : 0,
+                        vertical: isActive ? 5 : 0,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isActive
+                            ? Colors.white.withValues(alpha: 0.55)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(22),
+                        border: isActive
+                            ? Border.all(
+                                color: Colors.white.withValues(alpha: 0.7),
+                                width: 0.5,
+                              )
+                            : null,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            isActive ? tab.activeIcon : tab.icon,
+                            color: isActive
+                                ? AppColors.primary
+                                : AppColors.textSecondary,
+                            size: 24,
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            tab.label,
+                            style: AppTextStyles.caption.copyWith(
+                              color: isActive
+                                  ? AppColors.primary
+                                  : AppColors.textSecondary,
+                              fontWeight: isActive
+                                  ? FontWeight.w600
+                                  : FontWeight.normal,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: shell,
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.07),
-              blurRadius: 16,
-              offset: const Offset(0, -4),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 6),
-            child: Row(
-              children: _tabs.asMap().entries.map((entry) {
-                final i = entry.key;
-                final tab = entry.value;
-                final isActive = shell.currentIndex == i;
-                return Expanded(
-                  child: GestureDetector(
-                    onTap: () => shell.goBranch(i, initialLocation: i == shell.currentIndex),
-                    behavior: HitTestBehavior.opaque,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          isActive ? tab.activeIcon : tab.icon,
-                          color: isActive ? AppColors.primary : AppColors.textSecondary,
-                          size: 24,
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          tab.label,
-                          style: AppTextStyles.caption.copyWith(
-                            color: isActive ? AppColors.primary : AppColors.textSecondary,
-                            fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
+      body: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          Positioned.fill(child: shell),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: ValueListenableBuilder<int>(
+              valueListenable: bottomSheetCount,
+              builder: (context, count, child) => AnimatedSlide(
+                duration: const Duration(milliseconds: 250),
+                curve: Curves.easeInOut,
+                offset: count > 0 ? const Offset(0, 1) : Offset.zero,
+                child: AnimatedOpacity(
+                  duration: const Duration(milliseconds: 200),
+                  opacity: count > 0 ? 0.0 : 1.0,
+                  child: child,
+                ),
+              ),
+              child: _buildNavBar(context),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

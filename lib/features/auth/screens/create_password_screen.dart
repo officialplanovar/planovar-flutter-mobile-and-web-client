@@ -63,7 +63,7 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
                     const SizedBox(height: 28),
                     Center(
                       child: AuthIllustration(
-                        svgPath: 'assets/icons/auth_password.svg',
+                        pngPath: 'assets/icons/auth_password.png',
                         fallbackIcon: Icons.lock_rounded,
                         bgColor: const Color(0xFFF3F0FF),
                         iconColor: const Color(0xFF7C4DFF),

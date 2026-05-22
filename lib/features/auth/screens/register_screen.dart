@@ -79,7 +79,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(height: 28),
                         Center(
                           child: AuthIllustration(
-                            svgPath: 'assets/icons/auth_register.svg',
+                            pngPath: 'assets/icons/auth_register.png',
                             fallbackIcon: Icons.person_add_rounded,
                             bgColor: AppColors.primaryLight,
                             iconColor: AppColors.primary,
@@ -235,7 +235,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               AuthIllustration(
-                                svgPath: 'assets/icons/google_logo.svg',
+                                pngPath: 'assets/icons/google_logo.png',
                                 fallbackIcon: Icons.g_mobiledata_rounded,
                                 bgColor: Colors.transparent,
                                 iconColor: const Color(0xFF4285F4),

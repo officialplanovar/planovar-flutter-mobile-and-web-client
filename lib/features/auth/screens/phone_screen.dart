@@ -50,7 +50,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
                     const SizedBox(height: 28),
                     Center(
                       child: AuthIllustration(
-                        svgPath: 'assets/icons/auth_phone.svg',
+                        pngPath: 'assets/icons/auth_phone.png',
                         fallbackIcon: Icons.phone_in_talk_rounded,
                         bgColor: const Color(0xFFE8F5FE),
                         iconColor: const Color(0xFF2196F3),

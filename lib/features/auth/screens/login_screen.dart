@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/router/app_routes.dart';
@@ -41,6 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('[LoginScreen] build');
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthAuthenticated) {
@@ -97,11 +97,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       const SizedBox(height: 32),
                       Center(
-                        child: SvgPicture.asset(
-                          'assets/icons/auth_register.svg',
+                        child: Image.asset(
+                          'assets/icons/auth_register.png',
                           width: 90,
                           height: 90,
-                          placeholderBuilder: (_) => Container(
+                          fit: BoxFit.contain,
+                          errorBuilder: (_, __, ___) => Container(
                             width: 90,
                             height: 90,
                             decoration: const BoxDecoration(
@@ -243,10 +244,15 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            SvgPicture.asset(
-                              'assets/icons/google_logo.svg',
+                            Image.asset(
+                              'assets/icons/google_logo.png',
                               width: 22,
                               height: 22,
+                              errorBuilder: (_, __, ___) => const Icon(
+                                Icons.g_mobiledata_rounded,
+                                size: 22,
+                                color: Color(0xFF4285F4),
+                              ),
                             ),
                             const SizedBox(width: 10),
                             Text(

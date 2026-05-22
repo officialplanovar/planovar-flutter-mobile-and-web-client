@@ -98,7 +98,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                     children: [
                       const SizedBox(height: 28),
                       AuthIllustration(
-                        svgPath: 'assets/icons/auth_email_otp.svg',
+                        pngPath: 'assets/icons/auth_email_otp.png',
                         fallbackIcon: Icons.mark_email_unread_rounded,
                         bgColor: const Color(0xFFE9D5FF),
                         iconColor: AppColors.primary,

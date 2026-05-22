@@ -8,6 +8,7 @@ class ConversationModel extends Equatable {
   final String? lastMessage;
   final DateTime? lastMessageAt;
   final int unreadCount;
+  final double? pendingQuoteAmount;
 
   const ConversationModel({
     required this.id,
@@ -16,6 +17,7 @@ class ConversationModel extends Equatable {
     this.lastMessage,
     this.lastMessageAt,
     required this.unreadCount,
+    this.pendingQuoteAmount,
   });
 
   factory ConversationModel.fromJson(Map<String, dynamic> json) {

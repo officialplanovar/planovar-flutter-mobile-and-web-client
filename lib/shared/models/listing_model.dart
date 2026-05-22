@@ -58,6 +58,13 @@ class ListingModel extends Equatable {
   final bool isFeatured;
   final List<String> media;
   final List<ListingPackageModel> packages;
+  // Product-specific fields
+  final bool isRentable;
+  final double? perDayRate;
+  final double? depositAmount;
+  final List<String> sizes;
+  final List<String> colors;
+  final int reviewCount;
 
   const ListingModel({
     required this.id,
@@ -74,6 +81,12 @@ class ListingModel extends Equatable {
     required this.isFeatured,
     required this.media,
     required this.packages,
+    this.isRentable = false,
+    this.perDayRate,
+    this.depositAmount,
+    this.sizes = const [],
+    this.colors = const [],
+    this.reviewCount = 0,
   });
 
   factory ListingModel.fromJson(Map<String, dynamic> json) {
@@ -115,5 +128,5 @@ class ListingModel extends Equatable {
       };
 
   @override
-  List<Object?> get props => [id, vendorId, categoryId, title, pricingType, isActive];
+  List<Object?> get props => [id, vendorId, categoryId, title, pricingType, isActive, isRentable];
 }
