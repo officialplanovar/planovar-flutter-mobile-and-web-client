@@ -42,7 +42,18 @@ import '../../features/profile/screens/reviews_screen.dart';
 import '../../features/profile/screens/settings_screens.dart' show
     ThemeSettingsScreen, NotificationSettingsScreen, PrivacyScreen,
     HelpScreen, FaqScreen, DeleteAccountScreen;
+import '../../features/profile/screens/security_screens.dart';
 import '../../features/events/screens/my_events_screen.dart';
+import '../../features/events/screens/event_detail_screen.dart';
+import '../../features/events/screens/booking_detail_screen.dart';
+import '../../features/events/screens/group_chat_screen.dart';
+import '../../shared/models/vendor_model.dart';
+import '../../features/events/screens/raise_dispute_screen.dart';
+import '../../features/events/screens/review_screen.dart';
+import '../../features/events/screens/order_detail_screen.dart';
+import '../../features/events/screens/rental_detail_screen.dart';
+import '../../features/events/screens/cancel_order_screen.dart';
+import '../../features/events/screens/request_refund_screen.dart';
 import '../../features/events/screens/create_event_step1_screen.dart';
 import '../../features/events/screens/create_event_step2_screen.dart';
 import '../../features/events/screens/create_event_step3_screen.dart';
@@ -229,6 +240,97 @@ GoRouter createRouter() {
         },
       ),
 
+      // Event detail
+      GoRoute(
+        path: AppRoutes.eventDetail,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return EventDetailScreen(eventId: extra['eventId'] as String? ?? '');
+        },
+      ),
+
+      // Event group chat
+      GoRoute(
+        path: AppRoutes.eventGroupChat,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          final rawVendors = extra['groupVendors'];
+          final groupVendors = rawVendors is List
+              ? rawVendors.whereType<VendorModel>().toList()
+              : <VendorModel>[];
+          return EventGroupChatScreen(
+            eventId: extra['eventId'] as String? ?? '',
+            eventName: extra['eventName'] as String? ?? 'Group Chat',
+            conversationId: extra['conversationId'] as String?,
+            groupVendors: groupVendors,
+          );
+        },
+      ),
+
+      // Event booking detail
+      GoRoute(
+        path: AppRoutes.eventBookingDetail,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return EventBookingDetailScreen(
+            vendorName: extra['vendorName'] as String? ?? 'Vendor',
+            bookingStatus: extra['bookingStatus'] as String? ?? 'awaiting',
+          );
+        },
+      ),
+
+      // Raise dispute
+      GoRoute(
+        path: AppRoutes.raiseDispute,
+        builder: (_, __) => const RaiseDisputeScreen(),
+      ),
+
+      // Order detail
+      GoRoute(
+        path: AppRoutes.orderDetail,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return OrderDetailScreen(
+            listingId: extra['listingId'] as String? ?? '',
+            status: extra['status'] as String? ?? 'pending',
+          );
+        },
+      ),
+
+      // Rental detail
+      GoRoute(
+        path: AppRoutes.rentalDetail,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return RentalDetailScreen(
+            listingId: extra['listingId'] as String? ?? '',
+          );
+        },
+      ),
+
+      // Cancel order
+      GoRoute(
+        path: AppRoutes.cancelOrder,
+        builder: (_, __) => const CancelOrderScreen(),
+      ),
+
+      // Request refund
+      GoRoute(
+        path: AppRoutes.requestRefund,
+        builder: (_, __) => const RequestRefundScreen(),
+      ),
+
+      // Leave review
+      GoRoute(
+        path: AppRoutes.leaveReview,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return LeaveReviewScreen(
+            vendorName: extra['vendorName'] as String? ?? 'Vendor',
+          );
+        },
+      ),
+
       GoRoute(
         path: AppRoutes.bookingDetail,
         builder: (_, state) => BookingDetailScreen(bookingId: state.pathParameters['id']!),
@@ -314,6 +416,9 @@ GoRouter createRouter() {
       GoRoute(path: AppRoutes.help, builder: (_, __) => const HelpScreen()),
       GoRoute(path: AppRoutes.faq, builder: (_, __) => const FaqScreen()),
       GoRoute(path: AppRoutes.deleteAccount, builder: (_, __) => const DeleteAccountScreen()),
+      GoRoute(path: AppRoutes.changePassword, builder: (_, __) => const ChangePasswordScreen()),
+      GoRoute(path: AppRoutes.twoFactor, builder: (_, __) => const TwoFactorScreen()),
+      GoRoute(path: AppRoutes.supportChat, builder: (_, __) => const SupportChatScreen()),
     ],
   );
 }

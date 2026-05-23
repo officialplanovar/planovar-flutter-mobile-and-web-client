@@ -497,6 +497,46 @@ class _ChatScreenState extends State<ChatScreen> {
       return _buildBookingConfirmed(msg.quote!);
     }
 
+    if (msg.type == 'invoice_declined') {
+      return _buildStatusChip(
+        label: 'Invoice declined',
+        color: const Color(0xFFEF4444),
+        bg: const Color(0xFFFEF2F2),
+      );
+    }
+
+    if (msg.type == 'payment_confirmed') {
+      return _buildPaymentConfirmed(msg.content ?? 'Payment confirmed');
+    }
+
+    if (msg.type == 'payment_pending') {
+      return _buildPaymentPending(msg.content ?? 'Payment processing…');
+    }
+
+    if (msg.type == 'booking_cancelled') {
+      return _buildBookingCancelled(msg.content ?? 'This booking has been cancelled.');
+    }
+
+    if (msg.type == 'dispute_raised') {
+      return _buildDisputeRaised(msg.content ?? 'A dispute has been raised.');
+    }
+
+    if (msg.type == 'review_requested') {
+      return _buildReviewRequested(msg.content ?? 'How did it go?');
+    }
+
+    if (msg.type == 'review_submitted') {
+      return _buildStatusChip(
+        label: 'Review submitted ⭐',
+        color: const Color(0xFF4CAF50),
+        bg: const Color(0xFFF0FDF4),
+      );
+    }
+
+    if (msg.type == 'refund_requested') {
+      return _buildRefundRequested(msg.content ?? 'Refund request submitted.');
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 4),
       child: Row(
@@ -557,7 +597,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildQuoteMessage(QuoteModel quote) {
     final vendorName = _conversation?.vendor?.businessName ?? 'Vendor';
-    return Container(
+    return GestureDetector(
+      onTap: () => _showReviewInvoice(quote),
+      child: Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: const Color(0xFFFFFBEB),
@@ -668,6 +710,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ],
           ),
         ],
+      ),
       ),
     );
   }
@@ -857,6 +900,281 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatusChip({required String label, required Color color, required Color bg}) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Text(
+            label,
+            style: GoogleFonts.urbanist(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentConfirmed(String content) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF0FDF4),
+        border: Border.all(color: const Color(0xFF86EFAC)),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40, height: 40,
+            decoration: const BoxDecoration(
+              color: Color(0xFF4CAF50),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.check_rounded, color: Colors.white, size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Payment Confirmed',
+                  style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700,
+                    color: const Color(0xFF15803D))),
+                const SizedBox(height: 2),
+                Text(content,
+                  style: GoogleFonts.urbanist(fontSize: 13, color: const Color(0xFF6B7280))),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentPending(String content) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBEB),
+        border: Border.all(color: const Color(0xFFFDE68A)),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40, height: 40,
+            decoration: const BoxDecoration(
+              color: Color(0xFFFEF3C7),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.hourglass_top_rounded, color: Color(0xFFD97706), size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Payment Processing',
+                  style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700,
+                    color: const Color(0xFFD97706))),
+                const SizedBox(height: 2),
+                Text(content,
+                  style: GoogleFonts.urbanist(fontSize: 13, color: const Color(0xFF6B7280))),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBookingCancelled(String content) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFEF2F2),
+        border: Border.all(color: const Color(0xFFFCA5A5)),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40, height: 40,
+            decoration: const BoxDecoration(
+              color: Color(0xFFFEE2E2),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.cancel_outlined, color: Color(0xFFEF4444), size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Booking Cancelled',
+                  style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700,
+                    color: const Color(0xFFEF4444))),
+                const SizedBox(height: 2),
+                Text(content,
+                  style: GoogleFonts.urbanist(fontSize: 13, color: const Color(0xFF6B7280))),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDisputeRaised(String content) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBEB),
+        border: Border.all(color: const Color(0xFFFBBF24), width: 1.5),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40, height: 40,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFEF3C7),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.gavel_rounded, color: Color(0xFFD97706), size: 20),
+              ),
+              const SizedBox(width: 10),
+              Text('Dispute Raised',
+                style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700,
+                  color: const Color(0xFFD97706))),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(content,
+            style: GoogleFonts.urbanist(fontSize: 13, color: const Color(0xFF374151))),
+          const SizedBox(height: 8),
+          Text('Our team will review this dispute within 24 hours.',
+            style: GoogleFonts.urbanist(fontSize: 12, color: const Color(0xFF9CA3AF))),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildReviewRequested(String content) {
+    final vendor = _conversation?.vendor;
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.primaryLight,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        children: [
+          Center(
+            child: Container(
+              width: 48, height: 48,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Color(0xFFAB52F5), Color(0xFF7420D0)],
+                ),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.star_rounded, color: Colors.white, size: 26),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text('How was your experience?',
+            style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w800,
+              color: const Color(0xFF1A1A2E)),
+            textAlign: TextAlign.center),
+          const SizedBox(height: 6),
+          Text(content,
+            style: GoogleFonts.urbanist(fontSize: 13, color: const Color(0xFF6B7280)),
+            textAlign: TextAlign.center),
+          const SizedBox(height: 16),
+          GestureDetector(
+            onTap: () => context.push(
+              AppRoutes.leaveReview,
+              extra: {'vendorId': vendor?.id, 'vendorName': vendor?.businessName},
+            ),
+            child: Container(
+              height: 44,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFAB52F5), Color(0xFF7420D0)],
+                ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: Text('Leave a Review',
+                  style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w600,
+                    color: Colors.white)),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRefundRequested(String content) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFBEB),
+        border: Border.all(color: const Color(0xFFFBBF24), width: 1.5),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40, height: 40,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFFEF3C7),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.account_balance_wallet_outlined,
+                  color: Color(0xFFD97706), size: 20),
+              ),
+              const SizedBox(width: 10),
+              Text('Refund Requested',
+                style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700,
+                  color: const Color(0xFFD97706))),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Text(content,
+            style: GoogleFonts.urbanist(fontSize: 13, color: const Color(0xFF374151))),
+          const SizedBox(height: 8),
+          Text('Refund will be processed within 5–7 business days.',
+            style: GoogleFonts.urbanist(fontSize: 12, color: const Color(0xFF9CA3AF))),
         ],
       ),
     );

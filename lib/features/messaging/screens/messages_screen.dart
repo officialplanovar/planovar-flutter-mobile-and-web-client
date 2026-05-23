@@ -7,6 +7,7 @@ import '../../../core/mock/mock_notification_service.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/conversation_model.dart';
+import '../../../shared/models/vendor_model.dart';
 
 class MessagesScreen extends StatefulWidget {
   const MessagesScreen({super.key});
@@ -51,6 +52,11 @@ class _MessagesScreenState extends State<MessagesScreen> {
     final q = query.toLowerCase();
     setState(() {
       _filtered = _all.where((c) {
+        if (c.isGroup == true) {
+          final name = c.groupName?.toLowerCase() ?? '';
+          final msg = c.lastMessage?.toLowerCase() ?? '';
+          return name.contains(q) || msg.contains(q);
+        }
         final name = c.vendor?.businessName.toLowerCase() ?? '';
         final msg = c.lastMessage?.toLowerCase() ?? '';
         return name.contains(q) || msg.contains(q);
@@ -246,9 +252,21 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             conversation: conv,
                             timeStr: _formatTime(conv.lastMessageAt),
                             fmtAmount: _fmtAmount,
-                            onTap: () => context.push(
-                              AppRoutes.conversationDetailPath(conv.id),
-                            ),
+                            onTap: () {
+                              if (conv.isGroup == true) {
+                                context.push(
+                                  AppRoutes.eventGroupChat,
+                                  extra: {
+                                    'eventId': conv.eventId ?? '',
+                                    'eventName': conv.groupName ?? 'Group Chat',
+                                    'conversationId': conv.id,
+                                    'groupVendors': conv.groupVendors,
+                                  },
+                                );
+                              } else {
+                                context.push(AppRoutes.conversationDetailPath(conv.id));
+                              }
+                            },
                           );
                         },
                       ),
@@ -274,8 +292,9 @@ class _ConversationTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final vendor = conversation.vendor;
-    final hasPending = conversation.pendingQuoteAmount != null;
+    final conv = conversation;
+    final vendor = conv.vendor;
+    final hasPending = conv.pendingQuoteAmount != null;
 
     return GestureDetector(
       onTap: onTap,
@@ -284,28 +303,30 @@ class _ConversationTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: vendor?.coverUrl != null
-                  ? Image.network(
-                      vendor!.coverUrl!,
-                      width: 54,
-                      height: 54,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => Container(
-                        width: 54,
-                        height: 54,
-                        color: AppColors.primaryLight,
-                        child: const Icon(Icons.store, color: AppColors.primary),
-                      ),
-                    )
-                  : Container(
-                      width: 54,
-                      height: 54,
-                      color: AppColors.primaryLight,
-                      child: const Icon(Icons.store, color: AppColors.primary),
-                    ),
-            ),
+            conv.isGroup == true
+                ? _GroupAvatarStack(vendors: conv.groupVendors)
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: vendor?.coverUrl != null
+                        ? Image.network(
+                            vendor!.coverUrl!,
+                            width: 54,
+                            height: 54,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Container(
+                              width: 54,
+                              height: 54,
+                              color: AppColors.primaryLight,
+                              child: const Icon(Icons.store, color: AppColors.primary),
+                            ),
+                          )
+                        : Container(
+                            width: 54,
+                            height: 54,
+                            color: AppColors.primaryLight,
+                            child: const Icon(Icons.store, color: AppColors.primary),
+                          ),
+                  ),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -315,7 +336,9 @@ class _ConversationTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          vendor?.businessName ?? 'Vendor',
+                          conv.isGroup == true
+                              ? (conv.groupName ?? 'Group Chat')
+                              : (vendor?.businessName ?? 'Vendor'),
                           style: GoogleFonts.urbanist(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
@@ -335,43 +358,49 @@ class _ConversationTile extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  hasPending
-                      ? Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                'Quote sent - ₦${fmtAmount(conversation.pendingQuoteAmount!)} · ',
-                                style: GoogleFonts.urbanist(
-                                  fontSize: 13,
-                                  color: const Color(0xFF9CA3AF),
-                                ),
-                                maxLines: 1,
-                              ),
+                  if (conv.isGroup == true)
+                    Text(
+                      'Group · ${conv.groupVendors.length} vendors',
+                      style: GoogleFonts.urbanist(fontSize: 13, color: const Color(0xFF9CA3AF)),
+                    )
+                  else if (hasPending)
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            'Quote sent - ₦${fmtAmount(conv.pendingQuoteAmount!)} · ',
+                            style: GoogleFonts.urbanist(
+                              fontSize: 13,
+                              color: const Color(0xFF9CA3AF),
                             ),
-                            Text(
-                              'Tap to Review',
-                              style: GoogleFonts.urbanist(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ],
-                        )
-                      : Text(
-                          conversation.lastMessage ?? '',
+                            maxLines: 1,
+                          ),
+                        ),
+                        Text(
+                          'Tap to Review',
                           style: GoogleFonts.urbanist(
                             fontSize: 13,
-                            color: const Color(0xFF9CA3AF),
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.primary,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
+                      ],
+                    )
+                  else
+                    Text(
+                      conv.lastMessage ?? '',
+                      style: GoogleFonts.urbanist(
+                        fontSize: 13,
+                        color: const Color(0xFF9CA3AF),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                 ],
               ),
             ),
             const SizedBox(width: 8),
-            if (conversation.unreadCount > 0)
+            if (conv.unreadCount > 0)
               Container(
                 width: 22,
                 height: 22,
@@ -381,7 +410,7 @@ class _ConversationTile extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    '${conversation.unreadCount}',
+                    '${conv.unreadCount}',
                     style: GoogleFonts.urbanist(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -392,6 +421,64 @@ class _ConversationTile extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _GroupAvatarStack extends StatelessWidget {
+  final List<VendorModel> vendors;
+  const _GroupAvatarStack({required this.vendors});
+
+  @override
+  Widget build(BuildContext context) {
+    final shown = vendors.take(3).toList();
+    return SizedBox(
+      width: 54,
+      height: 54,
+      child: Stack(
+        children: [
+          // light purple background circle
+          Container(
+            width: 54, height: 54,
+            decoration: const BoxDecoration(color: AppColors.primaryLight, shape: BoxShape.circle),
+            child: const Icon(Icons.group_rounded, color: AppColors.primary, size: 22),
+          ),
+          // stacked mini-avatars — bottom right corner
+          ...shown.asMap().entries.map((entry) {
+            final i = entry.key;
+            final v = entry.value;
+            return Positioned(
+              right: i * 12.0,
+              bottom: 0,
+              child: Container(
+                width: 22, height: 22,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 1.5),
+                ),
+                child: ClipOval(
+                  child: v.coverUrl != null
+                      ? Image.network(v.coverUrl!, fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            color: AppColors.primary,
+                            child: Center(
+                              child: Text(v.businessName[0],
+                                style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                            ),
+                          ))
+                      : Container(
+                          color: AppColors.primary,
+                          child: Center(
+                            child: Text(v.businessName[0],
+                              style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold)),
+                          ),
+                        ),
+                ),
+              ),
+            );
+          }),
+        ],
       ),
     );
   }

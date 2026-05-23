@@ -9,6 +9,14 @@ class ConversationModel extends Equatable {
   final DateTime? lastMessageAt;
   final int unreadCount;
   final double? pendingQuoteAmount;
+  // status: 'active' | 'payment_pending' | 'confirmed' | 'completed' | 'cancelled' | 'disputed'
+  final String status;
+
+  // Group chat fields
+  final bool isGroup;
+  final String? groupName;
+  final List<VendorModel> groupVendors;
+  final String? eventId;
 
   const ConversationModel({
     required this.id,
@@ -18,6 +26,11 @@ class ConversationModel extends Equatable {
     this.lastMessageAt,
     required this.unreadCount,
     this.pendingQuoteAmount,
+    this.status = 'active',
+    this.isGroup = false,
+    this.groupName,
+    this.groupVendors = const [],
+    this.eventId,
   });
 
   factory ConversationModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +41,14 @@ class ConversationModel extends Equatable {
       lastMessage: json['lastMessage'] as String?,
       lastMessageAt: json['lastMessageAt'] != null ? DateTime.parse(json['lastMessageAt'] as String) : null,
       unreadCount: json['unreadCount'] as int? ?? 0,
+      pendingQuoteAmount: (json['pendingQuoteAmount'] as num?)?.toDouble(),
+      status: json['status'] as String? ?? 'active',
+      isGroup: json['isGroup'] as bool? ?? false,
+      groupName: json['groupName'] as String?,
+      eventId: json['eventId'] as String?,
+      groupVendors: (json['groupVendors'] as List? ?? [])
+          .map((e) => VendorModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 
@@ -38,8 +59,14 @@ class ConversationModel extends Equatable {
         'lastMessage': lastMessage,
         'lastMessageAt': lastMessageAt?.toIso8601String(),
         'unreadCount': unreadCount,
+        'pendingQuoteAmount': pendingQuoteAmount,
+        'status': status,
+        'isGroup': isGroup,
+        'groupName': groupName,
+        'eventId': eventId,
+        'groupVendors': groupVendors.map((v) => v.toJson()).toList(),
       };
 
   @override
-  List<Object?> get props => [id, vendorId, lastMessage, unreadCount];
+  List<Object?> get props => [id, vendorId, lastMessage, unreadCount, status, isGroup, groupName, eventId];
 }

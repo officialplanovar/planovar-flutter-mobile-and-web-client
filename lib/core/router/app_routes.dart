@@ -51,6 +51,17 @@ class AppRoutes {
   static const createEventStep3 = '/events/create/step3';
   static const createEventStep4 = '/events/create/step4';
 
+  static const eventDetail = '/events/detail';
+  static const eventGroupChat = '/events/group-chat';
+  static const eventBookingDetail = '/events/booking-detail';
+  static const raiseDispute = '/dispute';
+  static const leaveReview = '/review';
+
+  static const orderDetail = '/orders/detail';
+  static const rentalDetail = '/orders/rental-detail';
+  static const cancelOrder = '/orders/cancel';
+  static const requestRefund = '/orders/refund';
+
   static const payments = '/payments';
   static const notifications = '/notifications';
   static const favourites = '/favourites';
@@ -61,4 +72,7 @@ class AppRoutes {
   static const help = '/settings/help';
   static const faq = '/settings/faq';
   static const deleteAccount = '/settings/delete-account';
+  static const changePassword = '/settings/change-password';
+  static const twoFactor = '/settings/two-factor';
+  static const supportChat = '/settings/support-chat';
 }

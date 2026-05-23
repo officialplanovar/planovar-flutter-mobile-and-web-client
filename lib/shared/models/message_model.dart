@@ -6,7 +6,11 @@ class MessageModel extends Equatable {
   final String conversationId;
   final String senderId;
   final String? content;
-  final String type; // 'text', 'quote', 'invoice', 'system'
+  // type: 'text' | 'quote' | 'quote_revised' | 'invoice' | 'invoice_accepted' |
+  //        'invoice_declined' | 'booking_confirmed' | 'payment_confirmed' |
+  //        'payment_pending' | 'booking_cancelled' | 'dispute_raised' |
+  //        'review_requested' | 'review_submitted' | 'refund_requested'
+  final String type;
   final bool isRead;
   final DateTime createdAt;
   final QuoteModel? quote;

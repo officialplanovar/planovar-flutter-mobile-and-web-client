@@ -1,11 +1,113 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../../core/theme/app_text_styles.dart';
 import '../../../core/theme/theme_cubit.dart';
+
+// ─── Shared header builder ────────────────────────────────────────────────────
+
+Widget _buildLavenderHeader(
+  BuildContext context, {
+  required String title,
+  required String subtitle,
+  bool centerTitle = false,
+}) {
+  return Container(
+    color: const Color(0xFFECDEFA),
+    child: SafeArea(
+      bottom: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+        child: centerTitle
+            ? Column(
+                children: [
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => context.pop(),
+                        child: _backButton(),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    title,
+                    style: GoogleFonts.urbanist(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF1A1A2E),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.urbanist(
+                      fontSize: 13,
+                      color: const Color(0xFF9CA3AF),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              )
+            : Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: () => context.pop(),
+                    child: _backButton(),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: GoogleFonts.urbanist(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: const Color(0xFF1A1A2E),
+                          ),
+                        ),
+                        Text(
+                          subtitle,
+                          style: GoogleFonts.urbanist(
+                            fontSize: 13,
+                            color: const Color(0xFF9CA3AF),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    ),
+  );
+}
+
+Widget _backButton() {
+  return Container(
+    width: 40,
+    height: 40,
+    decoration: BoxDecoration(
+      color: Colors.white,
+      shape: BoxShape.circle,
+      boxShadow: [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.07),
+          blurRadius: 6,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
+    child: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: Color(0xFF1A1A2E)),
+  );
+}
 
 // ─── Theme Settings ───────────────────────────────────────────────────────────
 class ThemeSettingsScreen extends StatelessWidget {
@@ -17,29 +119,93 @@ class ThemeSettingsScreen extends StatelessWidget {
       builder: (context, current) {
         final cubit = context.read<ThemeCubit>();
         return Scaffold(
-          appBar: AppBar(title: const Text('Theme')),
+          backgroundColor: const Color(0xFFF8F5FF),
           body: Column(
             children: [
-              _ThemeOption(
-                label: 'Light',
-                subtitle: 'Always use light appearance',
-                icon: Icons.light_mode_outlined,
-                selected: current == ThemeMode.light,
-                onTap: cubit.setLight,
+              _buildLavenderHeader(
+                context,
+                title: 'Theme',
+                subtitle: 'Select your preferred theme appearance',
               ),
-              _ThemeOption(
-                label: 'Dark',
-                subtitle: 'Always use dark appearance',
-                icon: Icons.dark_mode_outlined,
-                selected: current == ThemeMode.dark,
-                onTap: cubit.setDark,
-              ),
-              _ThemeOption(
-                label: 'System default',
-                subtitle: 'Follow device setting',
-                icon: Icons.brightness_auto_outlined,
-                selected: current == ThemeMode.system,
-                onTap: cubit.setSystem,
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Two phone preview boxes
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _ThemePreviewBox(
+                            label: 'Light',
+                            isDark: false,
+                            selected: current == ThemeMode.light,
+                            onTap: cubit.setLight,
+                          ),
+                          const SizedBox(width: 20),
+                          _ThemePreviewBox(
+                            label: 'Dark',
+                            isDark: true,
+                            selected: current == ThemeMode.dark,
+                            onTap: cubit.setDark,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 32),
+                      // System toggle
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'System',
+                                    style: GoogleFonts.urbanist(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color(0xFF1A1A2E),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Use your default system preference',
+                                    style: GoogleFonts.urbanist(
+                                      fontSize: 13,
+                                      color: const Color(0xFF9CA3AF),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Switch(
+                              value: current == ThemeMode.system,
+                              onChanged: (v) {
+                                if (v) cubit.setSystem();
+                              },
+                              activeThumbColor: AppColors.primary,
+                              activeTrackColor: AppColors.primaryLight,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
@@ -49,29 +215,110 @@ class ThemeSettingsScreen extends StatelessWidget {
   }
 }
 
-class _ThemeOption extends StatelessWidget {
+class _ThemePreviewBox extends StatelessWidget {
   final String label;
-  final String subtitle;
-  final IconData icon;
+  final bool isDark;
   final bool selected;
   final VoidCallback onTap;
 
-  const _ThemeOption({
+  const _ThemePreviewBox({
     required this.label,
-    required this.subtitle,
-    required this.icon,
+    required this.isDark,
     required this.selected,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(icon, color: selected ? AppColors.primary : AppColors.textSecondary),
-      title: Text(label, style: AppTextStyles.body1),
-      subtitle: Text(subtitle, style: AppTextStyles.caption),
-      trailing: selected ? const Icon(Icons.check_rounded, color: AppColors.primary) : null,
+    return GestureDetector(
       onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 150,
+            height: 260,
+            decoration: BoxDecoration(
+              color: isDark ? const Color(0xFF1A1A2E) : Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: selected ? AppColors.primary : (isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB)),
+                width: selected ? 2 : 1,
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 12,
+                    width: 80,
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF2D2D3E) : const Color(0xFFF3F4F6),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Container(
+                    height: 8,
+                    width: 100,
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    height: 8,
+                    width: 120,
+                    decoration: BoxDecoration(
+                      color: isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Container(
+                width: 22,
+                height: 22,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: selected ? AppColors.primary : Colors.transparent,
+                  border: Border.all(
+                    color: selected ? AppColors.primary : const Color(0xFFD1D5DB),
+                    width: 1.5,
+                  ),
+                ),
+                child: selected
+                    ? const Icon(Icons.check_rounded, color: Colors.white, size: 14)
+                    : null,
+              ),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: GoogleFonts.urbanist(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF1A1A2E),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -85,47 +332,150 @@ class NotificationSettingsScreen extends StatefulWidget {
 }
 
 class _NotificationSettingsScreenState extends State<NotificationSettingsScreen> {
-  bool _bookingUpdates = true;
-  bool _quoteAlerts = true;
-  bool _paymentNotifs = true;
-  bool _messages = true;
-  bool _promotions = false;
+  String _channel = 'none';
+  bool _allMessages = false;
+  bool _orderDelivery = false;
+  bool _eventTimeline = false;
+  bool _paymentAlerts = false;
+  bool _quoteInvoice = false;
+  bool _vendorMatch = false;
+
+  final _channels = ['None', 'In app', 'Email', 'Both'];
+  final _channelKeys = ['none', 'inapp', 'email', 'both'];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Notification Settings')),
-      body: ListView(
+      backgroundColor: const Color(0xFFF8F5FF),
+      body: Column(
         children: [
-          _SwitchTile(
-            label: 'Booking updates',
-            subtitle: 'Get notified about booking status changes',
-            value: _bookingUpdates,
-            onChanged: (v) => setState(() => _bookingUpdates = v),
+          _buildLavenderHeader(
+            context,
+            title: 'Notifications',
+            subtitle: 'Manage when you\'ll receive notifications',
           ),
-          _SwitchTile(
-            label: 'Quote alerts',
-            subtitle: 'Be notified when vendors send or update quotes',
-            value: _quoteAlerts,
-            onChanged: (v) => setState(() => _quoteAlerts = v),
-          ),
-          _SwitchTile(
-            label: 'Payment notifications',
-            subtitle: 'Receive receipts and payment confirmations',
-            value: _paymentNotifs,
-            onChanged: (v) => setState(() => _paymentNotifs = v),
-          ),
-          _SwitchTile(
-            label: 'Messages',
-            subtitle: 'Get notified about new messages from vendors',
-            value: _messages,
-            onChanged: (v) => setState(() => _messages = v),
-          ),
-          _SwitchTile(
-            label: 'Promotions & offers',
-            subtitle: 'Receive deals and featured vendor promotions',
-            value: _promotions,
-            onChanged: (v) => setState(() => _promotions = v),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'All notifications',
+                    style: GoogleFonts.urbanist(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF1A1A2E),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Choose where you want to receive notifications',
+                    style: GoogleFonts.urbanist(
+                      fontSize: 13,
+                      color: const Color(0xFF9CA3AF),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // 4-segment pill selector
+                  Container(
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                    ),
+                    child: Row(
+                      children: List.generate(_channels.length, (i) {
+                        final isActive = _channel == _channelKeys[i];
+                        return Expanded(
+                          child: GestureDetector(
+                            onTap: () => setState(() => _channel = _channelKeys[i]),
+                            child: Container(
+                              margin: const EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: isActive ? AppColors.primaryLight : Colors.transparent,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  _channels[i],
+                                  style: GoogleFonts.urbanist(
+                                    fontSize: 12,
+                                    fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
+                                    color: isActive ? AppColors.primary : const Color(0xFF9CA3AF),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // Toggle rows
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        _NotifToggle(
+                          title: 'All messages',
+                          subtitle: 'someone replies your message',
+                          value: _allMessages,
+                          onChanged: (v) => setState(() => _allMessages = v),
+                        ),
+                        const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+                        _NotifToggle(
+                          title: 'Order/Delivery Timeline',
+                          subtitle: 'get notified when there\'s a new delivery status',
+                          value: _orderDelivery,
+                          onChanged: (v) => setState(() => _orderDelivery = v),
+                        ),
+                        const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+                        _NotifToggle(
+                          title: 'Event Timeline',
+                          subtitle: 'get notified when there\'s a new event timeline',
+                          value: _eventTimeline,
+                          onChanged: (v) => setState(() => _eventTimeline = v),
+                        ),
+                        const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+                        _NotifToggle(
+                          title: 'Payment alerts',
+                          subtitle: 'get notified when a payment is successful',
+                          value: _paymentAlerts,
+                          onChanged: (v) => setState(() => _paymentAlerts = v),
+                        ),
+                        const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+                        _NotifToggle(
+                          title: 'Quote / Invoice alerts',
+                          subtitle: 'get notified when you get a quote',
+                          value: _quoteInvoice,
+                          onChanged: (v) => setState(() => _quoteInvoice = v),
+                        ),
+                        const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+                        _NotifToggle(
+                          title: 'Vendor Match',
+                          subtitle: 'get alerts for recommended vendors',
+                          value: _vendorMatch,
+                          onChanged: (v) => setState(() => _vendorMatch = v),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -133,14 +483,14 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   }
 }
 
-class _SwitchTile extends StatelessWidget {
-  final String label;
+class _NotifToggle extends StatelessWidget {
+  final String title;
   final String subtitle;
   final bool value;
   final ValueChanged<bool> onChanged;
 
-  const _SwitchTile({
-    required this.label,
+  const _NotifToggle({
+    required this.title,
     required this.subtitle,
     required this.value,
     required this.onChanged,
@@ -148,13 +498,41 @@ class _SwitchTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SwitchListTile(
-      title: Text(label, style: AppTextStyles.body1),
-      subtitle: Text(subtitle, style: AppTextStyles.caption),
-      value: value,
-      onChanged: onChanged,
-      activeThumbColor: AppColors.primary,
-      activeTrackColor: AppColors.primaryLight,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.urbanist(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF1A1A2E),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.urbanist(
+                    fontSize: 12,
+                    color: const Color(0xFF9CA3AF),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeThumbColor: AppColors.primary,
+            activeTrackColor: AppColors.primaryLight,
+          ),
+        ],
+      ),
     );
   }
 }
@@ -166,32 +544,100 @@ class PrivacyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Privacy and Security')),
-      body: ListView(
+      backgroundColor: const Color(0xFFF8F5FF),
+      body: Column(
         children: [
-          ListTile(
-            leading: const Icon(Icons.lock_outline_rounded),
-            title: const Text('Change Password'),
-            trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
-            onTap: () {},
+          _buildLavenderHeader(
+            context,
+            title: 'Privacy and Security',
+            subtitle: 'manage your password and 2 factor authentications',
           ),
-          const Divider(height: 1, indent: 56),
-          ListTile(
-            leading: const Icon(Icons.security_outlined),
-            title: const Text('Two-Factor Authentication'),
-            subtitle: const Text('Not enabled'),
-            trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
-            onTap: () {},
-          ),
-          const Divider(height: 1, indent: 56),
-          ListTile(
-            leading: const Icon(Icons.visibility_off_outlined),
-            title: const Text('Profile Visibility'),
-            subtitle: const Text('Public'),
-            trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
-            onTap: () {},
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _PrivacyRow(
+                      title: 'Change your password',
+                      subtitle: 'Update your login credentials',
+                      onTap: () => context.push(AppRoutes.changePassword),
+                    ),
+                    const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+                    _PrivacyRow(
+                      title: '2 factor authentication',
+                      subtitle: 'add extra layer of security',
+                      onTap: () => context.push(AppRoutes.twoFactor),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _PrivacyRow extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _PrivacyRow({
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.urbanist(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF1A1A2E),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.urbanist(
+                      fontSize: 13,
+                      color: const Color(0xFF9CA3AF),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(Icons.chevron_right_rounded, color: Color(0xFF9CA3AF), size: 22),
+          ],
+        ),
       ),
     );
   }
@@ -201,37 +647,178 @@ class PrivacyScreen extends StatelessWidget {
 class HelpScreen extends StatelessWidget {
   const HelpScreen({super.key});
 
+  static const _helpItems = [
+    {
+      'icon': Icons.email_rounded,
+      'title': 'Email Support',
+      'subtitle': 'contactplanovar@gmail.com',
+      'route': '',
+    },
+    {
+      'icon': Icons.chat_rounded,
+      'title': 'Live Chat',
+      'subtitle': 'chat with our support team available Mon - Fri 8am - 5pm',
+      'route': AppRoutes.supportChat,
+    },
+    {
+      'icon': Icons.phone_rounded,
+      'title': 'Phone Support',
+      'subtitle': '+2348488383\nMon - Fri 8am - 5pm',
+      'route': '',
+    },
+    {
+      'icon': Icons.help_outline_rounded,
+      'title': 'FAQ',
+      'subtitle': 'Get answers to your burning questions',
+      'route': AppRoutes.faq,
+    },
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Help & Support')),
-      body: ListView(
+      backgroundColor: const Color(0xFFF8F5FF),
+      body: Column(
         children: [
-          ListTile(
-            leading: const Icon(Icons.email_outlined, color: AppColors.primary),
-            title: const Text('Email Support'),
-            subtitle: const Text('support@planovar.com'),
-            onTap: () {},
+          _buildLavenderHeader(
+            context,
+            title: 'Help & Support',
+            subtitle: 'Get real time help for all your inquires',
+            centerTitle: true,
           ),
-          const Divider(height: 1, indent: 56),
-          ListTile(
-            leading: const Icon(Icons.phone_outlined, color: AppColors.primary),
-            title: const Text('Phone Support'),
-            subtitle: const Text('+234 800 PLANOVAR'),
-            onTap: () {},
-          ),
-          const Divider(height: 1, indent: 56),
-          ListTile(
-            leading: const Icon(Icons.chat_outlined, color: AppColors.primary),
-            title: const Text('Live Chat'),
-            subtitle: const Text('Available 9am–6pm WAT'),
-            onTap: () {},
-          ),
-          const Divider(height: 1, indent: 56),
-          ListTile(
-            leading: const Icon(Icons.quiz_outlined, color: AppColors.primary),
-            title: const Text('FAQ'),
-            onTap: () => context.push(AppRoutes.faq),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  // Search bar
+                  Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(50),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: TextField(
+                            style: GoogleFonts.urbanist(fontSize: 14),
+                            decoration: InputDecoration(
+                              hintText: 'Search for help',
+                              hintStyle: GoogleFonts.urbanist(
+                                fontSize: 14,
+                                color: const Color(0xFF9CA3AF),
+                              ),
+                              border: InputBorder.none,
+                              isDense: true,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: 36,
+                          height: 36,
+                          margin: const EdgeInsets.only(right: 8),
+                          decoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.search_rounded, color: Colors.white, size: 18),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ...(_helpItems as List<Map<String, dynamic>>).map((item) {
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: GestureDetector(
+                        onTap: () {
+                          final route = item['route'] as String;
+                          if (route.isNotEmpty) context.push(route);
+                        },
+                        behavior: HitTestBehavior.opaque,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryLight,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  item['icon'] as IconData,
+                                  color: AppColors.primary,
+                                  size: 24,
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item['title'] as String,
+                                      style: GoogleFonts.urbanist(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFF1A1A2E),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      item['subtitle'] as String,
+                                      style: GoogleFonts.urbanist(
+                                        fontSize: 13,
+                                        color: const Color(0xFF9CA3AF),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: const BoxDecoration(
+                                  color: AppColors.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.north_east_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -240,41 +827,152 @@ class HelpScreen extends StatelessWidget {
 }
 
 // ─── FAQ Screen ────────────────────────────────────────────────────────────────
-class FaqScreen extends StatelessWidget {
+class FaqScreen extends StatefulWidget {
   const FaqScreen({super.key});
+
+  @override
+  State<FaqScreen> createState() => _FaqScreenState();
+}
+
+class _FaqScreenState extends State<FaqScreen> {
+  int? _expandedIndex;
+  final _searchCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final faqs = MockData.faqs;
     return Scaffold(
-      appBar: AppBar(title: const Text('FAQ')),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: faqs.length,
-        itemBuilder: (context, i) {
-          return Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE5E7EB)),
-            ),
-            child: Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-              child: ExpansionTile(
-                tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                title: Text(faqs[i]['question']!, style: AppTextStyles.label),
+      backgroundColor: const Color(0xFFF8F5FF),
+      body: Column(
+        children: [
+          _buildLavenderHeader(
+            context,
+            title: 'Frequently Asked Questions',
+            subtitle: 'Answers to your burning questions',
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: Column(
                 children: [
-                  Text(
-                    faqs[i]['answer']!,
-                    style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
+                  // Search bar
+                  Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(50),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: TextField(
+                            controller: _searchCtrl,
+                            style: GoogleFonts.urbanist(fontSize: 14),
+                            decoration: InputDecoration(
+                              hintText: 'Search FAQs',
+                              hintStyle: GoogleFonts.urbanist(
+                                fontSize: 14,
+                                color: const Color(0xFF9CA3AF),
+                              ),
+                              border: InputBorder.none,
+                              isDense: true,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: 36,
+                          height: 36,
+                          margin: const EdgeInsets.only(right: 8),
+                          decoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.search_rounded, color: Colors.white, size: 18),
+                        ),
+                      ],
+                    ),
                   ),
+                  const SizedBox(height: 20),
+                  ...List.generate(faqs.length, (i) {
+                    final isExpanded = _expandedIndex == i;
+                    return GestureDetector(
+                      onTap: () => setState(() {
+                        _expandedIndex = isExpanded ? null : i;
+                      }),
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      faqs[i]['question']!,
+                                      style: GoogleFonts.urbanist(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color(0xFF1A1A2E),
+                                      ),
+                                    ),
+                                  ),
+                                  Icon(
+                                    isExpanded
+                                        ? Icons.keyboard_arrow_up_rounded
+                                        : Icons.keyboard_arrow_down_rounded,
+                                    color: const Color(0xFF9CA3AF),
+                                  ),
+                                ],
+                              ),
+                              if (isExpanded) ...[
+                                const SizedBox(height: 10),
+                                Text(
+                                  faqs[i]['answer']!,
+                                  style: GoogleFonts.urbanist(
+                                    fontSize: 13,
+                                    color: const Color(0xFF6B7280),
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  }),
                 ],
               ),
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
@@ -289,92 +987,292 @@ class DeleteAccountScreen extends StatefulWidget {
 }
 
 class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
-  final _reasons = [
-    'I no longer need the app',
-    'I found a better alternative',
-    'Privacy concerns',
-    'Too many notifications',
-    'Other',
+  String? _selectedReason;
+  final _otherCtrl = TextEditingController();
+
+  static const _reasons = [
+    'No longer using the platform/service',
+    'Found a better alternative',
+    'Privacy Concerns',
+    'Too many emails/notifications',
+    'Difficulty navigating the platform',
+    'Personal Reasons',
+    'Other not listed above',
   ];
-  final Set<String> _selectedReasons = {};
+
+  @override
+  void dispose() {
+    _otherCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Delete Account')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'We\'re sorry to see you go',
-              style: AppTextStyles.heading3.copyWith(color: AppColors.error),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Deleting your account is permanent and cannot be undone. All your bookings, messages, and data will be removed.',
-              style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
-            ),
-            const SizedBox(height: 24),
-            Text('Why are you leaving?', style: AppTextStyles.label),
-            const SizedBox(height: 12),
-            ..._reasons.map((reason) {
-              final selected = _selectedReasons.contains(reason);
-              return CheckboxListTile(
-                title: Text(reason, style: AppTextStyles.body2),
-                value: selected,
-                onChanged: (v) {
-                  setState(() {
-                    if (v == true) {
-                      _selectedReasons.add(reason);
-                    } else {
-                      _selectedReasons.remove(reason);
-                    }
-                  });
-                },
-                activeColor: AppColors.error,
-                controlAffinity: ListTileControlAffinity.leading,
-                contentPadding: EdgeInsets.zero,
-              );
-            }),
-            const Spacer(),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-              onPressed: _selectedReasons.isEmpty
-                  ? null
-                  : () {
-                      showDialog(
-                        context: context,
-                        builder: (ctx) => AlertDialog(
-                          title: const Text('Delete Account?'),
-                          content: const Text(
-                              'This action cannot be undone. Are you absolutely sure?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(ctx),
-                              child: const Text('Cancel'),
-                            ),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-                              onPressed: () => Navigator.pop(ctx),
-                              child: const Text('Delete my account'),
+      backgroundColor: const Color(0xFFF8F5FF),
+      body: Column(
+        children: [
+          _buildLavenderHeader(
+            context,
+            title: 'We\'re sad to see you go',
+            subtitle: 'Let us know what went wrong',
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 16),
+                  const Text('😢', style: TextStyle(fontSize: 80)),
+                  const SizedBox(height: 16),
+                  // Reasons card
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                    ),
+                    child: Column(
+                      children: List.generate(_reasons.length, (i) {
+                        final reason = _reasons[i];
+                        final isSelected = _selectedReason == reason;
+                        final isOther = reason == 'Other not listed above';
+                        return Column(
+                          children: [
+                            if (i > 0)
+                              const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+                            GestureDetector(
+                              onTap: () => setState(() => _selectedReason = reason),
+                              behavior: HitTestBehavior.opaque,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Container(
+                                          width: 22,
+                                          height: 22,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: isSelected ? AppColors.primary : Colors.transparent,
+                                            border: Border.all(
+                                              color: isSelected
+                                                  ? AppColors.primary
+                                                  : const Color(0xFFD1D5DB),
+                                              width: 1.5,
+                                            ),
+                                          ),
+                                          child: isSelected
+                                              ? const Icon(Icons.check_rounded,
+                                                  color: Colors.white, size: 14)
+                                              : null,
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Text(
+                                            reason,
+                                            style: GoogleFonts.urbanist(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: const Color(0xFF1A1A2E),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    if (isOther && isSelected) ...[
+                                      const SizedBox(height: 12),
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xFFF3F4F6),
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        child: TextField(
+                                          controller: _otherCtrl,
+                                          maxLines: 3,
+                                          style: GoogleFonts.urbanist(fontSize: 14),
+                                          decoration: InputDecoration(
+                                            hintText: 'Tell us more...',
+                                            hintStyle: GoogleFonts.urbanist(
+                                              fontSize: 14,
+                                              color: const Color(0xFF9CA3AF),
+                                            ),
+                                            border: InputBorder.none,
+                                            contentPadding: const EdgeInsets.all(12),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
                             ),
                           ],
+                        );
+                      }),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  GestureDetector(
+                    onTap: () => _showDeleteConfirmDialog(context),
+                    child: Container(
+                      height: 52,
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
                         ),
-                      );
-                    },
-              child: const Text('Delete my account'),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Delete Account',
+                          style: GoogleFonts.urbanist(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                ],
+              ),
             ),
-            const SizedBox(height: 16),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteConfirmDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(dialogCtx),
+                  child: Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3F4F6),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.close_rounded, size: 18, color: Color(0xFF6B7280)),
+                  ),
+                ),
+              ),
+              const Text('⚠️', style: TextStyle(fontSize: 48)),
+              const SizedBox(height: 12),
+              Text(
+                'Are you sure?',
+                style: GoogleFonts.urbanist(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'by deleting your account you will lose the following',
+                style: GoogleFonts.urbanist(fontSize: 14, color: const Color(0xFF6B7280)),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7),
+                  border: Border.all(color: const Color(0xFFFBBF24)),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    '• Access to your active events',
+                    '• Access to your account records and credentials',
+                    '• Login details',
+                    '• All Vendor contacts via message and call',
+                  ].map((line) => Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      line,
+                      style: GoogleFonts.urbanist(
+                        fontSize: 13,
+                        color: const Color(0xFF1A1A2E),
+                      ),
+                    ),
+                  )).toList(),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(dialogCtx),
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Color(0xFFAB52F5), Color(0xFF7420D0)],
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Cancel',
+                            style: GoogleFonts.urbanist(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(dialogCtx),
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: AppColors.error, width: 1.5),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Proceed',
+                            style: GoogleFonts.urbanist(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.error,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-// ─── Events Placeholder ────────────────────────────────────────────────────────
+// ─── Events Placeholder (kept for backward compat) ────────────────────────────
 class EventsScreen extends StatelessWidget {
   const EventsScreen({super.key});
 
@@ -382,22 +1280,7 @@ class EventsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('My Events'), automaticallyImplyLeading: false),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.event_note_outlined, size: 80, color: AppColors.textHint),
-            const SizedBox(height: 16),
-            Text('Events coming soon', style: AppTextStyles.heading4),
-            const SizedBox(height: 8),
-            Text(
-              'Event management features are in development.',
-              style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
+      body: const Center(child: Text('Events')),
     );
   }
 }
