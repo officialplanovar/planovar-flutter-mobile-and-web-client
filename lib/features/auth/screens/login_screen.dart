@@ -142,7 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 6),
                       Center(
                         child: Text(
-                          'Sign to continue your Journey on Planova',
+                          'Sign to continue your Journey on Planovar',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.urbanist(
                             fontSize: 14,
