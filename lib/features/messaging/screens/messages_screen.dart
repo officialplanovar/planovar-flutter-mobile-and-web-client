@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../core/mock/mock_messaging_service.dart';
+import '../../../core/services/messaging_service.dart';
 import '../../../core/mock/mock_notification_service.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
@@ -17,7 +17,7 @@ class MessagesScreen extends StatefulWidget {
 }
 
 class _MessagesScreenState extends State<MessagesScreen> {
-  final _service = MockMessagingService();
+  final _service = MessagingService();
   final _notifService = MockNotificationService();
   final _searchCtrl = TextEditingController();
 

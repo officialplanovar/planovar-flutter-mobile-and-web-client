@@ -1,14 +1,14 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../core/mock/mock_auth_service.dart';
+import '../data/auth_repository.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final MockAuthService _authService;
+  final AuthRepository _authService;
 
-  AuthBloc({MockAuthService? authService})
-      : _authService = authService ?? MockAuthService(),
+  AuthBloc({AuthRepository? authRepository})
+      : _authService = authRepository ?? AuthRepository(),
         super(const AuthInitial()) {
     on<AuthCheckRequested>(_onCheckRequested);
     on<AuthSignInRequested>(_onSignIn);
@@ -20,16 +20,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onCheckRequested(AuthCheckRequested event, Emitter<AuthState> emit) async {
+    // Source of truth is the persisted bearer token / session — not just the
+    // flag (which earlier was only set on the login screen, never on register).
     final prefs = await SharedPreferences.getInstance();
-    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
-    if (isLoggedIn) {
-      try {
-        final user = await _authService.getMe();
-        emit(AuthAuthenticated(user: user));
-      } catch (_) {
-        emit(const AuthUnauthenticated());
-      }
-    } else {
+    try {
+      final user = await _authService.getMe();
+      await prefs.setBool('isLoggedIn', true);
+      emit(AuthAuthenticated(user: user));
+    } catch (_) {
+      await prefs.setBool('isLoggedIn', false);
       emit(const AuthUnauthenticated());
     }
   }
@@ -65,6 +64,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     try {
       final ok = await _authService.verifyOtp(email: event.email, otp: event.otp);
       if (ok) {
+        // Verified = authenticated (token is stored); persist so the session
+        // survives restarts even for the register→verify path.
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', true);
         emit(AuthOtpVerified(email: event.email));
       } else {
         emit(const AuthError(message: 'Invalid OTP. Please try again.'));
@@ -99,6 +102,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onSignOut(AuthSignOutRequested event, Emitter<AuthState> emit) async {
+    try {
+      await _authService.signOut();
+    } catch (_) {}
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isLoggedIn', false);
     emit(const AuthUnauthenticated());

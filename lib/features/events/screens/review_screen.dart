@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../core/services/review_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glossy_button.dart';
 
 class LeaveReviewScreen extends StatefulWidget {
   final String vendorName;
 
-  const LeaveReviewScreen({super.key, required this.vendorName});
+  /// When set, the review is submitted to the API against this booking.
+  final String? bookingId;
+
+  const LeaveReviewScreen({super.key, required this.vendorName, this.bookingId});
 
   @override
   State<LeaveReviewScreen> createState() => _LeaveReviewScreenState();
@@ -16,6 +20,43 @@ class LeaveReviewScreen extends StatefulWidget {
 class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
   int _rating = 0;
   final _reviewCtrl = TextEditingController();
+  bool _sending = false;
+
+  Future<void> _submit() async {
+    if (_rating == 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Tap the stars to rate your experience')),
+      );
+      return;
+    }
+    final bookingId = widget.bookingId;
+    if (bookingId == null || bookingId.isEmpty) {
+      // Demo flow (no real booking attached).
+      context.pop();
+      return;
+    }
+    setState(() => _sending = true);
+    try {
+      await ReviewService().submit(
+        bookingId: bookingId,
+        rating: _rating,
+        body: _reviewCtrl.text.trim().isEmpty
+            ? 'Rated $_rating stars'
+            : _reviewCtrl.text.trim(),
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Review submitted — thank you! ⭐')),
+      );
+      context.pop();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _sending = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -196,12 +237,9 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
                   const SizedBox(height: 28),
                   // Send review button
                   GlossyButton(
-                    label: 'Send Review',
+                    label: _sending ? 'Sending…' : 'Send Review',
                     height: 52,
-                    onPressed: () {
-                      // TODO: submit review
-                      context.pop();
-                    },
+                    onPressed: _sending ? null : _submit,
                   ),
                   const SizedBox(height: 32),
                 ],

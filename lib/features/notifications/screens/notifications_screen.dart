@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../../core/mock/mock_notification_service.dart';
+import '../../../core/services/notification_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../shared/models/notification_model.dart';
@@ -15,7 +15,7 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  final _notifService = MockNotificationService();
+  final _notifService = NotificationService();
   List<NotificationModel> _notifications = [];
   bool _loading = true;
 

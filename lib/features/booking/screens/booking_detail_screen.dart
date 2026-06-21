@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/mock/mock_booking_service.dart';
-import '../../../core/mock/mock_quote_service.dart';
+import '../../../core/services/booking_service.dart';
+import '../../../core/services/quote_service.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -23,8 +23,8 @@ class BookingDetailScreen extends StatefulWidget {
 }
 
 class _BookingDetailScreenState extends State<BookingDetailScreen> {
-  final _bookingService = MockBookingService();
-  final _quoteService = MockQuoteService();
+  final _bookingService = BookingService();
+  final _quoteService = QuoteService();
   BookingModel? _booking;
   QuoteModel? _quote;
   bool _loading = true;
@@ -260,10 +260,31 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                 },
                 child: const Text('Cancel Booking'),
               ),
-            if (booking.status == 'confirmed' && _quote != null)
+            if (booking.status == 'confirmed') ...[
+              // Subscription-only model: payment is arranged off-platform.
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFFBEB),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Text(
+                  'Payment is arranged directly between you and the vendor. '
+                  'Transactions happen outside Planovar and are at both parties\' own risk.',
+                  style: TextStyle(fontSize: 12.5, color: Color(0xFF92400E), height: 1.5),
+                ),
+              ),
+            ],
+            if (booking.status == 'completed')
               GlossyButton(
-                label: 'Proceed to Payment',
-                onPressed: () {},
+                label: '⭐ Leave a Review',
+                onPressed: () => context.push(
+                  AppRoutes.leaveReview,
+                  extra: {
+                    'bookingId': booking.id,
+                    'vendorName': booking.vendor?.businessName ?? 'Vendor',
+                  },
+                ),
               ),
           ],
         ),

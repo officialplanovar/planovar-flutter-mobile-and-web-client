@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/services/vendor_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/listing_model.dart';
 import '../../../shared/models/vendor_model.dart';
@@ -22,30 +23,61 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late PageController _pageController;
-  late VendorModel _vendor;
-  late List<ListingModel> _listings;
-  late List<ListingModel> _products;
-  late List<ListingModel> _services;
-  late List<String> _images;
+  VendorModel? _vendorOrNull;
+  List<ListingModel> _listings = [];
+  List<ListingModel> _products = [];
+  List<ListingModel> _services = [];
+  List<String> _images = [];
   int _currentPage = 0;
   bool _isFavorited = false;
+
+  /// Non-null once loaded; build() shows a loader until then.
+  VendorModel get _vendor => _vendorOrNull!;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     _pageController = PageController();
-    _vendor = MockData.vendors.firstWhere(
-      (v) => v.id == widget.vendorId,
-      orElse: () => MockData.vendors.first,
-    );
-    _listings =
-        MockData.listings.where((l) => l.vendorId == _vendor.id).toList();
-    _products = _listings.where((l) => l.pricingType == 'fixed').toList();
-    _services = _listings.where((l) => l.pricingType == 'quote').toList();
-    _images = _vendor.coverUrl != null
-        ? [_vendor.coverUrl!, _vendor.coverUrl!, _vendor.coverUrl!]
-        : [];
+    _load();
+  }
+
+  Future<void> _load() async {
+    // Live vendor + listings from the API; mock fallback for demo ids.
+    VendorModel? vendor;
+    List<ListingModel> listings = [];
+    try {
+      final service = VendorService();
+      vendor = await service.getVendor(widget.vendorId);
+      if (vendor != null) {
+        listings = await service.getVendorListings(widget.vendorId);
+      }
+    } catch (_) {}
+    if (vendor == null) {
+      vendor = MockData.vendors
+              .where((v) => v.id == widget.vendorId)
+              .firstOrNull ??
+          (MockData.vendors.isNotEmpty ? MockData.vendors.first : null);
+      if (vendor != null) {
+        listings = MockData.listings
+            .where((l) => l.vendorId == vendor!.id)
+            .toList();
+      }
+    }
+    if (!mounted || vendor == null) return;
+    setState(() {
+      _vendorOrNull = vendor;
+      _listings = listings;
+      _products = listings
+          .where((l) => l.pricingType.toLowerCase() == 'fixed')
+          .toList();
+      _services = listings
+          .where((l) => l.pricingType.toLowerCase() != 'fixed')
+          .toList();
+      _images = vendor!.coverUrl != null
+          ? [vendor.coverUrl!, vendor.coverUrl!, vendor.coverUrl!]
+          : [];
+    });
   }
 
   @override
@@ -67,6 +99,12 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (_vendorOrNull == null) {
+      return const Scaffold(
+        backgroundColor: Color(0xFFF8F5FF),
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(

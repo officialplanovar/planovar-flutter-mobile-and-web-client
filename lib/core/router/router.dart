@@ -327,6 +327,7 @@ GoRouter createRouter() {
           final extra = state.extra as Map<String, dynamic>? ?? {};
           return LeaveReviewScreen(
             vendorName: extra['vendorName'] as String? ?? 'Vendor',
+            bookingId: extra['bookingId'] as String?,
           );
         },
       ),

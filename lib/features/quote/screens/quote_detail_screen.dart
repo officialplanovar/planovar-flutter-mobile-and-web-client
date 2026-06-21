@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/mock/mock_quote_service.dart';
+import '../../../core/services/quote_service.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
@@ -19,7 +19,7 @@ class QuoteDetailScreen extends StatefulWidget {
 }
 
 class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
-  final _quoteService = MockQuoteService();
+  final _quoteService = QuoteService();
   QuoteModel? _quote;
   bool _loading = true;
 

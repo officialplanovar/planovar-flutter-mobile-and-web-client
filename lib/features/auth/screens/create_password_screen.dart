@@ -6,6 +6,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/auth_illustration.dart';
 import '../../../shared/widgets/auth_step_bar.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../data/auth_repository.dart';
 
 class CreatePasswordScreen extends StatefulWidget {
   const CreatePasswordScreen({super.key});
@@ -19,6 +20,22 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
   final _confirmCtrl = TextEditingController();
   bool _obscure1 = true;
   bool _obscure2 = true;
+  bool _saving = false;
+
+  /// Replaces the temporary signup password with the user's chosen one.
+  Future<void> _setPasswordAndProceed() async {
+    setState(() => _saving = true);
+    try {
+      await AuthRepository().setPassword(_passwordCtrl.text);
+      if (mounted) context.go(AppRoutes.categoryPref);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _saving = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
+    }
+  }
 
   bool get _hasCapital => _passwordCtrl.text.contains(RegExp(r'[A-Z]'));
   bool get _hasNumber => _passwordCtrl.text.contains(RegExp(r'[0-9]'));
@@ -148,9 +165,9 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
                     ],
                     const SizedBox(height: 36),
                     GlossyButton(
-                      label: 'Proceed',
-                      onPressed: _allCriteriaMet
-                          ? () => context.go(AppRoutes.categoryPref)
+                      label: _saving ? 'Saving…' : 'Proceed',
+                      onPressed: (_allCriteriaMet && !_saving)
+                          ? _setPasswordAndProceed
                           : null,
                     ),
                     const SizedBox(height: 32),

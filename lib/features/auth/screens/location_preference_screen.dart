@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/mock/mock_location_service.dart';
+import '../../../core/services/reference_data_service.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/country_model.dart';
@@ -9,6 +9,8 @@ import '../../../shared/models/city_model.dart';
 import '../../../shared/widgets/auth_illustration.dart';
 import '../../../shared/widgets/auth_step_bar.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../data/auth_remote_data_source.dart';
+import '../../../core/api/api_client.dart';
 
 class LocationPreferenceScreen extends StatefulWidget {
   const LocationPreferenceScreen({super.key});
@@ -19,12 +21,26 @@ class LocationPreferenceScreen extends StatefulWidget {
 }
 
 class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
-  final _locationService = MockLocationService();
+  final _locationService = LocationService();
   List<CountryModel> _countries = [];
   List<CityModel> _cities = [];
   CountryModel? _selectedCountry;
   CityModel? _selectedCity;
   bool _loading = true;
+  bool _saving = false;
+
+  Future<void> _saveAndProceed() async {
+    setState(() => _saving = true);
+    try {
+      // Best-effort: a prefs hiccup shouldn't block onboarding.
+      await AuthRemoteDataSource(ApiClient()).updateProfile({
+        if (_selectedCountry != null)
+          'preferredCountryId': _selectedCountry!.id,
+        if (_selectedCity != null) 'preferredCityId': _selectedCity!.id,
+      });
+    } catch (_) {}
+    if (mounted) context.go(AppRoutes.createPassword);
+  }
 
   @override
   void initState() {
@@ -192,8 +208,8 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(24, 0, 24, 28),
                     child: GlossyButton(
-                      label: 'Proceed',
-                      onPressed: () => context.go(AppRoutes.createPassword),
+                      label: _saving ? 'Saving…' : 'Proceed',
+                      onPressed: _saving ? null : _saveAndProceed,
                     ),
                   ),
                 ],

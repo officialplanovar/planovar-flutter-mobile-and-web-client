@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/services/event_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/listing_model.dart';
 import '../../../shared/models/vendor_model.dart';
@@ -22,6 +23,27 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
   int _activeCategory = 0;
   final Set<String> _sourcedVendorIds = {};
   bool _showReview = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _persistEvent();
+  }
+
+  /// Wizard data is complete by this step — persist the event to the API
+  /// (best-effort; the recommendations UI works regardless).
+  Future<void> _persistEvent() async {
+    if (widget.eventData.isEmpty) return;
+    try {
+      await EventService().createFromWizard(widget.eventData);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Event created 🎉')),
+      );
+    } catch (_) {
+      // Stay silent — the user can retry from My Events.
+    }
+  }
 
   List<String> get _categories =>
       (widget.eventData['categories'] as List<dynamic>?)

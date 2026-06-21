@@ -2,8 +2,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/mock/mock_data.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/services/listing_service.dart';
+import '../../../core/services/vendor_service.dart';
 import '../../../core/state/overlay_state.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/listing_model.dart';
@@ -28,28 +29,63 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
   final _searchCtrl = TextEditingController();
   String _activeFilter = 'all';
 
+  final _vendorService = VendorService();
+  final _listingService = ListingService();
+
+  bool _loading = true;
+  bool _failed = false;
+  List<VendorModel> _allVendors = const [];
+  List<ListingModel> _allListings = const [];
+
   bool get _isProductsCategory => widget.categorySlug == 'products';
 
-  // ── Vendor mode ───────────────────────────────────────────────────────────
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _failed = false;
+    });
+    try {
+      if (_isProductsCategory) {
+        // "Products" is a cross-category view of every fixed-price listing.
+        _allListings =
+            await _listingService.searchListings(pricingType: 'FIXED');
+      } else {
+        _allVendors = await _vendorService.getVendors(
+          category: widget.categorySlug == 'all' ? null : widget.categorySlug,
+        );
+      }
+      if (mounted) setState(() => _loading = false);
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _failed = true;
+        });
+      }
+    }
+  }
+
+  // ── Vendor mode (query filtered client-side over the loaded set) ───────────
   List<VendorModel> get _vendors {
     final q = _searchCtrl.text.trim().toLowerCase();
-    final all = MockData.vendors.where((v) =>
-        v.categories.any((c) =>
-            c.toLowerCase() == widget.categorySlug.toLowerCase()) ||
-        widget.categorySlug == 'all');
-    final filtered = all.isEmpty ? MockData.vendors : all;
-    if (q.isEmpty) return filtered.toList();
-    return filtered
+    if (q.isEmpty) return _allVendors;
+    return _allVendors
         .where((v) => v.businessName.toLowerCase().contains(q))
         .toList();
   }
 
   // ── Product mode ──────────────────────────────────────────────────────────
   List<ListingModel> get _listings {
-    final base = MockData.listings.where((l) => l.pricingType == 'fixed');
     final q = _searchCtrl.text.trim().toLowerCase();
-    final searched =
-        q.isEmpty ? base : base.where((l) => l.title.toLowerCase().contains(q));
+    final searched = q.isEmpty
+        ? _allListings
+        : _allListings.where((l) => l.title.toLowerCase().contains(q));
     return searched.where((l) {
       if (_activeFilter == 'sale') return !l.isRentable;
       if (_activeFilter == 'rent') return l.isRentable;
@@ -222,7 +258,16 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
 
           // Grid — products or vendors depending on category
           Expanded(
-            child: _isProductsCategory
+            child: _loading
+                ? const Center(
+                    child: CircularProgressIndicator(color: AppColors.primary),
+                  )
+                : _failed
+                ? _ResultsMessage(
+                    message: 'Something went wrong. Tap to retry.',
+                    onTap: _load,
+                  )
+                : _isProductsCategory
                 ? (listings.isEmpty
                     ? Center(
                         child: Text(
@@ -321,6 +366,37 @@ class _FilterChip extends StatelessWidget {
             fontSize: 13,
             fontWeight: FontWeight.w600,
             color: selected ? Colors.white : const Color(0xFF6B7280),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Tappable empty/error message
+// ---------------------------------------------------------------------------
+
+class _ResultsMessage extends StatelessWidget {
+  const _ResultsMessage({required this.message, this.onTap});
+
+  final String message;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Text(
+            message,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.urbanist(
+              fontSize: 15,
+              color: const Color(0xFF9CA3AF),
+            ),
           ),
         ),
       ),

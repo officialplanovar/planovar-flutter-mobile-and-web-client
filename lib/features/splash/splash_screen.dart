@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/router/app_routes.dart';
 import '../../core/theme/app_colors.dart';
+import '../auth/data/auth_repository.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -28,17 +29,32 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _navigate() async {
-    await Future.delayed(const Duration(milliseconds: 2600));
+    // Validate the persisted session (token) instead of trusting a flag that
+    // earlier was only set on the login screen, never on register→verify.
+    final results = await Future.wait<dynamic>([
+      _isAuthenticated(),
+      Future.delayed(const Duration(milliseconds: 2000)),
+    ]);
     if (!mounted) return;
+    final loggedIn = results[0] as bool;
     final prefs = await SharedPreferences.getInstance();
-    final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
     final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
-    if (isLoggedIn) {
+    await prefs.setBool('isLoggedIn', loggedIn);
+    if (loggedIn) {
       context.go(AppRoutes.homeFeed);
     } else if (seenOnboarding) {
       context.go(AppRoutes.login);
     } else {
       context.go(AppRoutes.onboarding);
+    }
+  }
+
+  Future<bool> _isAuthenticated() async {
+    try {
+      await AuthRepository().getMe();
+      return true;
+    } catch (_) {
+      return false;
     }
   }
 

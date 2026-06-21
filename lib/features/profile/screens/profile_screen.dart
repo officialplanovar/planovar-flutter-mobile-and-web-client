@@ -2,19 +2,56 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/mock/mock_data.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/services/booking_service.dart';
+import '../../../core/services/event_service.dart';
+import '../../../core/services/vendor_service.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/models/user_model.dart';
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/bloc/auth_event.dart';
 import '../../auth/bloc/auth_state.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  int? _events;
+  int? _orders;
+  int? _saved;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    try {
+      final results = await Future.wait([
+        EventService().getEvents(),
+        BookingService().getBookings(),
+        VendorService().getFavourites(),
+      ]);
+      if (!mounted) return;
+      setState(() {
+        _events = (results[0] as List).length;
+        _orders = (results[1] as List).length;
+        _saved = (results[2] as List).length;
+      });
+    } catch (_) {
+      // Leave counts null → shown as '—'.
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final user = MockData.currentUser;
+    final authState = context.watch<AuthBloc>().state;
+    final user = authState is AuthAuthenticated ? authState.user : null;
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthUnauthenticated) {
@@ -94,7 +131,9 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 40),
+              // Clear the shell's bottom navigation bar so the sign-out button
+              // isn't overlapped.
+              SizedBox(height: 110 + MediaQuery.of(context).padding.bottom),
             ],
           ),
         ),
@@ -102,7 +141,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, user) {
+  Widget _buildHeader(BuildContext context, UserModel? user) {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -126,7 +165,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 child: ClipOval(
                   child: Image.network(
-                    user.image ?? '',
+                    user?.image ?? '',
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
                       color: AppColors.primaryLight,
@@ -137,7 +176,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               Text(
-                user.name,
+                user?.name ?? 'Your profile',
                 style: GoogleFonts.urbanist(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -147,7 +186,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                '${user.email} · Lagos, Nigeria',
+                user?.email ?? '',
                 style: GoogleFonts.urbanist(
                   fontSize: 13,
                   color: const Color(0xFF9CA3AF),
@@ -176,16 +215,16 @@ class ProfileScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: const IntrinsicHeight(
+      child: IntrinsicHeight(
         child: Row(
           children: [
-            _StatCol(value: '2', label: 'Events'),
-            VerticalDivider(width: 1, thickness: 1, color: Color(0xFFE5E7EB)),
-            _StatCol(value: '3', label: 'Orders'),
-            VerticalDivider(width: 1, thickness: 1, color: Color(0xFFE5E7EB)),
-            _StatCol(value: '8', label: 'Saved'),
-            VerticalDivider(width: 1, thickness: 1, color: Color(0xFFE5E7EB)),
-            _StatCol(value: '3.9', label: 'Rating'),
+            _StatCol(value: _events?.toString() ?? '—', label: 'Events'),
+            const VerticalDivider(width: 1, thickness: 1, color: Color(0xFFE5E7EB)),
+            _StatCol(value: _orders?.toString() ?? '—', label: 'Orders'),
+            const VerticalDivider(width: 1, thickness: 1, color: Color(0xFFE5E7EB)),
+            _StatCol(value: _saved?.toString() ?? '—', label: 'Saved'),
+            const VerticalDivider(width: 1, thickness: 1, color: Color(0xFFE5E7EB)),
+            const _StatCol(value: '—', label: 'Reviews'),
           ],
         ),
       ),

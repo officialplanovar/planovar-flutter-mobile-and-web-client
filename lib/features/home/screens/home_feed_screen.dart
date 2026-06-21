@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/mock/mock_data.dart';
 import '../../../core/mock/mock_notification_service.dart';
+import '../../auth/bloc/auth_bloc.dart';
+import '../../auth/bloc/auth_state.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/services/booking_service.dart';
+import '../../../core/services/reference_data_service.dart';
+import '../../../core/services/vendor_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/booking_model.dart';
 import '../../../shared/models/category_model.dart';
@@ -30,26 +35,74 @@ class HomeFeedScreen extends StatefulWidget {
 
 class _HomeFeedScreenState extends State<HomeFeedScreen> {
   final _notifService = MockNotificationService();
-  final _user = MockData.currentUser;
 
-  List<BookingModel> get _upcomingEvents => MockData.bookings
+  // Live feed data from the API. Empty = show empty/hidden section (no mock).
+  List<CategoryModel> _liveCategories = [];
+  List<VendorModel> _liveVendors = [];
+  List<BookingModel> _liveBookings = [];
+  List<ListingModel> _liveProducts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFeed();
+  }
+
+  Future<void> _loadFeed() async {
+    try {
+      final categories = CategoryService().getCategories();
+      final vendorsF = VendorService().getVendors();
+      final bookingsF = BookingService().getBookings();
+      final vendors = await vendorsF;
+
+      // Products strip = active listings from the top recommended vendors
+      // (real Prisma shape via /vendors/:id listings — reliable, not Typesense).
+      final listingLists = await Future.wait(
+        vendors.take(3).map((v) => VendorService().getVendorListings(v.id)),
+      );
+      final products = listingLists
+          .expand((l) => l)
+          .where((l) => l.isActive)
+          .toList();
+
+      final results = await Future.wait([categories, bookingsF]);
+      if (!mounted) return;
+      setState(() {
+        _liveCategories = results[0] as List<CategoryModel>;
+        _liveVendors = vendors;
+        _liveBookings = results[1] as List<BookingModel>;
+        _liveProducts = products;
+      });
+    } catch (_) {
+      // Keep sections empty on error — no mock data shown.
+    }
+  }
+
+  List<BookingModel> get _upcomingEvents => _liveBookings
       .where((b) =>
-          b.status != 'completed' && b.eventDate.isAfter(DateTime.now()))
+          b.status != 'completed' &&
+          b.status != 'cancelled' &&
+          b.eventDate.isAfter(DateTime.now()))
       .toList();
 
   @override
   Widget build(BuildContext context) {
-    final categories = MockData.categories.take(8).toList();
-    final vendors = MockData.vendors.take(4).toList();
-    final products = MockData.listings
-        .where((l) => l.pricingType == 'fixed')
-        .take(4)
-        .toList();
+    final authState = context.watch<AuthBloc>().state;
+    final user = authState is AuthAuthenticated ? authState.user : null;
+    final nameParts = (user?.name ?? '').trim().split(RegExp(r'\s+'));
+    final firstName = nameParts.isNotEmpty && nameParts.first.isNotEmpty
+        ? nameParts.first
+        : 'there';
+    final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
+
+    final categories = _liveCategories.take(8).toList();
+    final vendors = _liveVendors.take(4).toList();
+    final products = _liveProducts.take(4).toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: RefreshIndicator(
-        onRefresh: () async => setState(() {}),
+        onRefresh: _loadFeed,
         color: AppColors.primary,
         child: CustomScrollView(
           slivers: [
@@ -91,11 +144,11 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                           children: [
                             CircleAvatar(
                               radius: 26,
-                              backgroundImage: _user.image != null
-                                  ? NetworkImage(_user.image!)
+                              backgroundImage: user?.image != null
+                                  ? NetworkImage(user!.image!)
                                   : null,
                               backgroundColor: AppColors.primaryLight,
-                              child: _user.image == null
+                              child: user?.image == null
                                   ? const Icon(Icons.person_rounded,
                                       color: AppColors.primary)
                                   : null,
@@ -114,7 +167,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                                   ),
                                   Text.rich(TextSpan(children: [
                                     TextSpan(
-                                      text: '${_user.firstName} ',
+                                      text: '$firstName ',
                                       style: GoogleFonts.urbanist(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w800,
@@ -122,7 +175,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                                       ),
                                     ),
                                     TextSpan(
-                                      text: _user.lastName,
+                                      text: lastName,
                                       style: GoogleFonts.urbanist(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w800,

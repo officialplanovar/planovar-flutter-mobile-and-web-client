@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/mock/mock_category_service.dart';
+import '../../../core/services/reference_data_service.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/api/api_client.dart';
 import '../../../shared/models/category_model.dart';
 import '../../../shared/widgets/auth_step_bar.dart';
 import '../../../shared/widgets/glossy_button.dart';
 import '../../../shared/widgets/network_image_widget.dart';
+import '../data/auth_remote_data_source.dart';
 
 class CategoryPreferenceScreen extends StatefulWidget {
   const CategoryPreferenceScreen({super.key});
@@ -18,10 +20,22 @@ class CategoryPreferenceScreen extends StatefulWidget {
 }
 
 class _CategoryPreferenceScreenState extends State<CategoryPreferenceScreen> {
-  final _categoryService = MockCategoryService();
+  final _categoryService = CategoryService();
   List<CategoryModel> _categories = [];
   final Set<String> _selected = {};
   bool _loading = true;
+  bool _saving = false;
+
+  Future<void> _saveAndFinish() async {
+    setState(() => _saving = true);
+    try {
+      await AuthRemoteDataSource(ApiClient())
+          .setCategoryPreferences(_selected.toList());
+    } catch (_) {
+      // Best-effort — don't block entry into the app.
+    }
+    if (mounted) context.go(AppRoutes.homeFeed);
+  }
 
   @override
   void initState() {
@@ -165,8 +179,8 @@ class _CategoryPreferenceScreenState extends State<CategoryPreferenceScreen> {
                     padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
                     child: GlossyButton(
                       label: 'Proceed',
-                      onPressed: _selected.isNotEmpty
-                          ? () => context.go(AppRoutes.homeFeed)
+                      onPressed: (_selected.isNotEmpty && !_saving)
+                          ? _saveAndFinish
                           : null,
                     ),
                   ),

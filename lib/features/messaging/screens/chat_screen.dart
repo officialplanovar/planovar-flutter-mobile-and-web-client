@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../core/mock/mock_messaging_service.dart';
+import '../../../core/services/chat_socket.dart';
+import '../../../core/services/messaging_service.dart';
+import '../../calls/call_screen.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/state/overlay_state.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/conversation_model.dart';
 import '../../../shared/models/message_model.dart';
 import '../../../shared/models/quote_model.dart';
+import '../../auth/bloc/auth_bloc.dart';
+import '../../auth/bloc/auth_state.dart';
 
 class ChatScreen extends StatefulWidget {
   final String conversationId;
@@ -20,7 +25,8 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final _service = MockMessagingService();
+  final _service = MessagingService();
+  final _socket = ChatSocket();
   final _msgCtrl = TextEditingController();
   final _scrollCtrl = ScrollController();
 
@@ -28,31 +34,60 @@ class _ChatScreenState extends State<ChatScreen> {
   ConversationModel? _conversation;
   bool _loading = true;
 
-  static const _currentUserId = 'user-001';
+  String _currentUserId = '';
 
   @override
   void initState() {
     super.initState();
+    final auth = context.read<AuthBloc>().state;
+    if (auth is AuthAuthenticated) _currentUserId = auth.user.id;
     _load();
+    _connectSocket();
   }
 
   @override
   void dispose() {
+    _socket.leave(widget.conversationId);
+    _socket.dispose();
     _msgCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _load() async {
-    final convos = await _service.getConversations();
-    final msgs = await _service.getMessages(widget.conversationId);
-    if (mounted) {
-      setState(() {
-        _conversation = convos.where((c) => c.id == widget.conversationId).firstOrNull;
-        _messages = msgs;
-        _loading = false;
-      });
+  Future<void> _connectSocket() async {
+    await _socket.connect();
+    _socket.join(widget.conversationId);
+    _socket.onMessage((data) {
+      final msg = MessageModel.fromJson(data);
+      if (msg.conversationId != widget.conversationId) return;
+      if (_messages.any((m) => m.id == msg.id)) return; // dedupe
+      if (!mounted) return;
+      setState(() => _messages.add(msg));
+      _socket.markRead(widget.conversationId);
       WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+    });
+    _socket.onCallIncoming((d) {
+      if (d['conversationId'] != widget.conversationId) return;
+      if (!mounted) return;
+      _openCall(); // auto-join the room (callee)
+    });
+  }
+
+  Future<void> _load() async {
+    try {
+      final convos = await _service.getConversations();
+      final msgs = await _service.getMessages(widget.conversationId);
+      if (mounted) {
+        setState(() {
+          _conversation =
+              convos.where((c) => c.id == widget.conversationId).firstOrNull;
+          _messages = msgs;
+          _loading = false;
+        });
+        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -66,16 +101,28 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Future<void> _sendMessage() async {
+  void _openCall() {
+    final name = _conversation?.vendor?.businessName ?? 'Vendor';
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => CallScreen(
+        conversationId: widget.conversationId,
+        peerName: name,
+      ),
+    ));
+  }
+
+  void _startCall() {
+    _socket.inviteCall(widget.conversationId); // ring the other side
+    _openCall();
+  }
+
+  void _sendMessage() {
     final text = _msgCtrl.text.trim();
     if (text.isEmpty) return;
     _msgCtrl.clear();
-    final msg = await _service.sendMessage(
-      conversationId: widget.conversationId,
-      content: text,
-    );
-    setState(() => _messages.add(msg));
-    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+    // Send over the socket; the server persists + broadcasts back to the room
+    // (including us), and the onMessage listener appends it — single source.
+    _socket.sendMessage(conversationId: widget.conversationId, content: text);
   }
 
   bool _isSameDay(DateTime a, DateTime b) =>
@@ -393,16 +440,19 @@ class _ChatScreenState extends State<ChatScreen> {
                       ],
                     ),
                     const Spacer(),
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [Color(0xFFAB52F5), Color(0xFF7420D0)],
+                    GestureDetector(
+                      onTap: _startCall,
+                      child: Container(
+                        width: 44,
+                        height: 44,
+                        decoration: const BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [Color(0xFFAB52F5), Color(0xFF7420D0)],
+                          ),
+                          shape: BoxShape.circle,
                         ),
-                        shape: BoxShape.circle,
+                        child: const Icon(Icons.phone_rounded, color: Colors.white, size: 20),
                       ),
-                      child: const Icon(Icons.phone_rounded, color: Colors.white, size: 20),
                     ),
                   ],
                 ),

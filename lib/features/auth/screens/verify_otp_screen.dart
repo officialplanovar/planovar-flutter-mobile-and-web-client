@@ -147,29 +147,48 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                               textAlign: TextAlign.center,
                             ),
                       const SizedBox(height: 36),
-                      PinCodeTextField(
-                        appContext: context,
-                        length: 6,
-                        onChanged: (v) => setState(() => _otp = v),
-                        onCompleted: (_) => _verify(),
-                        pinTheme: PinTheme(
-                          shape: PinCodeFieldShape.box,
-                          borderRadius: BorderRadius.circular(12),
-                          fieldHeight: 56,
-                          fieldWidth: 48,
-                          activeFillColor: const Color(0xFFF2F2F2),
-                          inactiveFillColor: const Color(0xFFF2F2F2),
-                          selectedFillColor: AppColors.primaryLight,
-                          activeColor: Colors.transparent,
-                          inactiveColor: Colors.transparent,
-                          selectedColor: AppColors.primary,
-                        ),
-                        enableActiveFill: true,
-                        keyboardType: TextInputType.number,
-                        textStyle: GoogleFonts.urbanist(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w700,
-                          color: const Color(0xFF1A1A1A),
+                      // Theme override: PinCodeTextField renders a hidden TextField
+                      // under the boxes which inherits the app-wide filled/grey
+                      // InputDecorationTheme — that painted a grey bar behind the
+                      // row. Strip the fill locally (matches the vendor app).
+                      Center(
+                        child: SizedBox(
+                          width: 320,
+                          child: Theme(
+                            data: Theme.of(context).copyWith(
+                              inputDecorationTheme: const InputDecorationTheme(
+                                filled: false,
+                                border: InputBorder.none,
+                              ),
+                            ),
+                            child: PinCodeTextField(
+                              appContext: context,
+                              length: 6,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              onChanged: (v) => setState(() => _otp = v),
+                              onCompleted: (_) => _verify(),
+                              pinTheme: PinTheme(
+                                shape: PinCodeFieldShape.box,
+                                borderRadius: BorderRadius.circular(12),
+                                fieldHeight: 56,
+                                fieldWidth: 48,
+                                borderWidth: 1.5,
+                                activeFillColor: Colors.white,
+                                selectedFillColor: Colors.white,
+                                inactiveFillColor: Colors.white,
+                                inactiveColor: AppColors.border,
+                                selectedColor: AppColors.primary,
+                                activeColor: AppColors.primary,
+                              ),
+                              enableActiveFill: true,
+                              keyboardType: TextInputType.number,
+                              textStyle: GoogleFonts.urbanist(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 24),

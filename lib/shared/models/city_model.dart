@@ -16,12 +16,15 @@ class CityModel extends Equatable {
   });
 
   factory CityModel.fromJson(Map<String, dynamic> json) {
+    // API serializes Prisma Decimal coordinates as strings.
+    double toD(dynamic v) =>
+        v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
     return CityModel(
       id: json['id'] as String,
       name: json['name'] as String,
       state: json['state'] as String,
-      latitude: (json['latitude'] as num).toDouble(),
-      longitude: (json['longitude'] as num).toDouble(),
+      latitude: toD(json['latitude']),
+      longitude: toD(json['longitude']),
     );
   }
 

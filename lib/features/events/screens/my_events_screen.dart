@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/services/event_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/event_model.dart';
 import '../../../shared/models/listing_model.dart';
@@ -19,6 +20,22 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
   final _pageController = PageController();
   int _tabIndex = 0;
   int _subTabIndex = 0; // 0=Upcoming, 1=Past, 2=Cancelled
+
+  /// Live events from the API (mock fallback while loading / on error).
+  List<EventModel> _liveEvents = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadEvents();
+  }
+
+  Future<void> _loadEvents() async {
+    try {
+      final events = await EventService().getEvents();
+      if (mounted) setState(() => _liveEvents = events);
+    } catch (_) {}
+  }
 
   static const List<String> _months = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -176,7 +193,8 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
                   onPageChanged: (i) => setState(() => _tabIndex = i),
                   children: [
                     _EventsTab(
-                      events: MockData.events,
+                      events:
+                          _liveEvents.isNotEmpty ? _liveEvents : MockData.events,
                       fmtDate: _fmtDate,
                       subTabIndex: _subTabIndex,
                     ),

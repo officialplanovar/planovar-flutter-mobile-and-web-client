@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/services/listing_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/listing_model.dart';
 import '../../../shared/widgets/add_to_event_sheet.dart';
@@ -27,17 +28,33 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
   String? _selectedColor;
   int _quantity = 1;
 
-  late final ListingModel listing;
+  ListingModel? _listing;
+
+  /// Non-null once loaded; build() shows a loader until then.
+  ListingModel get listing => _listing!;
 
   @override
   void initState() {
     super.initState();
-    listing = MockData.listings.firstWhere(
-      (l) => l.id == widget.listingId,
-      orElse: () => MockData.listings.first,
-    );
-    if (listing.sizes.isNotEmpty) _selectedSize = listing.sizes.first;
-    if (listing.colors.isNotEmpty) _selectedColor = listing.colors.first;
+    _load();
+  }
+
+  Future<void> _load() async {
+    // Live listing from the API; falls back to mock data for demo ids.
+    ListingModel? loaded;
+    try {
+      loaded = await ListingService().getListing(widget.listingId);
+    } catch (_) {}
+    loaded ??= MockData.listings
+            .where((l) => l.id == widget.listingId)
+            .firstOrNull ??
+        (MockData.listings.isNotEmpty ? MockData.listings.first : null);
+    if (!mounted || loaded == null) return;
+    setState(() {
+      _listing = loaded;
+      if (loaded!.sizes.isNotEmpty) _selectedSize = loaded.sizes.first;
+      if (loaded.colors.isNotEmpty) _selectedColor = loaded.colors.first;
+    });
   }
 
   static String _fmt(double n) {
@@ -88,6 +105,12 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_listing == null) {
+      return const Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     final screenH = MediaQuery.of(context).size.height;
 
     return Scaffold(

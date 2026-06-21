@@ -5,6 +5,7 @@ import '../../../core/router/app_routes.dart';
 import '../../../shared/widgets/auth_illustration.dart';
 import '../../../shared/widgets/auth_step_bar.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../data/auth_repository.dart';
 
 class PhoneScreen extends StatefulWidget {
   const PhoneScreen({super.key});
@@ -15,6 +16,26 @@ class PhoneScreen extends StatefulWidget {
 
 class _PhoneScreenState extends State<PhoneScreen> {
   final _phoneCtrl = TextEditingController();
+  bool _saving = false;
+
+  Future<void> _saveAndProceed() async {
+    final raw = _phoneCtrl.text.trim();
+    if (raw.isEmpty) {
+      context.go(AppRoutes.locationPref);
+      return;
+    }
+    setState(() => _saving = true);
+    try {
+      await AuthRepository().updateProfile(phone: '$_dialCode$raw');
+      if (mounted) context.go(AppRoutes.locationPref);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _saving = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
+    }
+  }
 
   static const _dialCodes = [
     (code: '+234', flag: '🇳🇬', label: 'Nigeria'),
@@ -161,8 +182,8 @@ class _PhoneScreenState extends State<PhoneScreen> {
                     ),
                     const SizedBox(height: 36),
                     GlossyButton(
-                      label: 'Proceed',
-                      onPressed: () => context.go(AppRoutes.locationPref),
+                      label: _saving ? 'Saving…' : 'Proceed',
+                      onPressed: _saving ? null : _saveAndProceed,
                     ),
                     const SizedBox(height: 18),
                     Center(
