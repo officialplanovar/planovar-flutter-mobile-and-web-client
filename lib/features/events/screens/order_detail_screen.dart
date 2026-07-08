@@ -29,12 +29,12 @@ class OrderDetailScreen extends StatelessWidget {
         status == 'Out for Delivery';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: Column(
         children: [
           // ── Header ──────────────────────────────────────────────────────
           Container(
-            color: AppColors.primaryLight,
+            color: context.c.primaryLight,
             padding: EdgeInsets.only(
               top: MediaQuery.of(context).padding.top + 8,
               left: 16,
@@ -49,7 +49,7 @@ class OrderDetailScreen extends StatelessWidget {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.c.surface,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
@@ -59,10 +59,10 @@ class OrderDetailScreen extends StatelessWidget {
                         ),
                       ],
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.arrow_back_ios_new_rounded,
                       size: 16,
-                      color: Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                 ),
@@ -73,7 +73,7 @@ class OrderDetailScreen extends StatelessWidget {
                     style: GoogleFonts.urbanist(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                 ),
@@ -95,7 +95,7 @@ class OrderDetailScreen extends StatelessWidget {
                   _buildTimelineCard(context, isCompleted),
                   const SizedBox(height: 16),
                   // ── Banner ─────────────────────────────────────────────
-                  _buildBanner(isPending, isCompleted),
+                  _buildBanner(context, isPending, isCompleted),
                   const SizedBox(height: 24),
                   // ── Bottom Button ──────────────────────────────────────
                   _buildBottomButton(context, isCompleted, isPending),
@@ -113,7 +113,7 @@ class OrderDetailScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surface,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
@@ -138,9 +138,9 @@ class OrderDetailScreen extends StatelessWidget {
                         width: 80,
                         height: 80,
                         fit: BoxFit.cover,
-                        errorBuilder: (ctx, e, st) => _imgPlaceholder(),
+                        errorBuilder: (ctx, e, st) => _imgPlaceholder(context),
                       )
-                    : _imgPlaceholder(),
+                    : _imgPlaceholder(context),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -152,7 +152,7 @@ class OrderDetailScreen extends StatelessWidget {
                       style: GoogleFonts.urbanist(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1A1A2E),
+                        color: context.c.textPrimary,
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -162,7 +162,7 @@ class OrderDetailScreen extends StatelessWidget {
                       '13 Mar 2026',
                       style: GoogleFonts.urbanist(
                         fontSize: 12,
-                        color: const Color(0xFF6B7280),
+                        color: context.c.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 3),
@@ -170,7 +170,7 @@ class OrderDetailScreen extends StatelessWidget {
                       listing.vendor?.businessName ?? 'Vendor',
                       style: GoogleFonts.urbanist(
                         fontSize: 12,
-                        color: const Color(0xFF6B7280),
+                        color: context.c.textSecondary,
                       ),
                     ),
                   ],
@@ -186,7 +186,7 @@ class OrderDetailScreen extends StatelessWidget {
                 'Status',
                 style: GoogleFonts.urbanist(
                   fontSize: 13,
-                  color: const Color(0xFF6B7280),
+                  color: context.c.textSecondary,
                 ),
               ),
               const Spacer(),
@@ -209,9 +209,9 @@ class OrderDetailScreen extends StatelessWidget {
           ),
           const SizedBox(height: 14),
           // Fee rows
-          _feeRow('Platform Fee', '₦2,300'),
-          _feeRow('Delivery (Lagos Island → Lekki)', '₦5,000'),
-          _feeRow('Sub-total', '₦307,300'),
+          _feeRow(context, 'Platform Fee', '₦2,300'),
+          _feeRow(context, 'Delivery (Lagos Island → Lekki)', '₦5,000'),
+          _feeRow(context, 'Sub-total', '₦307,300'),
           const Divider(height: 24),
           // Total
           Row(
@@ -221,7 +221,7 @@ class OrderDetailScreen extends StatelessWidget {
                 style: GoogleFonts.urbanist(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A1A2E),
+                  color: context.c.textPrimary,
                 ),
               ),
               const Spacer(),
@@ -230,7 +230,7 @@ class OrderDetailScreen extends StatelessWidget {
                 style: GoogleFonts.urbanist(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A1A2E),
+                  color: context.c.textPrimary,
                 ),
               ),
             ],
@@ -240,7 +240,7 @@ class OrderDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _feeRow(String label, String value) {
+  Widget _feeRow(BuildContext context, String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -249,7 +249,7 @@ class OrderDetailScreen extends StatelessWidget {
             label,
             style: GoogleFonts.urbanist(
               fontSize: 13,
-              color: const Color(0xFF6B7280),
+              color: context.c.textSecondary,
             ),
           ),
           const Spacer(),
@@ -258,7 +258,7 @@ class OrderDetailScreen extends StatelessWidget {
             style: GoogleFonts.urbanist(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF1A1A2E),
+              color: context.c.textPrimary,
             ),
           ),
         ],
@@ -303,7 +303,7 @@ class OrderDetailScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surface,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
@@ -321,7 +321,7 @@ class OrderDetailScreen extends StatelessWidget {
             style: GoogleFonts.urbanist(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF1A1A2E),
+              color: context.c.textPrimary,
             ),
           ),
           const SizedBox(height: 20),
@@ -329,14 +329,15 @@ class OrderDetailScreen extends StatelessWidget {
             final i = entry.key;
             final step = entry.value;
             final isLast = i == steps.length - 1;
-            return _buildTimelineStep(step, isLast);
+            return _buildTimelineStep(context, step, isLast);
           }),
         ],
       ),
     );
   }
 
-  Widget _buildTimelineStep(_OrderTimelineStep step, bool isLast) {
+  Widget _buildTimelineStep(
+      BuildContext context, _OrderTimelineStep step, bool isLast) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -368,10 +369,10 @@ class OrderDetailScreen extends StatelessWidget {
                 width: 2,
                 height: 44,
                 margin: const EdgeInsets.symmetric(vertical: 2),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   border: Border(
                     left: BorderSide(
-                      color: Color(0xFFE5E7EB),
+                      color: context.c.border,
                       width: 1,
                       style: BorderStyle.solid,
                     ),
@@ -396,7 +397,7 @@ class OrderDetailScreen extends StatelessWidget {
                         style: GoogleFonts.urbanist(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF1A1A2E),
+                          color: context.c.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -404,7 +405,7 @@ class OrderDetailScreen extends StatelessWidget {
                         step.subtitle,
                         style: GoogleFonts.urbanist(
                           fontSize: 12,
-                          color: const Color(0xFF9CA3AF),
+                          color: context.c.textHint,
                         ),
                       ),
                     ],
@@ -438,12 +439,12 @@ class OrderDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBanner(bool isPending, bool isCompleted) {
+  Widget _buildBanner(BuildContext context, bool isPending, bool isCompleted) {
     if (isCompleted) {
       return Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: AppColors.primaryLight,
+          color: context.c.primaryLight,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Row(
@@ -459,7 +460,7 @@ class OrderDetailScreen extends StatelessWidget {
                       text: 'Order Delivered: You have ',
                       style: GoogleFonts.urbanist(
                         fontSize: 13,
-                        color: const Color(0xFF1A1A2E),
+                        color: context.c.textPrimary,
                       ),
                     ),
                     TextSpan(
@@ -474,7 +475,7 @@ class OrderDetailScreen extends StatelessWidget {
                       text: ' window for return/refund',
                       style: GoogleFonts.urbanist(
                         fontSize: 13,
-                        color: const Color(0xFF1A1A2E),
+                        color: context.c.textPrimary,
                       ),
                     ),
                   ],
@@ -489,7 +490,7 @@ class OrderDetailScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppColors.primaryLight,
+        color: context.c.primaryLight,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -505,7 +506,7 @@ class OrderDetailScreen extends StatelessWidget {
                     text: 'Estimated delivery: ',
                     style: GoogleFonts.urbanist(
                       fontSize: 13,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                   TextSpan(
@@ -520,7 +521,7 @@ class OrderDetailScreen extends StatelessWidget {
                     text: ' from order confirmation',
                     style: GoogleFonts.urbanist(
                       fontSize: 13,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                 ],
@@ -554,11 +555,11 @@ class OrderDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _imgPlaceholder() => Container(
+  Widget _imgPlaceholder(BuildContext context) => Container(
         width: 80,
         height: 80,
         decoration: BoxDecoration(
-          color: AppColors.primaryLight,
+          color: context.c.primaryLight,
           borderRadius: BorderRadius.circular(10),
         ),
         child: const Icon(Icons.shopping_bag_outlined,

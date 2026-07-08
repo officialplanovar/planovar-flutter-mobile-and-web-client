@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/services/upload_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glossy_button.dart';
 import 'create_event_step1_screen.dart' show EventStepHeader;
 
 class CreateEventStep2Screen extends StatefulWidget {
-  final String eventType;
+  final Map<String, dynamic> eventData;
 
-  const CreateEventStep2Screen({super.key, required this.eventType});
+  const CreateEventStep2Screen({super.key, required this.eventData});
 
   @override
   State<CreateEventStep2Screen> createState() => _CreateEventStep2ScreenState();
@@ -24,6 +26,35 @@ class _CreateEventStep2ScreenState extends State<CreateEventStep2Screen> {
   int _guests = 50;
   final _budgetMinCtrl = TextEditingController();
   final _budgetMaxCtrl = TextEditingController();
+  final _picker = ImagePicker();
+  String? _coverUrl;
+  bool _uploading = false;
+
+  Future<void> _pickThumbnail() async {
+    try {
+      final picked = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1600,
+        imageQuality: 85,
+      );
+      if (picked == null) return;
+      setState(() => _uploading = true);
+      final bytes = await picked.readAsBytes();
+      final url = await UploadService().uploadEventCover(bytes, picked.name);
+      if (!mounted) return;
+      setState(() {
+        _coverUrl = url;
+        _uploading = false;
+      });
+    } catch (e) {
+      if (mounted) setState(() => _uploading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+        );
+      }
+    }
+  }
 
   static const _months = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -86,13 +117,14 @@ class _CreateEventStep2ScreenState extends State<CreateEventStep2Screen> {
 
   void _next() {
     context.push(AppRoutes.createEventStep3, extra: {
-      'eventType': widget.eventType,
+      ...widget.eventData,
       'title': _titleCtrl.text.trim(),
       'venue': _venueCtrl.text.trim(),
       'date': _date,
       'guests': _guests,
       'budgetMin': double.tryParse(_budgetMinCtrl.text.replaceAll(',', '')),
       'budgetMax': double.tryParse(_budgetMaxCtrl.text.replaceAll(',', '')),
+      if (_coverUrl != null) 'coverUrl': _coverUrl,
     });
   }
 
@@ -101,7 +133,7 @@ class _CreateEventStep2ScreenState extends State<CreateEventStep2Screen> {
     final canProceed = _titleCtrl.text.trim().isNotEmpty && _date != null;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       body: Column(
         children: [
           EventStepHeader(
@@ -254,32 +286,64 @@ class _CreateEventStep2ScreenState extends State<CreateEventStep2Screen> {
                   _FieldLabel('Event Thumbnail'),
                   const SizedBox(height: 8),
                   GestureDetector(
-                    onTap: () {},
+                    onTap: _uploading ? null : _pickThumbnail,
                     child: Container(
                       height: 90,
+                      clipBehavior: Clip.antiAlias,
                       decoration: BoxDecoration(
-                        color: AppColors.primaryLight,
+                        color: context.c.primaryLight,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                             color: AppColors.primary.withValues(alpha: 0.3),
                             style: BorderStyle.solid),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.upload_rounded,
-                              color: AppColors.primary, size: 22),
-                          const SizedBox(width: 10),
-                          Text(
-                            'Upload thumbnail',
-                            style: GoogleFonts.urbanist(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ],
-                      ),
+                      child: _uploading
+                          ? const Center(
+                              child: SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColors.primary),
+                              ),
+                            )
+                          : _coverUrl != null
+                              ? Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    Image.network(_coverUrl!,
+                                        fit: BoxFit.cover),
+                                    Positioned(
+                                      top: 6,
+                                      right: 6,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.black54,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: const Icon(Icons.edit,
+                                            color: Colors.white, size: 14),
+                                      ),
+                                    ),
+                                  ],
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    const Icon(Icons.upload_rounded,
+                                        color: AppColors.primary, size: 22),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      'Upload thumbnail',
+                                      style: GoogleFonts.urbanist(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                     ),
                   ),
                 ],
@@ -310,7 +374,7 @@ class _FieldLabel extends StatelessWidget {
       style: GoogleFonts.urbanist(
         fontSize: 14,
         fontWeight: FontWeight.w700,
-        color: const Color(0xFF1A1A2E),
+        color: context.c.textPrimary,
       ),
     );
   }
@@ -333,16 +397,16 @@ class _TextField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: context.c.border),
       ),
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
         onChanged: onChanged,
         style: GoogleFonts.urbanist(
-            fontSize: 14, color: const Color(0xFF1A1A2E)),
+            fontSize: 14, color: context.c.textPrimary),
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: GoogleFonts.urbanist(
@@ -370,9 +434,9 @@ class _ReadonlyField extends StatelessWidget {
       height: 48,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: context.c.border),
       ),
       child: Row(
         children: [
@@ -382,12 +446,12 @@ class _ReadonlyField extends StatelessWidget {
               style: GoogleFonts.urbanist(
                 fontSize: 13,
                 color: text != null
-                    ? const Color(0xFF1A1A2E)
+                    ? context.c.textPrimary
                     : const Color(0xFFD1D5DB),
               ),
             ),
           ),
-          Icon(icon, size: 16, color: const Color(0xFF9CA3AF)),
+          Icon(icon, size: 16, color: context.c.textHint),
         ],
       ),
     );
@@ -406,9 +470,9 @@ class _GuestCounter extends StatelessWidget {
       height: 48,
       padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: context.c.border),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -418,8 +482,8 @@ class _GuestCounter extends StatelessWidget {
             child: Container(
               width: 28,
               height: 28,
-              decoration: const BoxDecoration(
-                color: AppColors.primaryLight,
+              decoration: BoxDecoration(
+                color: context.c.primaryLight,
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.remove, size: 14, color: AppColors.primary),
@@ -430,7 +494,7 @@ class _GuestCounter extends StatelessWidget {
             style: GoogleFonts.urbanist(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF1A1A2E),
+              color: context.c.textPrimary,
             ),
           ),
           GestureDetector(
@@ -438,8 +502,8 @@ class _GuestCounter extends StatelessWidget {
             child: Container(
               width: 28,
               height: 28,
-              decoration: const BoxDecoration(
-                color: AppColors.primaryLight,
+              decoration: BoxDecoration(
+                color: context.c.primaryLight,
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.add, size: 14, color: AppColors.primary),

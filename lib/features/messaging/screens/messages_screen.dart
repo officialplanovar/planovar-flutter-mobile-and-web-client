@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/services/messaging_service.dart';
+import '../../../core/services/chat_socket.dart';
 import '../../../core/mock/mock_notification_service.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
@@ -18,34 +19,96 @@ class MessagesScreen extends StatefulWidget {
 
 class _MessagesScreenState extends State<MessagesScreen> {
   final _service = MessagingService();
+  final _socket = ChatSocket();
   final _notifService = MockNotificationService();
   final _searchCtrl = TextEditingController();
 
   List<ConversationModel> _all = [];
   List<ConversationModel> _filtered = [];
   bool _loading = true;
+  String _myId = '';
 
   @override
   void initState() {
     super.initState();
+    _resolveMyId();
     _load();
+    _connectSocket();
+  }
+
+  Future<void> _resolveMyId() async {
+    final id = await _service.myId();
+    if (id != null && mounted) _myId = id;
   }
 
   @override
   void dispose() {
+    _socket.dispose();
     _searchCtrl.dispose();
     super.dispose();
   }
 
+  /// Live-updates the list: joins every conversation room and refetches on any
+  /// incoming message (updates preview, ordering and unread counts).
+  Future<void> _connectSocket() async {
+    await _socket.connect();
+    _socket.onReady(_joinAll);
+    _socket.onMessage(_onSocketMessage);
+    _joinAll();
+  }
+
+  void _joinAll() {
+    for (final c in _all) {
+      _socket.join(c.id);
+    }
+  }
+
+  /// Optimistically update the list on an incoming message: bump unread (unless
+  /// it's ours), refresh the preview and move it to the top. Race-free vs a
+  /// server refetch. Unknown conversations trigger a refetch to pull them in.
+  void _onSocketMessage(Map<String, dynamic> data) {
+    if (!mounted) return;
+    final convId = data['conversationId'] as String?;
+    if (convId == null) return;
+    final idx = _all.indexWhere((c) => c.id == convId);
+    if (idx < 0) {
+      _load();
+      return;
+    }
+    final senderId = data['senderId'] as String?;
+    final content = data['content'] as String?;
+    final mine = senderId != null && senderId == _myId;
+    final bumped = _all[idx].copyWith(
+      unreadCount: mine ? _all[idx].unreadCount : _all[idx].unreadCount + 1,
+      lastMessage: content ?? _all[idx].lastMessage,
+      lastMessageAt: DateTime.now(),
+    );
+    _all.removeAt(idx);
+    _all.insert(0, bumped);
+    setState(() {});
+    _filter(_searchCtrl.text);
+  }
+
+  /// Clears a conversation's unread locally when it's opened (the chat marks it
+  /// read server-side).
+  void _markReadLocal(String convId) {
+    final idx = _all.indexWhere((c) => c.id == convId);
+    if (idx >= 0 && _all[idx].unreadCount > 0) {
+      _all[idx] = _all[idx].copyWith(unreadCount: 0);
+      setState(() {});
+      _filter(_searchCtrl.text);
+    }
+  }
+
   Future<void> _load() async {
     final convs = await _service.getConversations();
-    if (mounted) {
-      setState(() {
-        _all = convs;
-        _filtered = convs;
-        _loading = false;
-      });
-    }
+    if (!mounted) return;
+    setState(() {
+      _all = convs;
+      _loading = false;
+    });
+    _filter(_searchCtrl.text); // preserve any active search
+    _joinAll(); // join rooms for any new conversations
   }
 
   void _filter(String query) {
@@ -90,15 +153,15 @@ class _MessagesScreenState extends State<MessagesScreen> {
     final unreadCount = _notifService.unreadCount;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: Column(
         children: [
           Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [Color(0xFFECDEFA), Color(0xFFF8F5FF)],
+                colors: [context.c.primaryLight, context.c.background],
               ),
             ),
             child: SafeArea(
@@ -119,14 +182,14 @@ class _MessagesScreenState extends State<MessagesScreen> {
                               style: GoogleFonts.urbanist(
                                 fontSize: 24,
                                 fontWeight: FontWeight.w800,
-                                color: const Color(0xFF1A1A2E),
+                                color: context.c.textPrimary,
                               ),
                             ),
                             Text(
                               'Stay Connected with your Vendors',
                               style: GoogleFonts.urbanist(
                                 fontSize: 13,
-                                color: const Color(0xFF9CA3AF),
+                                color: context.c.textHint,
                               ),
                             ),
                           ],
@@ -140,8 +203,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
                               Container(
                                 width: 44,
                                 height: 44,
-                                decoration: const BoxDecoration(
-                                  color: AppColors.primaryLight,
+                                decoration: BoxDecoration(
+                                  color: context.c.primaryLight,
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
@@ -182,7 +245,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                     Container(
                       height: 48,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.c.surface,
                         borderRadius: BorderRadius.circular(50),
                         boxShadow: [
                           BoxShadow(
@@ -195,9 +258,9 @@ class _MessagesScreenState extends State<MessagesScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.search_rounded,
-                            color: Color(0xFF9CA3AF),
+                            color: context.c.textHint,
                             size: 20,
                           ),
                           const SizedBox(width: 8),
@@ -211,7 +274,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                                 border: InputBorder.none,
                                 hintStyle: GoogleFonts.urbanist(
                                   fontSize: 14,
-                                  color: const Color(0xFF9CA3AF),
+                                  color: context.c.textHint,
                                 ),
                                 isDense: true,
                                 contentPadding: EdgeInsets.zero,
@@ -238,7 +301,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                           'No conversations yet',
                           style: GoogleFonts.urbanist(
                             fontSize: 15,
-                            color: const Color(0xFF9CA3AF),
+                            color: context.c.textHint,
                           ),
                         ),
                       )
@@ -253,6 +316,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
                             timeStr: _formatTime(conv.lastMessageAt),
                             fmtAmount: _fmtAmount,
                             onTap: () {
+                              _markReadLocal(conv.id);
                               if (conv.isGroup == true) {
                                 context.push(
                                   AppRoutes.eventGroupChat,
@@ -299,7 +363,7 @@ class _ConversationTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        color: Colors.white,
+        color: context.c.surface,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
           children: [
@@ -316,14 +380,14 @@ class _ConversationTile extends StatelessWidget {
                             errorBuilder: (_, __, ___) => Container(
                               width: 54,
                               height: 54,
-                              color: AppColors.primaryLight,
+                              color: context.c.primaryLight,
                               child: const Icon(Icons.store, color: AppColors.primary),
                             ),
                           )
                         : Container(
                             width: 54,
                             height: 54,
-                            color: AppColors.primaryLight,
+                            color: context.c.primaryLight,
                             child: const Icon(Icons.store, color: AppColors.primary),
                           ),
                   ),
@@ -342,7 +406,7 @@ class _ConversationTile extends StatelessWidget {
                           style: GoogleFonts.urbanist(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF1A1A2E),
+                            color: context.c.textPrimary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -352,7 +416,7 @@ class _ConversationTile extends StatelessWidget {
                         timeStr,
                         style: GoogleFonts.urbanist(
                           fontSize: 12,
-                          color: const Color(0xFF9CA3AF),
+                          color: context.c.textHint,
                         ),
                       ),
                     ],
@@ -361,7 +425,7 @@ class _ConversationTile extends StatelessWidget {
                   if (conv.isGroup == true)
                     Text(
                       'Group · ${conv.groupVendors.length} vendors',
-                      style: GoogleFonts.urbanist(fontSize: 13, color: const Color(0xFF9CA3AF)),
+                      style: GoogleFonts.urbanist(fontSize: 13, color: context.c.textHint),
                     )
                   else if (hasPending)
                     Row(
@@ -371,7 +435,7 @@ class _ConversationTile extends StatelessWidget {
                             'Quote sent - ₦${fmtAmount(conv.pendingQuoteAmount!)} · ',
                             style: GoogleFonts.urbanist(
                               fontSize: 13,
-                              color: const Color(0xFF9CA3AF),
+                              color: context.c.textHint,
                             ),
                             maxLines: 1,
                           ),
@@ -391,7 +455,7 @@ class _ConversationTile extends StatelessWidget {
                       conv.lastMessage ?? '',
                       style: GoogleFonts.urbanist(
                         fontSize: 13,
-                        color: const Color(0xFF9CA3AF),
+                        color: context.c.textHint,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -441,7 +505,7 @@ class _GroupAvatarStack extends StatelessWidget {
           // light purple background circle
           Container(
             width: 54, height: 54,
-            decoration: const BoxDecoration(color: AppColors.primaryLight, shape: BoxShape.circle),
+            decoration: BoxDecoration(color: context.c.primaryLight, shape: BoxShape.circle),
             child: const Icon(Icons.group_rounded, color: AppColors.primary, size: 22),
           ),
           // stacked mini-avatars — bottom right corner

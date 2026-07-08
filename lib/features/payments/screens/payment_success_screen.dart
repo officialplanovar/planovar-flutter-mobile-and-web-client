@@ -28,7 +28,7 @@ class PaymentSuccessScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -65,7 +65,7 @@ class PaymentSuccessScreen extends StatelessWidget {
                       style: GoogleFonts.urbanist(
                         fontSize: 26,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFF1A1A2E),
+                        color: context.c.textPrimary,
                       ),
                     ),
                     TextSpan(
@@ -85,14 +85,14 @@ class PaymentSuccessScreen extends StatelessWidget {
                 "Your booking is locked in. We've notified the vendor\nand your deposits have been securely processed.",
                 style: GoogleFonts.urbanist(
                   fontSize: 14,
-                  color: const Color(0xFF6B7280),
+                  color: context.c.textSecondary,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.c.surface,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
@@ -110,9 +110,9 @@ class PaymentSuccessScreen extends StatelessWidget {
                       value:
                           '#PN-${eventId.substring(0, eventId.length >= 5 ? 5 : eventId.length).toUpperCase()}',
                     ),
-                    const Divider(height: 20, color: Color(0xFFF3F4F6)),
+                    Divider(height: 20, color: context.c.divider),
                     _DetailRow(label: 'Vendor(s)', value: vendorName),
-                    const Divider(height: 20, color: Color(0xFFF3F4F6)),
+                    Divider(height: 20, color: context.c.divider),
                     _DetailRow(label: 'Date', value: _dateStr),
                   ],
                 ),
@@ -160,7 +160,7 @@ class _DetailRow extends StatelessWidget {
           style: GoogleFonts.urbanist(
             fontSize: 13,
             fontWeight: FontWeight.w500,
-            color: const Color(0xFF6B7280),
+            color: context.c.textSecondary,
           ),
         ),
         Text(
@@ -168,7 +168,7 @@ class _DetailRow extends StatelessWidget {
           style: GoogleFonts.urbanist(
             fontSize: 13,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF1A1A2E),
+            color: context.c.textPrimary,
           ),
         ),
       ],

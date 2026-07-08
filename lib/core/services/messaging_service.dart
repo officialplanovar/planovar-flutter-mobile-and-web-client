@@ -11,6 +11,17 @@ class MessagingService {
   final ApiClient _api;
   MessagingService({ApiClient? api}) : _api = api ?? ApiClient();
 
+  /// The current user's real id (from /users/me, bearer-auth). Reliable source
+  /// for "is this my message" — the AuthBloc user can be empty under bearer auth.
+  Future<String?> myId() async {
+    try {
+      final res = await _api.dio.get('/users/me');
+      return (res.data as Map?)?['id'] as String?;
+    } catch (_) {
+      return null;
+    }
+  }
+
   Future<List<ConversationModel>> getConversations() async {
     final res = await _api.dio.get('/conversations');
     ensureOk(res);
@@ -53,6 +64,13 @@ class MessagingService {
     return _mapConversation(Map<String, dynamic>.from(res.data));
   }
 
+  /// Gets (or creates) the event's GROUP chat — auto-adds all event vendors.
+  Future<ConversationModel> getOrCreateEventGroup(String eventId) async {
+    final res = await _api.dio.post('/conversations/events/$eventId/group');
+    ensureOk(res);
+    return _mapConversation(Map<String, dynamic>.from(res.data));
+  }
+
   // ── mapping (participant-based API conv → vendor-centric UI model) ─────────
 
   ConversationModel _mapConversation(Map<String, dynamic> c) {
@@ -71,13 +89,19 @@ class MessagingService {
     final lastMsg = c['lastMessage'];
     final lastMsgText = lastMsg is Map ? lastMsg['content'] as String? : null;
 
+    final vendorProfile = c['vendor'] as Map?;
     VendorModel? vendor;
     if (c['vendorId'] != null) {
       vendor = VendorModel(
         id: c['vendorId'] as String,
-        businessName: (otherUser?['name'] as String?) ?? 'Vendor',
+        businessName: (vendorProfile?['businessName'] as String?) ??
+            (otherUser?['name'] as String?) ??
+            'Vendor',
         slug: '',
-        coverUrl: otherUser?['image'] as String?,
+        // Prefer the vendor's logo/cover; fall back to the user image.
+        coverUrl: (vendorProfile?['logoUrl'] as String?) ??
+            (vendorProfile?['coverUrl'] as String?) ??
+            (otherUser?['image'] as String?),
         ratingAvg: 0,
         reviewCount: 0,
         subscriptionTier: 'BASIC',
@@ -85,6 +109,17 @@ class MessagingService {
         categories: const [],
       );
     }
+
+    final members = participants
+        .map((p) => (p as Map)['user'])
+        .whereType<Map>()
+        .map((u) => ChatParticipant(
+              userId: u['id'] as String? ?? '',
+              name: u['name'] as String? ?? 'Member',
+              avatarUrl: u['image'] as String?,
+            ))
+        .where((m) => m.userId.isNotEmpty)
+        .toList();
 
     return ConversationModel(
       id: c['id'] as String,
@@ -99,6 +134,7 @@ class MessagingService {
       isGroup: c['type'] == 'GROUP',
       groupName: c['groupName'] as String?,
       groupVendors: const [],
+      participants: members,
       eventId: c['eventId'] as String?,
     );
   }

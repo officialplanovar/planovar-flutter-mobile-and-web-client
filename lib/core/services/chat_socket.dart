@@ -59,6 +59,10 @@ class ChatSocket {
   void onCallIncoming(void Function(Map<String, dynamic>) cb) =>
       _socket?.on('call:incoming', (d) => cb(Map<String, dynamic>.from(d as Map)));
 
+  /// Fires once the server has authenticated the socket (emits 'connected').
+  /// Join rooms here — joining before auth completes fails the participant check.
+  void onReady(void Function() cb) => _socket?.on('connected', (_) => cb());
+
   void onMessage(void Function(Map<String, dynamic>) cb) =>
       _socket?.on('message', (d) => cb(Map<String, dynamic>.from(d as Map)));
 

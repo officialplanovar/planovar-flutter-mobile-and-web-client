@@ -151,13 +151,23 @@ GoRouter createRouter() {
       // Vendor
       GoRoute(
         path: AppRoutes.vendorProfile,
-        builder: (_, state) => VendorProfileScreen(vendorId: state.pathParameters['id']!),
+        builder: (_, state) => VendorProfileScreen(
+          vendorId: state.pathParameters['id']!,
+          eventId: (state.extra as Map<String, dynamic>?)?['eventId'] as String?,
+          eventName:
+              (state.extra as Map<String, dynamic>?)?['eventName'] as String?,
+        ),
       ),
 
       // Listing
       GoRoute(
         path: AppRoutes.listingDetail,
-        builder: (_, state) => ListingDetailScreen(listingId: state.pathParameters['id']!),
+        builder: (_, state) => ListingDetailScreen(
+          listingId: state.pathParameters['id']!,
+          eventId: (state.extra as Map<String, dynamic>?)?['eventId'] as String?,
+          eventName:
+              (state.extra as Map<String, dynamic>?)?['eventName'] as String?,
+        ),
       ),
 
       // Bookings — literal paths must come before /bookings/:id
@@ -217,12 +227,21 @@ GoRouter createRouter() {
       ),
 
       // Event creation flow
-      GoRoute(path: AppRoutes.createEventStep1, builder: (_, __) => const CreateEventStep1Screen()),
+      GoRoute(
+        path: AppRoutes.createEventStep1,
+        builder: (_, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return CreateEventStep1Screen(
+            fromListingId: extra['fromListingId'] as String?,
+            fromVendorId: extra['fromVendorId'] as String?,
+          );
+        },
+      ),
       GoRoute(
         path: AppRoutes.createEventStep2,
         builder: (_, state) {
           final extra = state.extra as Map<String, dynamic>? ?? {};
-          return CreateEventStep2Screen(eventType: extra['eventType'] as String? ?? '');
+          return CreateEventStep2Screen(eventData: extra);
         },
       ),
       GoRoute(
@@ -444,9 +463,9 @@ class _AppShell extends StatelessWidget {
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.72),
-            border: const Border(
-              top: BorderSide(color: Color(0x18000000), width: 0.5),
+            color: context.c.surface.withValues(alpha: 0.82),
+            border: Border(
+              top: BorderSide(color: context.c.border, width: 0.5),
             ),
           ),
           height: 56 + bottomPadding,
@@ -471,12 +490,13 @@ class _AppShell extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: isActive
-                            ? Colors.white.withValues(alpha: 0.55)
+                            ? AppColors.primary.withValues(
+                                alpha: context.isDark ? 0.22 : 0.12)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(22),
                         border: isActive
                             ? Border.all(
-                                color: Colors.white.withValues(alpha: 0.7),
+                                color: AppColors.primary.withValues(alpha: 0.35),
                                 width: 0.5,
                               )
                             : null,
@@ -488,16 +508,16 @@ class _AppShell extends StatelessWidget {
                             isActive ? tab.activeIcon : tab.icon,
                             color: isActive
                                 ? AppColors.primary
-                                : AppColors.textSecondary,
+                                : context.c.textSecondary,
                             size: 24,
                           ),
                           const SizedBox(height: 2),
                           Text(
                             tab.label,
-                            style: AppTextStyles.caption.copyWith(
+                            style: AppTextStyles.caption(context).copyWith(
                               color: isActive
                                   ? AppColors.primary
-                                  : AppColors.textSecondary,
+                                  : context.c.textSecondary,
                               fontWeight: isActive
                                   ? FontWeight.w600
                                   : FontWeight.normal,

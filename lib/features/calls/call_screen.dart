@@ -117,7 +117,7 @@ class _CallScreenState extends State<CallScreen> {
             const Spacer(),
             CircleAvatar(
               radius: 56,
-              backgroundColor: AppColors.primaryLight,
+              backgroundColor: context.c.primaryLight,
               child: Text(
                 widget.peerName.isNotEmpty ? widget.peerName[0].toUpperCase() : '?',
                 style: GoogleFonts.urbanist(

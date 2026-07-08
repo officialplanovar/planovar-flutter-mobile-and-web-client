@@ -56,7 +56,7 @@ class AppInput extends StatelessWidget {
     final baseStyle = GoogleFonts.urbanist(
       fontSize: 15,
       fontWeight: FontWeight.w400,
-      color: AppColors.textPrimary,
+      color: context.c.textPrimary,
     );
 
     return Column(
@@ -69,7 +69,7 @@ class AppInput extends StatelessWidget {
             style: GoogleFonts.urbanist(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
+              color: context.c.textSecondary,
             ),
           ),
           const SizedBox(height: 6),
@@ -94,13 +94,13 @@ class AppInput extends StatelessWidget {
             hintStyle: GoogleFonts.urbanist(
               fontSize: 15,
               fontWeight: FontWeight.w400,
-              color: AppColors.textHint,
+              color: context.c.textHint,
             ),
             errorText: errorText,
             helperText: helperText,
             helperStyle: GoogleFonts.urbanist(
               fontSize: 12,
-              color: AppColors.textSecondary,
+              color: context.c.textSecondary,
             ),
             errorStyle: GoogleFonts.urbanist(
               fontSize: 12,
@@ -111,7 +111,7 @@ class AppInput extends StatelessWidget {
             prefixText: prefixText,
             prefixStyle: baseStyle,
             filled: true,
-            fillColor: enabled ? const Color(0xFFF2F2F2) : const Color(0xFFE8E8E8),
+            fillColor: enabled ? context.c.surfaceElevated : const Color(0xFFE8E8E8),
             contentPadding: contentPadding ??
                 const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
             counterText: '',

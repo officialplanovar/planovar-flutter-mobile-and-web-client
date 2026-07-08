@@ -123,7 +123,7 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppColors.primaryLight,
+                        color: context.c.primaryLight,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -131,14 +131,14 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
                           const Icon(Icons.list_alt_rounded, color: AppColors.primary),
                           const SizedBox(width: 10),
                           Expanded(
-                            child: Text(_listing!.title, style: AppTextStyles.label.copyWith(color: AppColors.primary)),
+                            child: Text(_listing!.title, style: AppTextStyles.label(context).copyWith(color: AppColors.primary)),
                           ),
                         ],
                       ),
                     ),
                     const SizedBox(height: 24),
                   ],
-                  Text('Event Details', style: AppTextStyles.heading4),
+                  Text('Event Details', style: AppTextStyles.heading4(context)),
                   const SizedBox(height: 16),
                   // Date picker
                   GestureDetector(
@@ -148,16 +148,16 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
                       decoration: BoxDecoration(
                         color: const Color(0xFFF9F9F9),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: context.c.border),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.calendar_today_outlined, color: AppColors.textSecondary),
+                          Icon(Icons.calendar_today_outlined, color: context.c.textSecondary),
                           const SizedBox(width: 10),
                           Text(
                             _eventDate != null ? Formatters.date(_eventDate!) : 'Select event date',
-                            style: AppTextStyles.body2.copyWith(
-                              color: _eventDate != null ? AppColors.textPrimary : AppColors.textHint,
+                            style: AppTextStyles.body2(context).copyWith(
+                              color: _eventDate != null ? context.c.textPrimary : context.c.textHint,
                             ),
                           ),
                         ],
@@ -186,7 +186,7 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
                   // Package selector
                   if (_listing != null && _listing!.packages.isNotEmpty) ...[
                     const SizedBox(height: 24),
-                    Text('Select Package', style: AppTextStyles.heading4),
+                    Text('Select Package', style: AppTextStyles.heading4(context)),
                     const SizedBox(height: 12),
                     ..._listing!.packages.map((pkg) {
                       final isSelected = _selectedPackage?.id == pkg.id;
@@ -196,10 +196,10 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
                           margin: const EdgeInsets.only(bottom: 8),
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: isSelected ? AppColors.primaryLight : AppColors.surface,
+                            color: isSelected ? context.c.primaryLight : context.c.surface,
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                              color: isSelected ? AppColors.primary : AppColors.border,
+                              color: isSelected ? AppColors.primary : context.c.border,
                               width: isSelected ? 2 : 1,
                             ),
                           ),
@@ -207,22 +207,22 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
                             children: [
                               Icon(
                                 isSelected ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
-                                color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                                color: isSelected ? AppColors.primary : context.c.textSecondary,
                               ),
                               const SizedBox(width: 10),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(pkg.name, style: AppTextStyles.label),
+                                    Text(pkg.name, style: AppTextStyles.label(context)),
                                     if (pkg.description != null)
-                                      Text(pkg.description!, style: AppTextStyles.caption),
+                                      Text(pkg.description!, style: AppTextStyles.caption(context)),
                                   ],
                                 ),
                               ),
                               Text(
                                 Formatters.currency(pkg.price),
-                                style: AppTextStyles.label.copyWith(color: AppColors.primary),
+                                style: AppTextStyles.label(context).copyWith(color: AppColors.primary),
                               ),
                             ],
                           ),

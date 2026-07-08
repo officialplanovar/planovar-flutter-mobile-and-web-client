@@ -54,7 +54,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: context.c.surface,
         body: SafeArea(
           child: Column(
             children: [
@@ -85,7 +85,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             style: GoogleFonts.urbanist(
                               fontSize: 26,
                               fontWeight: FontWeight.w800,
-                              color: const Color(0xFF1A1A1A),
+                              color: context.c.textPrimary,
                             ),
                           ),
                         ),
@@ -96,7 +96,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             textAlign: TextAlign.center,
                             style: GoogleFonts.urbanist(
                               fontSize: 14,
-                              color: const Color(0xFF9CA3AF),
+                              color: context.c.textHint,
                               height: 1.6,
                             ),
                           ),
@@ -155,7 +155,7 @@ class _FieldLabel extends StatelessWidget {
         style: GoogleFonts.urbanist(
           fontSize: 15,
           fontWeight: FontWeight.w700,
-          color: const Color(0xFF1A1A1A),
+          color: context.c.textPrimary,
         ),
       ),
     );

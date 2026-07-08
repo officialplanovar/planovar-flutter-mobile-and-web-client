@@ -16,23 +16,30 @@ class VendorService {
     String? category,
     String? city,
   }) async {
-    final res = await _api.dio.get('/search/vendors', queryParameters: {
-      if (query != null && query.isNotEmpty) 'q': query,
-      if (city != null && city.isNotEmpty) 'city': city,
-      'perPage': 20,
+    // DB-backed browse (not search) — reliable regardless of Typesense, and
+    // returns coverUrl straight from Postgres so tiles show images.
+    final res = await _api.dio.get('/vendors/browse', queryParameters: {
+      'take': 60,
     });
     ensureOk(res);
-    final hits = (res.data as Map)['hits'] as List? ?? const [];
-    var vendors = hits
-        .map((h) => _fromSearchDoc(Map<String, dynamic>.from(h)))
+    final items = (res.data as List? ?? const [])
+        .map((e) => Map<String, dynamic>.from(e))
         .toList();
-    // Category filter is tag-based client-side (search docs carry tags).
+    var vendors = items.map(fromProfile).toList();
+    // Optional text filter on business name.
+    if (query != null && query.isNotEmpty) {
+      final q = query.toLowerCase();
+      vendors = vendors
+          .where((v) => v.businessName.toLowerCase().contains(q))
+          .toList();
+    }
+    // Category filter is tag-based client-side (profiles carry tags).
     if (category != null && category.isNotEmpty) {
       final c = category.toLowerCase();
-      final filtered = hits
-          .where((h) => ((h['tags'] as List?) ?? const [])
+      final filtered = items
+          .where((v) => ((v['tags'] as List?) ?? const [])
               .any((t) => t.toString().toLowerCase().contains(c)))
-          .map((h) => _fromSearchDoc(Map<String, dynamic>.from(h)))
+          .map(fromProfile)
           .toList();
       if (filtered.isNotEmpty) vendors = filtered;
     }
@@ -50,33 +57,46 @@ class VendorService {
   Future<List<ListingModel>> getVendorListings(String vendorId) =>
       ListingService(api: _api).getVendorListings(vendorId);
 
-  Future<List<VendorModel>> getFavourites() async => const [];
-  Future<bool> toggleFavourite(String vendorId) async {
-    final res = await _api.dio.post('/users/me/favourites/$vendorId');
-    return (res.statusCode ?? 500) < 300;
+  /// The user's saved (favourited) vendors.
+  Future<List<VendorModel>> getFavourites() async {
+    final res = await _api.dio.get('/users/me/favourites/vendors');
+    ensureOk(res);
+    final list = res.data as List? ?? const [];
+    return list
+        .map((e) => fromProfile(Map<String, dynamic>.from(e)))
+        .toList();
+  }
+
+  /// Set of favourited vendor ids — for initialising heart state.
+  Future<Set<String>> favouriteIds() async {
+    final vendors = await getFavourites();
+    return vendors.map((v) => v.id).toSet();
+  }
+
+  Future<void> addFavourite(String vendorId) async {
+    final res = await _api.dio.post('/users/me/favourites/vendors/$vendorId');
+    ensureOk(res);
+  }
+
+  Future<void> removeFavourite(String vendorId) async {
+    final res = await _api.dio.delete('/users/me/favourites/vendors/$vendorId');
+    ensureOk(res);
+  }
+
+  /// Toggles and returns the new state (true = now saved).
+  Future<bool> toggleFavourite(String vendorId, bool currentlyFav) async {
+    if (currentlyFav) {
+      await removeFavourite(vendorId);
+      return false;
+    }
+    await addFavourite(vendorId);
+    return true;
   }
 
   // ── mapping ────────────────────────────────────────────────────────────
 
   static double _toD(dynamic v) =>
       v is num ? v.toDouble() : double.tryParse('$v') ?? 0;
-
-  /// From a Typesense vendor document ({name, slug, city, tags...}).
-  VendorModel _fromSearchDoc(Map<String, dynamic> d) => VendorModel(
-        id: d['id'] as String,
-        businessName: d['name'] as String? ?? 'Vendor',
-        slug: d['slug'] as String? ?? '',
-        description: d['description'] as String?,
-        location: [d['city'], d['country']]
-            .whereType<String>()
-            .where((s) => s.isNotEmpty)
-            .join(', '),
-        ratingAvg: _toD(d['ratingAvg']),
-        reviewCount: (d['reviewCount'] as num?)?.toInt() ?? 0,
-        subscriptionTier: d['subscriptionTier'] as String? ?? 'BASIC',
-        isVerified: d['isVerified'] as bool? ?? false,
-        categories: List<String>.from(d['tags'] as List? ?? const []),
-      );
 
   /// From the public vendor profile (/vendors/:id JSON).
   static VendorModel fromProfile(Map<String, dynamic> v) {
@@ -86,7 +106,8 @@ class VendorService {
       businessName: v['businessName'] as String? ?? 'Vendor',
       slug: v['slug'] as String? ?? '',
       description: v['description'] as String?,
-      coverUrl: v['coverUrl'] as String?,
+      // Fall back to the logo so cards aren't blank when there's no cover.
+      coverUrl: (v['coverUrl'] as String?) ?? (v['logoUrl'] as String?),
       location: loc is Map
           ? [loc['city'], loc['state'], loc['country']]
               .whereType<String>()
@@ -98,6 +119,8 @@ class VendorService {
       subscriptionTier: v['subscriptionTier'] as String? ?? 'BASIC',
       isVerified: v['isVerified'] as bool? ?? false,
       categories: List<String>.from(v['tags'] as List? ?? const []),
+      portfolioUrls:
+          List<String>.from(v['portfolioUrls'] as List? ?? const []),
     );
   }
 }

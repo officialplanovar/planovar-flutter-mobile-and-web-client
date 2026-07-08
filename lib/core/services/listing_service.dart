@@ -1,6 +1,8 @@
 import '../api/api_client.dart';
 import '../api/api_utils.dart';
+import '../../shared/models/category_model.dart';
 import '../../shared/models/listing_model.dart';
+import 'vendor_service.dart';
 
 /// Real replacement for MockListingService — identical method shapes.
 /// Maps API listings (Decimal strings, media as objects) into the UI model.
@@ -13,6 +15,39 @@ class ListingService {
     if (res.statusCode == 404) return null;
     ensureOk(res);
     return mapListing(Map<String, dynamic>.from(res.data));
+  }
+
+  /// Fire-and-forget: record a client view so the vendor's viewCount reflects
+  /// it. Never throws — a failed ping must not break the detail screen.
+  Future<void> recordView(String id) async {
+    try {
+      await _api.dio.post('/listings/$id/view');
+    } catch (_) {
+      // View pings are best-effort; ignore failures.
+    }
+  }
+
+  /// Browse active listings from verified vendors, straight from the DB
+  /// (no search dependency — reliable even if Typesense is down/drifted).
+  /// Pass pricingType 'FIXED' for products.
+  Future<List<ListingModel>> browseListings({
+    String? pricingType,
+    String? categoryId,
+    bool? isRentable,
+    int take = 30,
+  }) async {
+    final res = await _api.dio.get('/listings/browse', queryParameters: {
+      if (pricingType != null && pricingType.isNotEmpty)
+        'pricingType': pricingType,
+      if (categoryId != null && categoryId.isNotEmpty) 'categoryId': categoryId,
+      if (isRentable != null) 'isRentable': isRentable,
+      'take': take,
+    });
+    ensureOk(res);
+    final list = res.data as List? ?? const [];
+    return list
+        .map((e) => mapListing(Map<String, dynamic>.from(e)))
+        .toList();
   }
 
   Future<List<ListingModel>> getVendorListings(String vendorId) async {
@@ -66,6 +101,7 @@ class ListingService {
       isRentable: d['isRentable'] as bool? ?? false,
       perDayRate: null,
       depositAmount: null,
+      ratingAvg: _toD(d['rating']) ?? 0.0,
       reviewCount: (d['reviewCount'] as num?)?.toInt() ?? 0,
       media: cover != null && cover.isNotEmpty ? [cover] : const [],
       packages: const [],
@@ -83,11 +119,18 @@ class ListingService {
         .whereType<String>()
         .toList();
     final category = l['category'] as Map?;
+    final vendor = l['vendor'];
     return ListingModel(
       id: l['id'] as String,
       vendorId: l['vendorId'] as String? ?? vendorId ?? '',
+      vendor: vendor is Map
+          ? VendorService.fromProfile(Map<String, dynamic>.from(vendor))
+          : null,
       categoryId:
           l['categoryId'] as String? ?? category?['id'] as String? ?? '',
+      category: category != null
+          ? CategoryModel.fromJson(Map<String, dynamic>.from(category))
+          : null,
       title: l['title'] as String? ?? 'Listing',
       description: l['description'] as String?,
       pricingType: l['pricingType'] as String? ?? 'FIXED',
@@ -97,7 +140,13 @@ class ListingService {
       isRentable: l['isRentable'] as bool? ?? false,
       perDayRate: _toD(l['perDayRate']),
       depositAmount: _toD(l['depositAmount']),
+      ratingAvg: _toD(l['ratingAvg']) ?? 0.0,
       reviewCount: (l['reviewCount'] as num?)?.toInt() ?? 0,
+      sku: l['sku'] as String?,
+      stockQuantity: (l['stockQuantity'] as num?)?.toInt(),
+      durationValue: (l['durationValue'] as num?)?.toInt(),
+      durationUnit: l['durationUnit'] as String?,
+      cancellationPolicy: l['cancellationPolicy'] as String?,
       media: media,
       packages: const [],
     );

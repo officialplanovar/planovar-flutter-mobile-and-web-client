@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_colors.dart'; // AppColorsContext (context.c)
 
 enum TextVariant {
   display,
@@ -159,8 +159,6 @@ class AppText extends StatelessWidget {
     this.italic = false,
   }) : variant = TextVariant.overline;
 
-  static const _defaultColor = AppColors.textPrimary;
-
   static _Spec _specFor(TextVariant v) {
     switch (v) {
       case TextVariant.display:
@@ -197,7 +195,7 @@ class AppText extends StatelessWidget {
       style: GoogleFonts.urbanist(
         fontSize: fontSize ?? spec.size,
         fontWeight: fontWeight ?? spec.weight,
-        color: color ?? _defaultColor,
+        color: color ?? context.c.textPrimary,
         fontStyle: italic ? FontStyle.italic : FontStyle.normal,
         height: 1.3,
       ),

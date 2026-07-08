@@ -64,7 +64,14 @@ class ListingModel extends Equatable {
   final double? depositAmount;
   final List<String> sizes;
   final List<String> colors;
+  final double ratingAvg;
   final int reviewCount;
+  // Service/product detail fields
+  final String? sku;
+  final int? stockQuantity;
+  final int? durationValue;
+  final String? durationUnit;
+  final String? cancellationPolicy;
 
   const ListingModel({
     required this.id,
@@ -86,7 +93,13 @@ class ListingModel extends Equatable {
     this.depositAmount,
     this.sizes = const [],
     this.colors = const [],
+    this.ratingAvg = 0.0,
     this.reviewCount = 0,
+    this.sku,
+    this.stockQuantity,
+    this.durationValue,
+    this.durationUnit,
+    this.cancellationPolicy,
   });
 
   factory ListingModel.fromJson(Map<String, dynamic> json) {
@@ -107,6 +120,15 @@ class ListingModel extends Equatable {
       packages: (json['packages'] as List? ?? [])
           .map((e) => ListingPackageModel.fromJson(e as Map<String, dynamic>))
           .toList(),
+      sku: json['sku'] as String?,
+      stockQuantity: (json['stockQuantity'] as num?)?.toInt(),
+      durationValue: (json['durationValue'] as num?)?.toInt(),
+      durationUnit: json['durationUnit'] as String?,
+      cancellationPolicy: json['cancellationPolicy'] as String?,
+      ratingAvg: json['ratingAvg'] != null
+          ? (json['ratingAvg'] as num).toDouble()
+          : 0.0,
+      reviewCount: (json['reviewCount'] as num?)?.toInt() ?? 0,
     );
   }
 

@@ -54,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: context.c.surface,
         body: Stack(
           children: [
             // Lavender gradient header background
@@ -64,11 +64,11 @@ class _LoginScreenState extends State<LoginScreen> {
               right: 0,
               height: MediaQuery.of(context).size.height * 0.38,
               child: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Color(0xFFECDEFA), Colors.white],
+                    colors: [context.c.primaryLight, context.c.surface],
                   ),
                 ),
               ),
@@ -105,8 +105,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           errorBuilder: (_, __, ___) => Container(
                             width: 90,
                             height: 90,
-                            decoration: const BoxDecoration(
-                              color: AppColors.primaryLight,
+                            decoration: BoxDecoration(
+                              color: context.c.primaryLight,
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(Icons.event_rounded,
@@ -120,15 +120,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           TextSpan(
                             children: [
                               TextSpan(
-                                text: 'Welcome Back! ',
+                                text: 'Welcome Back',
                                 style: GoogleFonts.urbanist(
                                   fontSize: 26,
                                   fontWeight: FontWeight.w800,
-                                  color: const Color(0xFF1A1A1A),
+                                  color: context.c.textPrimary,
                                 ),
                               ),
                               TextSpan(
-                                text: 'David',
+                                text: '!',
                                 style: GoogleFonts.urbanist(
                                   fontSize: 26,
                                   fontWeight: FontWeight.w800,
@@ -146,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           textAlign: TextAlign.center,
                           style: GoogleFonts.urbanist(
                             fontSize: 14,
-                            color: const Color(0xFF9CA3AF),
+                            color: context.c.textHint,
                             height: 1.5,
                           ),
                         ),
@@ -177,7 +177,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               _obscurePassword
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
-                              color: const Color(0xFF9CA3AF),
+                              color: context.c.textHint,
                               size: 20,
                             ),
                             onPressed: () => setState(
@@ -232,7 +232,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               'or',
                               style: GoogleFonts.urbanist(
                                   fontSize: 13,
-                                  color: const Color(0xFF9CA3AF)),
+                                  color: context.c.textHint),
                             ),
                           ),
                           const Expanded(child: Divider()),
@@ -260,7 +260,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: GoogleFonts.urbanist(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
-                                color: const Color(0xFF1A1A1A),
+                                color: context.c.textPrimary,
                               ),
                             ),
                           ],
@@ -270,8 +270,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       OutlinedButton(
                         onPressed: () => context.push(AppRoutes.register),
                         style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Color(0xFFE5E7EB)),
-                          foregroundColor: const Color(0xFF6B7280),
+                          side: BorderSide(color: context.c.border),
+                          foregroundColor: context.c.textSecondary,
                         ),
                         child: Center(
                           child: Text.rich(
@@ -279,7 +279,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               text: "Don't Have an account? ",
                               style: GoogleFonts.urbanist(
                                 fontSize: 14,
-                                color: const Color(0xFF6B7280),
+                                color: context.c.textSecondary,
                               ),
                               children: [
                                 TextSpan(
@@ -321,7 +321,7 @@ class _FieldLabel extends StatelessWidget {
         style: GoogleFonts.urbanist(
           fontSize: 15,
           fontWeight: FontWeight.w700,
-          color: const Color(0xFF1A1A1A),
+          color: context.c.textPrimary,
         ),
       ),
     );

@@ -63,7 +63,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: context.c.surface,
         body: SafeArea(
           child: Column(
             children: [
@@ -81,7 +81,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           child: AuthIllustration(
                             pngPath: 'assets/icons/auth_register.png',
                             fallbackIcon: Icons.person_add_rounded,
-                            bgColor: AppColors.primaryLight,
+                            bgColor: context.c.primaryLight,
                             iconColor: AppColors.primary,
                           ),
                         ),
@@ -95,7 +95,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                   style: GoogleFonts.urbanist(
                                     fontSize: 28,
                                     fontWeight: FontWeight.w800,
-                                    color: const Color(0xFF1A1A1A),
+                                    color: context.c.textPrimary,
                                   ),
                                 ),
                                 const TextSpan(
@@ -113,7 +113,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             textAlign: TextAlign.center,
                             style: GoogleFonts.urbanist(
                               fontSize: 14,
-                              color: const Color(0xFF9CA3AF),
+                              color: context.c.textHint,
                               height: 1.5,
                             ),
                           ),
@@ -183,7 +183,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         'By checking the box you agree to our ',
                                     style: GoogleFonts.urbanist(
                                       fontSize: 13,
-                                      color: const Color(0xFF6B7280),
+                                      color: context.c.textSecondary,
                                       height: 1.5,
                                     ),
                                     children: [
@@ -222,7 +222,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 'or',
                                 style: GoogleFonts.urbanist(
                                     fontSize: 13,
-                                    color: const Color(0xFF9CA3AF)),
+                                    color: context.c.textHint),
                               ),
                             ),
                             const Expanded(child: Divider()),
@@ -247,7 +247,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 style: GoogleFonts.urbanist(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF1A1A1A),
+                                  color: context.c.textPrimary,
                                 ),
                               ),
                             ],
@@ -262,7 +262,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 text: 'Already Have an account? ',
                                 style: GoogleFonts.urbanist(
                                   fontSize: 14,
-                                  color: const Color(0xFF6B7280),
+                                  color: context.c.textSecondary,
                                 ),
                                 children: [
                                   TextSpan(
@@ -305,7 +305,7 @@ class _FieldLabel extends StatelessWidget {
         style: GoogleFonts.urbanist(
           fontSize: 15,
           fontWeight: FontWeight.w700,
-          color: const Color(0xFF1A1A1A),
+          color: context.c.textPrimary,
         ),
       ),
     );

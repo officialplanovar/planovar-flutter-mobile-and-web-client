@@ -24,8 +24,8 @@ class AppNetworkImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final placeholder = Shimmer.fromColors(
-      baseColor: AppColors.border,
-      highlightColor: AppColors.divider,
+      baseColor: context.c.border,
+      highlightColor: context.c.divider,
       child: Container(color: Colors.white, width: width, height: height),
     );
 
@@ -34,8 +34,8 @@ class AppNetworkImage extends StatelessWidget {
           Container(
             width: width,
             height: height,
-            color: AppColors.divider,
-            child: const Icon(Icons.image_outlined, color: AppColors.textHint),
+            color: context.c.divider,
+            child: Icon(Icons.image_outlined, color: context.c.textHint),
           );
     }
 
@@ -50,8 +50,8 @@ class AppNetworkImage extends StatelessWidget {
           Container(
             width: width,
             height: height,
-            color: AppColors.divider,
-            child: const Icon(Icons.broken_image_outlined, color: AppColors.textHint),
+            color: context.c.divider,
+            child: Icon(Icons.broken_image_outlined, color: context.c.textHint),
           ),
     );
 

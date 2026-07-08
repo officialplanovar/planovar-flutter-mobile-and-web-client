@@ -11,7 +11,7 @@ Widget _buildLavenderHeader(
   required String subtitle,
 }) {
   return Container(
-    color: const Color(0xFFECDEFA),
+    color: context.c.primaryLight,
     child: SafeArea(
       bottom: false,
       child: Padding(
@@ -35,8 +35,8 @@ Widget _buildLavenderHeader(
                     ),
                   ],
                 ),
-                child: const Icon(Icons.arrow_back_ios_new_rounded,
-                    size: 18, color: Color(0xFF1A1A2E)),
+                child: Icon(Icons.arrow_back_ios_new_rounded,
+                    size: 18, color: context.c.textPrimary),
               ),
             ),
             const SizedBox(width: 12),
@@ -49,14 +49,14 @@ Widget _buildLavenderHeader(
                     style: GoogleFonts.urbanist(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                   Text(
                     subtitle,
                     style: GoogleFonts.urbanist(
                       fontSize: 13,
-                      color: const Color(0xFF9CA3AF),
+                      color: context.c.textHint,
                     ),
                   ),
                 ],
@@ -100,9 +100,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     return 4;
   }
 
-  Color _segmentColor(int index) {
+  Color _segmentColor(BuildContext context, int index) {
     final strength = _strengthLevel();
-    if (index >= strength) return const Color(0xFFE5E7EB);
+    if (index >= strength) return context.c.border;
     if (strength == 1) return const Color(0xFFEF4444);
     if (strength == 2) return const Color(0xFFFBBF24);
     if (strength == 3) return const Color(0xFFF97316);
@@ -116,7 +116,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: Column(
         children: [
           _buildLavenderHeader(
@@ -135,14 +135,14 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     style: GoogleFonts.urbanist(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF3F4F6),
+                      color: context.c.divider,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -157,7 +157,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                               border: InputBorder.none,
                               hintText: 'Enter new password',
                               hintStyle: GoogleFonts.urbanist(
-                                color: const Color(0xFF9CA3AF),
+                                color: context.c.textHint,
                                 fontSize: 15,
                               ),
                             ),
@@ -167,7 +167,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           onTap: () => setState(() => _showNew = !_showNew),
                           child: Icon(
                             _showNew ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                            color: const Color(0xFF9CA3AF),
+                            color: context.c.textHint,
                           ),
                         ),
                       ],
@@ -179,14 +179,14 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     style: GoogleFonts.urbanist(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF3F4F6),
+                      color: context.c.divider,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -200,7 +200,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                               border: InputBorder.none,
                               hintText: 'Confirm new password',
                               hintStyle: GoogleFonts.urbanist(
-                                color: const Color(0xFF9CA3AF),
+                                color: context.c.textHint,
                                 fontSize: 15,
                               ),
                             ),
@@ -210,7 +210,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           onTap: () => setState(() => _showConfirm = !_showConfirm),
                           child: Icon(
                             _showConfirm ? Icons.visibility_off_rounded : Icons.visibility_rounded,
-                            color: const Color(0xFF9CA3AF),
+                            color: context.c.textHint,
                           ),
                         ),
                       ],
@@ -225,7 +225,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                           height: 6,
                           margin: EdgeInsets.only(right: i < 3 ? 6 : 0),
                           decoration: BoxDecoration(
-                            color: _segmentColor(i),
+                            color: _segmentColor(context, i),
                             borderRadius: BorderRadius.circular(3),
                           ),
                         ),
@@ -285,7 +285,7 @@ class _RequirementRow extends StatelessWidget {
           label,
           style: GoogleFonts.urbanist(
             fontSize: 14,
-            color: met ? const Color(0xFF1A1A2E) : const Color(0xFF9CA3AF),
+            color: met ? context.c.textPrimary : context.c.textHint,
           ),
         ),
       ],
@@ -308,7 +308,7 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: Column(
         children: [
           _buildLavenderHeader(
@@ -382,7 +382,7 @@ class _TwoFactorToggle extends StatelessWidget {
                 style: GoogleFonts.urbanist(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF1A1A2E),
+                  color: context.c.textPrimary,
                 ),
               ),
               const SizedBox(height: 4),
@@ -390,7 +390,7 @@ class _TwoFactorToggle extends StatelessWidget {
                 subtitle,
                 style: GoogleFonts.urbanist(
                   fontSize: 13,
-                  color: const Color(0xFF9CA3AF),
+                  color: context.c.textHint,
                 ),
               ),
             ],
@@ -400,7 +400,7 @@ class _TwoFactorToggle extends StatelessWidget {
           value: value,
           onChanged: onChanged,
           activeThumbColor: AppColors.primary,
-          activeTrackColor: AppColors.primaryLight,
+          activeTrackColor: context.c.primaryLight,
         ),
       ],
     );
@@ -465,12 +465,12 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
   Widget build(BuildContext context) {
     final user = MockData.currentUser;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: Column(
         children: [
           // ── Header ──────────────────────────────────────────────────────────
           Container(
-            color: AppColors.primaryLight,
+            color: context.c.primaryLight,
             child: SafeArea(
               bottom: false,
               child: Padding(
@@ -493,8 +493,8 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
                             ),
                           ],
                         ),
-                        child: const Icon(Icons.arrow_back_ios_new_rounded,
-                            size: 18, color: Color(0xFF1A1A2E)),
+                        child: Icon(Icons.arrow_back_ios_new_rounded,
+                            size: 18, color: context.c.textPrimary),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -508,7 +508,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
                         errorBuilder: (_, __, ___) => Container(
                           width: 44,
                           height: 44,
-                          color: AppColors.primaryLight,
+                          color: context.c.primaryLight,
                           child: const Icon(Icons.person_rounded, color: AppColors.primary),
                         ),
                       ),
@@ -522,7 +522,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
                           style: GoogleFonts.urbanist(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF1A1A2E),
+                            color: context.c.textPrimary,
                           ),
                         ),
                         Text(
@@ -549,22 +549,22 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
                 // Date separator
                 Row(
                   children: [
-                    const Expanded(child: Divider(color: Color(0xFFE5E7EB))),
+                    Expanded(child: Divider(color: context.c.border)),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
                         'Today',
                         style: GoogleFonts.urbanist(
                           fontSize: 12,
-                          color: const Color(0xFF9CA3AF),
+                          color: context.c.textHint,
                         ),
                       ),
                     ),
-                    const Expanded(child: Divider(color: Color(0xFFE5E7EB))),
+                    Expanded(child: Divider(color: context.c.border)),
                   ],
                 ),
                 const SizedBox(height: 12),
-                ..._messages.map((msg) => _buildMessageBubble(msg, user.image)),
+                ..._messages.map((msg) => _buildMessageBubble(context, msg, user.image)),
               ],
             ),
           ),
@@ -573,7 +573,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
           Container(
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.c.surface,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.06),
@@ -591,7 +591,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
+                      color: context.c.primaryLight,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(Icons.attach_file_rounded,
@@ -604,7 +604,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
                       height: 48,
                       padding: const EdgeInsets.symmetric(horizontal: 14),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
+                        color: context.c.divider,
                         borderRadius: BorderRadius.circular(24),
                       ),
                       child: Row(
@@ -617,14 +617,14 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
                                 hintText: 'Type a message',
                                 hintStyle: GoogleFonts.urbanist(
                                   fontSize: 14,
-                                  color: const Color(0xFF9CA3AF),
+                                  color: context.c.textHint,
                                 ),
                                 border: InputBorder.none,
                                 isDense: true,
                               ),
                             ),
                           ),
-                          const Icon(Icons.mic_rounded, color: Color(0xFF9CA3AF), size: 20),
+                          Icon(Icons.mic_rounded, color: context.c.textHint, size: 20),
                         ],
                       ),
                     ),
@@ -652,7 +652,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
     );
   }
 
-  Widget _buildMessageBubble(_SMsg msg, String? userImage) {
+  Widget _buildMessageBubble(BuildContext context, _SMsg msg, String? userImage) {
     if (msg.isMe) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 12),
@@ -690,7 +690,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
                 errorBuilder: (_, __, ___) => Container(
                   width: 28,
                   height: 28,
-                  color: AppColors.primaryLight,
+                  color: context.c.primaryLight,
                   child: const Icon(Icons.person_rounded, color: AppColors.primary, size: 16),
                 ),
               ),
@@ -713,7 +713,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
               errorBuilder: (_, __, ___) => Container(
                 width: 28,
                 height: 28,
-                color: AppColors.primaryLight,
+                color: context.c.primaryLight,
                 child: const Icon(Icons.person_rounded, color: AppColors.primary, size: 16),
               ),
             ),
@@ -723,7 +723,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.c.surface,
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(4),
                   topRight: Radius.circular(16),
@@ -742,7 +742,7 @@ class _SupportChatScreenState extends State<SupportChatScreen> {
                 msg.text,
                 style: GoogleFonts.urbanist(
                   fontSize: 14,
-                  color: const Color(0xFF1A1A2E),
+                  color: context.c.textPrimary,
                 ),
               ),
             ),

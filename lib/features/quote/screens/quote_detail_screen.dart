@@ -77,7 +77,7 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                     isExpired
                         ? 'Expired on ${Formatters.date(quote.validUntil)}'
                         : 'Valid until ${Formatters.date(quote.validUntil)}',
-                    style: AppTextStyles.caption.copyWith(
+                    style: AppTextStyles.caption(context).copyWith(
                       color: isExpired ? AppColors.error : AppColors.success,
                       fontWeight: FontWeight.w600,
                     ),
@@ -89,9 +89,9 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
             // Line items
             Container(
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.c.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: context.c.border),
               ),
               child: Column(
                 children: [
@@ -103,8 +103,8 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           child: Row(
                             children: [
-                              Expanded(child: Text(item.label, style: AppTextStyles.body2)),
-                              Text(Formatters.currency(item.amount), style: AppTextStyles.body2),
+                              Expanded(child: Text(item.label, style: AppTextStyles.body2(context))),
+                              Text(Formatters.currency(item.amount), style: AppTextStyles.body2(context)),
                             ],
                           ),
                         ),
@@ -118,11 +118,11 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     child: Row(
                       children: [
-                        Text('Total', style: AppTextStyles.heading4),
+                        Text('Total', style: AppTextStyles.heading4(context)),
                         const Spacer(),
                         Text(
                           Formatters.currency(quote.amount),
-                          style: AppTextStyles.heading4.copyWith(color: AppColors.primary),
+                          style: AppTextStyles.heading4(context).copyWith(color: AppColors.primary),
                         ),
                       ],
                     ),
@@ -141,11 +141,11 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Notes from vendor', style: AppTextStyles.label),
+                    Text('Notes from vendor', style: AppTextStyles.label(context)),
                     const SizedBox(height: 6),
                     Text(
                       quote.description!,
-                      style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
+                      style: AppTextStyles.body2(context).copyWith(color: context.c.textSecondary),
                     ),
                   ],
                 ),

@@ -51,7 +51,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     }
   }
 
-  Color _colorForType(String type) {
+  Color _colorForType(BuildContext context, String type) {
     switch (type) {
       case 'booking':
         return AppColors.primary;
@@ -60,7 +60,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       case 'payment':
         return AppColors.success;
       default:
-        return AppColors.textSecondary;
+        return context.c.textSecondary;
     }
   }
 
@@ -85,9 +85,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   separatorBuilder: (_, __) => const Divider(height: 1),
                   itemBuilder: (context, i) {
                     final notif = _notifications[i];
-                    final typeColor = _colorForType(notif.type);
+                    final typeColor = _colorForType(context, notif.type);
                     return Container(
-                      color: notif.isRead ? null : AppColors.primaryLight.withValues(alpha: 0.3),
+                      color: notif.isRead ? null : context.c.primaryLight.withValues(alpha: 0.3),
                       child: InkWell(
                         onTap: () async {
                           await _notifService.markRead(notif.id);
@@ -115,7 +115,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     Row(
                                       children: [
                                         Expanded(
-                                          child: Text(notif.title, style: AppTextStyles.label),
+                                          child: Text(notif.title, style: AppTextStyles.label(context)),
                                         ),
                                         if (!notif.isRead)
                                           Container(
@@ -131,12 +131,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                     const SizedBox(height: 4),
                                     Text(
                                       notif.body,
-                                      style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
+                                      style: AppTextStyles.body2(context).copyWith(color: context.c.textSecondary),
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
                                       Formatters.relativeTime(notif.createdAt),
-                                      style: AppTextStyles.caption,
+                                      style: AppTextStyles.caption(context),
                                     ),
                                   ],
                                 ),

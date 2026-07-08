@@ -162,26 +162,26 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
     });
   }
 
-  Widget _sectionLabel(String text) {
+  Widget _sectionLabel(BuildContext context, String text) {
     return Padding(
       padding: const EdgeInsets.only(left: 20, bottom: 8),
       child: Text(
         text,
         style: GoogleFonts.urbanist(
           fontSize: 13,
-          color: const Color(0xFF6B7280),
+          color: context.c.textSecondary,
         ),
       ),
     );
   }
 
-  Widget _inputContainer({required Widget child}) {
+  Widget _inputContainer(BuildContext context, {required Widget child}) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: context.c.border),
       ),
       child: child,
     );
@@ -190,9 +190,9 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F5FF),
+        backgroundColor: context.c.background,
         elevation: 0,
         leading: GestureDetector(
           onTap: () => context.pop(),
@@ -217,7 +217,7 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
           style: GoogleFonts.urbanist(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF1A1A2E),
+            color: context.c.textPrimary,
           ),
         ),
         centerTitle: true,
@@ -229,12 +229,12 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 16),
-                _sectionLabel('Event Details'),
+                _sectionLabel(context, 'Event Details'),
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 20),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.c.surface,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -252,7 +252,7 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                         style: GoogleFonts.urbanist(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
-                          color: const Color(0xFF1A1A2E),
+                          color: context.c.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -284,12 +284,12 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                _sectionLabel('Service Details'),
+                _sectionLabel(context, 'Service Details'),
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 20),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.c.surface,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -312,7 +312,7 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                                 errorBuilder: (ctx, err, stack) => Container(
                                   width: 60,
                                   height: 60,
-                                  color: AppColors.primaryLight,
+                                  color: ctx.c.primaryLight,
                                   child: const Icon(Icons.image_not_supported_outlined,
                                       color: AppColors.primary, size: 24),
                                 ),
@@ -320,7 +320,7 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                             : Container(
                                 width: 60,
                                 height: 60,
-                                color: AppColors.primaryLight,
+                                color: context.c.primaryLight,
                                 child: const Icon(Icons.storefront_outlined,
                                     color: AppColors.primary, size: 24),
                               ),
@@ -340,7 +340,7 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                                     style: GoogleFonts.urbanist(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w700,
-                                      color: const Color(0xFF1A1A2E),
+                                      color: context.c.textPrimary,
                                     ),
                                   ),
                                 ),
@@ -353,7 +353,7 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                                   style: GoogleFonts.urbanist(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
-                                    color: const Color(0xFF6B7280),
+                                    color: context.c.textSecondary,
                                   ),
                                 ),
                               ],
@@ -363,7 +363,7 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 5),
                               decoration: BoxDecoration(
-                                color: AppColors.primaryLight,
+                                color: context.c.primaryLight,
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
@@ -389,12 +389,13 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                     style: GoogleFonts.urbanist(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                 ),
                 const SizedBox(height: 8),
                 _inputContainer(
+                  context,
                   child: TextField(
                     controller: _dateCtrl,
                     readOnly: true,
@@ -402,13 +403,13 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                     onTap: _pickDate,
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                     decoration: InputDecoration(
                       hintText: 'Select date',
                       hintStyle: GoogleFonts.urbanist(
                         fontSize: 14,
-                        color: const Color(0xFF9CA3AF),
+                        color: context.c.textHint,
                       ),
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(
@@ -438,7 +439,7 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                         'Use same event date',
                         style: GoogleFonts.urbanist(
                           fontSize: 14,
-                          color: const Color(0xFF6B7280),
+                          color: context.c.textSecondary,
                         ),
                       ),
                     ],
@@ -452,7 +453,7 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                     style: GoogleFonts.urbanist(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                 ),
@@ -473,7 +474,7 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                           '—',
                           style: GoogleFonts.urbanist(
                             fontSize: 16,
-                            color: const Color(0xFF6B7280),
+                            color: context.c.textSecondary,
                           ),
                         ),
                       ),
@@ -501,7 +502,7 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                         'Use same event time',
                         style: GoogleFonts.urbanist(
                           fontSize: 14,
-                          color: const Color(0xFF6B7280),
+                          color: context.c.textSecondary,
                         ),
                       ),
                     ],
@@ -515,24 +516,25 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
                     style: GoogleFonts.urbanist(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                 ),
                 const SizedBox(height: 8),
                 _inputContainer(
+                  context,
                   child: TextField(
                     controller: _notesCtrl,
                     maxLines: 4,
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                     decoration: InputDecoration(
                       hintText: 'let the vendor know any other specifics',
                       hintStyle: GoogleFonts.urbanist(
                         fontSize: 14,
-                        color: const Color(0xFF9CA3AF),
+                        color: context.c.textHint,
                       ),
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.all(16),
@@ -548,7 +550,7 @@ class _ServiceDetailsScreenState extends State<ServiceDetailsScreen> {
             right: 0,
             bottom: 0,
             child: Container(
-              color: Colors.white,
+              color: context.c.surface,
               child: SafeArea(
                 top: false,
                 child: Padding(
@@ -586,9 +588,9 @@ class _TimeField extends StatelessWidget {
       onTap: enabled ? onTap : null,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.c.surface,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
+          border: Border.all(color: context.c.border),
         ),
         child: TextField(
           controller: controller,
@@ -596,13 +598,13 @@ class _TimeField extends StatelessWidget {
           enabled: false,
           style: GoogleFonts.urbanist(
             fontSize: 14,
-            color: const Color(0xFF1A1A2E),
+            color: context.c.textPrimary,
           ),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: GoogleFonts.urbanist(
               fontSize: 13,
-              color: const Color(0xFF9CA3AF),
+              color: context.c.textHint,
             ),
             border: InputBorder.none,
             contentPadding:
@@ -636,7 +638,7 @@ class _InfoChip extends StatelessWidget {
           label,
           style: GoogleFonts.urbanist(
             fontSize: 12,
-            color: const Color(0xFF6B7280),
+            color: context.c.textSecondary,
           ),
         ),
       ],

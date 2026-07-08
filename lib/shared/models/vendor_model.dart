@@ -12,6 +12,7 @@ class VendorModel extends Equatable {
   final String subscriptionTier;
   final bool isVerified;
   final List<String> categories;
+  final List<String> portfolioUrls;
 
   const VendorModel({
     required this.id,
@@ -25,6 +26,7 @@ class VendorModel extends Equatable {
     required this.subscriptionTier,
     required this.isVerified,
     required this.categories,
+    this.portfolioUrls = const [],
   });
 
   factory VendorModel.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ class VendorModel extends Equatable {
       subscriptionTier: json['subscriptionTier'] as String? ?? 'basic',
       isVerified: json['isVerified'] as bool? ?? false,
       categories: List<String>.from(json['categories'] as List? ?? []),
+      portfolioUrls: List<String>.from(json['portfolioUrls'] as List? ?? []),
     );
   }
 

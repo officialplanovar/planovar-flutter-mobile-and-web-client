@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/mock/mock_data.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/services/event_service.dart';
+import '../../../core/services/messaging_service.dart';
+import '../../../core/services/reference_data_service.dart';
+import '../../../core/services/vendor_service.dart';
+import '../../../core/state/overlay_state.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/models/category_model.dart';
 import '../../../shared/models/event_model.dart';
 import '../../../shared/models/listing_model.dart';
 import '../../../shared/models/vendor_model.dart';
+import '../../../shared/widgets/add_to_event_sheet.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../../../shared/widgets/request_order_sheet.dart';
 
 class EventDetailScreen extends StatefulWidget {
   final String eventId;
@@ -20,14 +27,110 @@ class EventDetailScreen extends StatefulWidget {
 
 class _EventDetailScreenState extends State<EventDetailScreen> {
   int _tabIndex = 0;
-  final List<String> _tabs = ['Vendors', 'Recommended', 'Timeline', 'Products'];
+  final List<String> _tabs = ['Vendors', 'Recommended', 'Timeline', 'Items'];
   final List<String> _selectedCategories = [];
   final _searchCtrl = TextEditingController();
+
+  EventModel? _event;
+  bool _loading = true;
+
+  // Recommendation data (real) for the Recommended tab.
+  List<VendorModel> _recVendors = const [];
+  List<CategoryModel> _recCategories = const [];
+  bool _recLoading = true;
 
   static const List<String> _months = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    EventModel? e;
+    try {
+      e = await EventService().getEvent(widget.eventId);
+      if (mounted) {
+        setState(() {
+          _event = e;
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+    _loadRecommendations();
+  }
+
+  Future<void> _loadRecommendations() async {
+    try {
+      final results = await Future.wait([
+        VendorService().getVendors(),
+        CategoryService().getCategories(),
+      ]);
+      if (mounted) {
+        setState(() {
+          _recVendors = results[0] as List<VendorModel>;
+          _recCategories = (results[1] as List<CategoryModel>)
+              .where((c) => c.slug != 'products')
+              .toList();
+          _recLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _recLoading = false);
+    }
+  }
+
+  /// Confirms before sourcing a recommended vendor into this event.
+  Future<void> _confirmSourceVendor(VendorModel vendor) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: ctx.c.surface,
+        title: Text('Add vendor?', style: GoogleFonts.urbanist()),
+        content: Text(
+          'Add ${vendor.businessName} to "${_event?.name ?? 'this event'}"?',
+          style: GoogleFonts.urbanist(color: ctx.c.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Add',
+                style: TextStyle(
+                    color: AppColors.primary, fontWeight: FontWeight.w700)),
+          ),
+        ],
+      ),
+    );
+    if (ok == true) await _sourceVendor(vendor);
+  }
+
+  /// Sources a recommended vendor into this event.
+  Future<void> _sourceVendor(VendorModel vendor) async {
+    try {
+      await EventService().addVendor(widget.eventId, vendor.id);
+      notifyEventsChanged();
+      await _load(); // refresh sourced vendors
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${vendor.businessName} added to your event')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -51,18 +154,22 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final event = MockData.events
-        .where((e) => e.id == widget.eventId)
-        .firstOrNull;
+    if (_loading) {
+      return Scaffold(
+        backgroundColor: context.c.background,
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
 
+    final event = _event;
     if (event == null) {
       return Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: context.c.surface,
           title: Text('Event Not Found', style: GoogleFonts.urbanist()),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded),
-            onPressed: () => context.pop(),
+            onPressed: _goBack,
           ),
         ),
         body: const Center(child: Text('Event not found')),
@@ -70,7 +177,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: Column(
         children: [
           // ── Cover + Header ─────────────────────────────────────────────
@@ -107,12 +214,12 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   event.coverUrl!,
                   fit: BoxFit.cover,
                   errorBuilder: (ctx, e, st) => Container(
-                    color: AppColors.primaryLight,
+                    color: context.c.primaryLight,
                     child: const Icon(Icons.event, size: 64, color: AppColors.primary),
                   ),
                 )
               : Container(
-                  color: AppColors.primaryLight,
+                  color: context.c.primaryLight,
                   child: const Icon(Icons.event, size: 64, color: AppColors.primary),
                 ),
         ),
@@ -121,7 +228,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           top: MediaQuery.of(context).padding.top + 8,
           left: 16,
           child: GestureDetector(
-            onTap: () => context.pop(),
+            onTap: _goBack,
             child: Container(
               width: 36,
               height: 36,
@@ -136,10 +243,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   ),
                 ],
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.arrow_back_ios_new_rounded,
                 size: 16,
-                color: Color(0xFF1A1A2E),
+                color: context.c.textPrimary,
               ),
             ),
           ),
@@ -150,7 +257,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   Widget _buildEventInfo(EventModel event) {
     return Container(
-      color: Colors.white,
+      color: context.c.surface,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -185,7 +292,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             style: GoogleFonts.urbanist(
               fontSize: 28,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFF1A1A2E),
+              color: context.c.textPrimary,
             ),
           ),
           const SizedBox(height: 12),
@@ -217,7 +324,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           label,
           style: GoogleFonts.urbanist(
             fontSize: 13,
-            color: const Color(0xFF6B7280),
+            color: context.c.textSecondary,
           ),
         ),
       ],
@@ -229,7 +336,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.primaryLight,
+        color: context.c.primaryLight,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -242,7 +349,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 style: GoogleFonts.urbanist(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A1A2E),
+                  color: context.c.textPrimary,
                 ),
               ),
               const Spacer(),
@@ -257,25 +364,22 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             ],
           ),
           const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
-              value: 0.9,
-              minHeight: 8,
-              backgroundColor: Colors.white,
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
-            ),
-          ),
-          const SizedBox(height: 6),
           Row(
             children: [
+              const Icon(Icons.storefront_outlined,
+                  size: 14, color: AppColors.primary),
+              const SizedBox(width: 6),
               Text(
-                '2 of 3 Vendors sourced',
-                style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.primary),
+                event.vendorsSourced == 0
+                    ? 'No vendors sourced yet'
+                    : '${event.vendorsSourced} '
+                        '${event.vendorsSourced == 1 ? 'vendor' : 'vendors'} sourced',
+                style:
+                    GoogleFonts.urbanist(fontSize: 12, color: AppColors.primary),
               ),
               const Spacer(),
               Text(
-                '90%',
+                event.statusLabel,
                 style: GoogleFonts.urbanist(
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -291,7 +395,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   Widget _buildTabBar() {
     return Container(
-      color: Colors.white,
+      color: context.c.surface,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -316,7 +420,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   style: GoogleFonts.urbanist(
                     fontSize: 14,
                     fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                    color: active ? const Color(0xFF1A1A2E) : const Color(0xFF9CA3AF),
+                    color: active ? context.c.textPrimary : context.c.textHint,
                   ),
                 ),
               ),
@@ -334,9 +438,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       case 1:
         return _buildRecommendedTab();
       case 2:
-        return _buildTimelineTab();
+        return _buildTimelineTab(event);
       case 3:
-        return _buildProductsTab();
+        return _buildProductsTab(event);
       default:
         return const SizedBox.shrink();
     }
@@ -345,281 +449,192 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   // ── Vendors Tab ────────────────────────────────────────────────────────────
 
   Widget _buildVendorsTab(EventModel event) {
+    final vendors = event.sourcedVendors;
+    final isCancelled = event.status.toUpperCase() == 'CANCELLED';
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Confirmed vendor card
-          _vendorBookingCard(
-            vendorName: 'Lumière Photography',
-            service: 'Photography',
-            priceLabel: 'Lumière Photography · ₦20,000',
-            status: 'Confirmed',
-            imageUrl: 'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=400',
-          ),
-          const SizedBox(height: 12),
-          // Pending vendor card
-          _vendorBookingCard(
-            vendorName: 'Sugared Dreams Cakery',
-            service: 'Confectionery',
-            priceLabel: 'Sugared Dreams Cakery · ₦15,000',
-            status: 'Pending',
-            imageUrl: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400',
-            showAwaitingBanner: true,
-          ),
-          const SizedBox(height: 12),
-          // Unassigned vendor card
-          _vendorUnassignedCard(service: 'Catering'),
+          if (vendors.isEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: context.c.surface,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: context.c.border),
+              ),
+              child: Column(
+                children: [
+                  Icon(Icons.storefront_outlined,
+                      size: 36, color: context.c.textHint),
+                  const SizedBox(height: 10),
+                  Text(
+                    'No vendors sourced yet',
+                    style: GoogleFonts.urbanist(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: context.c.textPrimary,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Browse the Recommended tab to add vendors to this event.',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.urbanist(
+                        fontSize: 12, color: context.c.textSecondary),
+                  ),
+                ],
+              ),
+            )
+          else
+            ...vendors.map((v) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _sourcedVendorCard(v),
+                )),
           const SizedBox(height: 20),
           // Bottom actions
           GlossyButton(
-            label: '💬 View Group Chat',
+            label: event.hasGroupChat ? '💬 View Group Chat' : '💬 Create Group Chat',
             height: 50,
-            onPressed: () => context.push(AppRoutes.eventGroupChat,
-                extra: {'eventId': event.id, 'eventName': event.name}),
+            onPressed: () => _openGroupChat(event),
           ),
           const SizedBox(height: 12),
           _outlineButton(
             label: '+ Add a new Vendor',
             color: AppColors.primary,
-            onTap: () {},
+            onTap: () => setState(() => _tabIndex = 1),
           ),
-          const SizedBox(height: 12),
-          _outlineButton(
-            label: '⚠ Cancel Event',
-            color: AppColors.error,
-            onTap: () {},
-          ),
+          if (!isCancelled) ...[
+            const SizedBox(height: 12),
+            _outlineButton(
+              label: '⚠ Cancel Event',
+              color: AppColors.error,
+              onTap: () => _confirmCancel(event),
+            ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _vendorBookingCard({
-    required String vendorName,
-    required String service,
-    required String priceLabel,
-    required String status,
-    required String imageUrl,
-    bool showAwaitingBanner = false,
-  }) {
-    final isConfirmed = status == 'Confirmed';
-    final statusBg = isConfirmed ? const Color(0xFFD1FAE5) : const Color(0xFFFFF3CD);
-    final statusText = isConfirmed ? const Color(0xFF065F46) : const Color(0xFFB45309);
+  Widget _vendorAvatarFallback() => Container(
+        width: 44,
+        height: 44,
+        color: context.c.primaryLight,
+        child: const Icon(Icons.storefront_rounded,
+            color: AppColors.primary, size: 22),
+      );
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
+  Widget _sourcedVendorCard(EventVendorRef v) {
+    return GestureDetector(
+      onTap: () => context.push(
+        AppRoutes.vendorProfilePath(v.id),
+        extra: {'eventId': widget.eventId, 'eventName': _event?.name},
       ),
-      child: Column(
-        children: [
-          if (showAwaitingBanner)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: const BoxDecoration(
-                color: Color(0xFFFEF3C7),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(14),
-                  topRight: Radius.circular(14),
-                ),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.warning_amber_rounded,
-                      size: 14, color: Color(0xFFD97706)),
-                  const SizedBox(width: 6),
-                  Text(
-                    'Awaiting Quote from vendor',
-                    style: GoogleFonts.urbanist(
-                      fontSize: 12,
-                      color: const Color(0xFFD97706),
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: context.c.surface,
+          borderRadius: BorderRadius.circular(14),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 10,
+              offset: const Offset(0, 3),
             ),
-          Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.network(
-                        imageUrl,
-                        width: 60,
-                        height: 60,
-                        fit: BoxFit.cover,
-                        errorBuilder: (ctx, e, st) => Container(
-                          width: 60,
-                          height: 60,
-                          color: AppColors.primaryLight,
-                          child: const Icon(Icons.store,
-                              color: AppColors.primary, size: 24),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            service,
-                            style: GoogleFonts.urbanist(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: const Color(0xFF1A1A2E),
-                            ),
-                          ),
-                          const SizedBox(height: 3),
-                          Text(
-                            priceLabel,
-                            style: GoogleFonts.urbanist(
-                              fontSize: 12,
-                              color: const Color(0xFF6B7280),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: statusBg,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        status,
-                        style: GoogleFonts.urbanist(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: statusText,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _outlineButton(
-                        label: 'View Details',
-                        color: AppColors.primary,
-                        onTap: () => context.push(
-                          AppRoutes.eventBookingDetail,
-                          extra: {
-                            'vendorName': vendorName,
-                            'bookingStatus': isConfirmed ? 'quote_sent' : 'awaiting',
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryLight,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(
-                        Icons.chat_bubble_outline_rounded,
-                        color: AppColors.primary,
-                        size: 18,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _vendorUnassignedCard({required String service}) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: AppColors.primaryLight,
+          ],
+        ),
+        child: Row(
+          children: [
+            ClipRRect(
               borderRadius: BorderRadius.circular(10),
+              child: v.coverUrl != null
+                  ? Image.network(
+                      v.coverUrl!,
+                      width: 44,
+                      height: 44,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => _vendorAvatarFallback(),
+                    )
+                  : _vendorAvatarFallback(),
             ),
-            child: const Icon(
-              Icons.person_add_rounded,
-              color: AppColors.primary,
-              size: 28,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  service,
-                  style: GoogleFonts.urbanist(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1A1A2E),
-                  ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                v.businessName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.urbanist(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  color: context.c.textPrimary,
                 ),
-                const SizedBox(height: 3),
-                Text(
-                  'No vendor assigned',
-                  style: GoogleFonts.urbanist(
-                    fontSize: 12,
-                    color: const Color(0xFF9CA3AF),
-                  ),
-                ),
-              ],
+              ),
             ),
+            Icon(Icons.chevron_right_rounded, color: context.c.textHint),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmCancel(EventModel event) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: ctx.c.surface,
+        title: Text('Cancel event?', style: GoogleFonts.urbanist()),
+        content: Text(
+          'This cancels "${event.name}". This cannot be undone.',
+          style: GoogleFonts.urbanist(color: ctx.c.textSecondary),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Keep'),
           ),
-          _outlineButton(
-            label: 'Source Vendor',
-            color: AppColors.primary,
-            onTap: () {},
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Cancel event',
+                style: TextStyle(color: AppColors.error)),
           ),
         ],
       ),
     );
+    if (ok != true) return;
+    try {
+      await EventService().cancel(event.id);
+      notifyEventsChanged();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Event cancelled')));
+      context.pop();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
+    }
   }
 
   // ── Recommended Tab ────────────────────────────────────────────────────────
 
   Widget _buildRecommendedTab() {
-    final categories = MockData.categories.take(6).toList();
+    final categories = _recCategories;
+
+    // Selected category names, then vendors whose tags match any of them.
+    final selectedNames = _recCategories
+        .where((c) => _selectedCategories.contains(c.id))
+        .map((c) => c.name.toLowerCase())
+        .toList();
+    final visibleVendors = selectedNames.isEmpty
+        ? _recVendors
+        : _recVendors
+            .where((v) => v.categories.any((t) =>
+                selectedNames.any((n) => t.toLowerCase().contains(n))))
+            .toList();
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -631,7 +646,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             style: GoogleFonts.urbanist(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF1A1A2E),
+              color: context.c.textPrimary,
             ),
           ),
           const SizedBox(height: 12),
@@ -656,7 +671,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 14, vertical: 7),
                     decoration: BoxDecoration(
-                      color: selected ? AppColors.primary : AppColors.primaryLight,
+                      color: selected ? AppColors.primary : context.c.primaryLight,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -689,9 +704,9 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.c.surface,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFE5E7EB)),
+                    border: Border.all(color: context.c.border),
                   ),
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   child: TextField(
@@ -701,11 +716,11 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       hintText: 'Search vendors...',
                       hintStyle: GoogleFonts.urbanist(
                         fontSize: 14,
-                        color: const Color(0xFF9CA3AF),
+                        color: context.c.textHint,
                       ),
                       border: InputBorder.none,
-                      icon: const Icon(Icons.search_rounded,
-                          color: Color(0xFF9CA3AF), size: 20),
+                      icon: Icon(Icons.search_rounded,
+                          color: context.c.textHint, size: 20),
                       isDense: true,
                       contentPadding:
                           const EdgeInsets.symmetric(vertical: 12),
@@ -718,7 +733,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.primaryLight,
+                  color: context.c.primaryLight,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.tune_rounded,
@@ -727,33 +742,50 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          // 2-column vendor grid
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 0.82,
+          // 2-column vendor grid (real, verified vendors)
+          if (_recLoading)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 40),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (visibleVendors.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              child: Center(
+                child: Text(
+                    selectedNames.isEmpty
+                        ? 'No vendors available yet'
+                        : 'No vendors in the selected categories',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.urbanist(color: context.c.textHint)),
+              ),
+            )
+          else
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 0.82,
+              ),
+              itemCount: visibleVendors.length,
+              itemBuilder: (ctx, i) => _vendorGridCard(visibleVendors[i]),
             ),
-            itemCount: MockData.vendors.length,
-            itemBuilder: (ctx, i) {
-              final vendor = MockData.vendors[i];
-              return _vendorGridCard(vendor);
-            },
-          ),
         ],
       ),
     );
   }
 
   Widget _vendorGridCard(VendorModel vendor) {
+    final alreadyAdded =
+        _event?.sourcedVendors.any((v) => v.id == vendor.id) ?? false;
     return GestureDetector(
-      onTap: () {},
+      onTap: alreadyAdded ? null : () => _confirmSourceVendor(vendor),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.c.surface,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
@@ -780,13 +812,13 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                             width: double.infinity,
                             fit: BoxFit.cover,
                             errorBuilder: (ctx, e, st) => Container(
-                              color: AppColors.primaryLight,
+                              color: context.c.primaryLight,
                               child: const Icon(Icons.store,
                                   color: AppColors.primary, size: 32),
                             ),
                           )
                         : Container(
-                            color: AppColors.primaryLight,
+                            color: context.c.primaryLight,
                             child: const Icon(Icons.store,
                                 color: AppColors.primary, size: 32),
                           ),
@@ -852,7 +884,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 style: GoogleFonts.urbanist(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF1A1A2E),
+                  color: context.c.textPrimary,
                 ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -866,13 +898,37 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   // ── Timeline Tab ───────────────────────────────────────────────────────────
 
-  Widget _buildTimelineTab() {
+  Widget _buildTimelineTab(EventModel event) {
+    final s = event.status.toUpperCase();
+    final now = DateTime.now();
+    final dayReached = !event.date.isAfter(DateTime(now.year, now.month, now.day));
+    String done(bool v) => v ? 'Complete' : 'Pending';
+
     final steps = [
-      _TimelineStep(number: 1, title: 'Event Created', status: 'Complete'),
-      _TimelineStep(number: 2, title: '1 of 3 Vendors Sourced', status: 'Pending'),
-      _TimelineStep(number: 3, title: '1 of 3 Payments Made', status: 'Pending'),
-      _TimelineStep(number: 4, title: 'Event Day', status: 'Pending'),
-      _TimelineStep(number: 5, title: '0 of 3 Reviews made', status: 'Pending'),
+      _TimelineStep(number: 1, title: 'Event created', status: 'Complete'),
+      _TimelineStep(
+        number: 2,
+        title: event.vendorsSourced == 0
+            ? 'Source your vendors'
+            : '${event.vendorsSourced} '
+                '${event.vendorsSourced == 1 ? 'vendor' : 'vendors'} sourced',
+        status: done(event.vendorsSourced > 0),
+      ),
+      _TimelineStep(
+        number: 3,
+        title: 'Event confirmed',
+        status: done(s == 'CONFIRMED' || s == 'ACTIVE' || s == 'COMPLETED'),
+      ),
+      _TimelineStep(
+        number: 4,
+        title: 'Event day (${_fmtDate(event.date)})',
+        status: done(dayReached || s == 'COMPLETED'),
+      ),
+      _TimelineStep(
+        number: 5,
+        title: 'Event completed',
+        status: done(s == 'COMPLETED'),
+      ),
     ];
 
     return Padding(
@@ -880,7 +936,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.c.surface,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
@@ -898,7 +954,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               style: GoogleFonts.urbanist(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: const Color(0xFF1A1A2E),
+                color: context.c.textPrimary,
               ),
             ),
             const SizedBox(height: 20),
@@ -966,7 +1022,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                 ),
@@ -1000,180 +1056,267 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   // ── Products Tab ───────────────────────────────────────────────────────────
 
-  Widget _buildProductsTab() {
-    final products = MockData.listings.take(4).toList();
-    final statuses = [
-      'Order placed',
-      'Order Confirmed',
-      'Out for Delivery',
-      'In Production',
-    ];
-
+  Widget _buildProductsTab(EventModel event) {
+    final items = event.addedListings;
+    if (items.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
+        child: Center(
+          child: Text(
+            'Nothing added to this event yet.\nOpen a product or service and tap '
+            '"Add to Event" to see it here.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.urbanist(color: context.c.textHint, height: 1.5),
+          ),
+        ),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
-        children: products.asMap().entries.map((entry) {
-          final i = entry.key;
-          final listing = entry.value;
-          return _productOrderCard(listing, statuses[i % statuses.length]);
-        }).toList(),
+        children: [
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Added to this event',
+              style: GoogleFonts.urbanist(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: context.c.textPrimary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          ...items.map((p) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _productBrowseCard(p, event: event),
+              )),
+        ],
       ),
     );
   }
 
-  Widget _productOrderCard(ListingModel listing, String status) {
-    Color statusBg;
-    Color statusTextColor;
-    bool isOutline = false;
-
-    switch (status) {
-      case 'Order placed':
-      case 'Order Confirmed':
-        statusBg = const Color(0xFFD1FAE5);
-        statusTextColor = const Color(0xFF065F46);
-        break;
-      case 'Out for Delivery':
-        statusBg = Colors.transparent;
-        statusTextColor = AppColors.primary;
-        isOutline = true;
-        break;
-      case 'In Production':
-        statusBg = const Color(0xFFFFF3CD);
-        statusTextColor = const Color(0xFFB45309);
-        break;
-      default:
-        statusBg = const Color(0xFFD1FAE5);
-        statusTextColor = const Color(0xFF065F46);
-    }
-
-    final price = listing.basePrice ?? listing.packages.firstOrNull?.price ?? 0.0;
-    final priceStr = '₦${price.toInt()}';
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 10,
-            offset: const Offset(0, 3),
-          ),
-        ],
+  Widget _productBrowseCard(ListingModel p, {EventModel? event}) {
+    final price = p.basePrice != null
+        ? '₦${p.basePrice!.toInt()}'
+        : 'Contact for price';
+    return GestureDetector(
+      onTap: () => context.push(
+        AppRoutes.listingDetailPath(p.id),
+        extra: {'eventId': widget.eventId, 'eventName': event?.name},
       ),
-      child: Row(
-        children: [
-          // Image
-          ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: listing.media.isNotEmpty
-                ? Image.network(
-                    listing.media.first,
-                    width: 90,
-                    height: 90,
-                    fit: BoxFit.cover,
-                    errorBuilder: (ctx, e, st) => _productPlaceholder(),
-                  )
-                : _productPlaceholder(),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: context.c.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: context.c.border),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
               children: [
-                Text(
-                  listing.title,
-                  style: GoogleFonts.urbanist(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1A1A2E),
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: p.media.isNotEmpty
+                      ? Image.network(p.media.first,
+                          width: 56,
+                          height: 56,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                              width: 56,
+                              height: 56,
+                              color: context.c.primaryLight))
+                      : Container(
+                          width: 56, height: 56, color: context.c.primaryLight),
                 ),
-                const SizedBox(height: 3),
-                Text(
-                  '14 Feb 2026',
-                  style: GoogleFonts.urbanist(
-                    fontSize: 12,
-                    color: const Color(0xFF6B7280),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryLight,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        priceStr,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        p.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: GoogleFonts.urbanist(
-                          fontSize: 12,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: context.c.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        price,
+                        style: GoogleFonts.urbanist(
+                          fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: AppColors.primary,
                         ),
                       ),
-                    ),
-                    const Spacer(),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: isOutline ? Colors.transparent : statusBg,
-                        borderRadius: BorderRadius.circular(20),
-                        border: isOutline
-                            ? Border.all(color: AppColors.primary)
-                            : null,
-                      ),
-                      child: Text(
-                        status,
-                        style: GoogleFonts.urbanist(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: statusTextColor,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: const BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.north_east_rounded,
-                        color: Colors.white,
-                        size: 16,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                if (event != null)
+                  GestureDetector(
+                    onTap: () => _removeListing(event, p),
+                    behavior: HitTestBehavior.opaque,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Icon(Icons.close_rounded,
+                          size: 20, color: context.c.textHint),
+                    ),
+                  )
+                else
+                  Icon(Icons.chevron_right_rounded, color: context.c.textHint),
               ],
             ),
-          ),
-        ],
+            if (event != null) ...[
+              const SizedBox(height: 10),
+              _itemActionButton(event, p),
+            ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _productPlaceholder() => Container(
-        width: 90,
-        height: 90,
-        decoration: BoxDecoration(
-          color: AppColors.primaryLight,
-          borderRadius: BorderRadius.circular(10),
+  /// Per-item primary action on the event Items tab: services request a quote,
+  /// products/rentals open the order sheet.
+  Widget _itemActionButton(EventModel event, ListingModel p) {
+    final isRental = p.isRentable;
+    final isProduct = p.pricingType == 'fixed';
+    final label = isRental
+        ? 'Rent now'
+        : isProduct
+            ? 'Order now'
+            : 'Request Quote';
+    final icon = isRental
+        ? Icons.event_available_rounded
+        : isProduct
+            ? Icons.shopping_bag_rounded
+            : Icons.request_quote_rounded;
+    return SizedBox(
+      height: 40,
+      child: OutlinedButton.icon(
+        onPressed: () {
+          if (isRental || isProduct) {
+            showRequestOrderSheet(context, listing: p, eventId: event.id);
+          } else {
+            _requestQuote(event, p);
+          }
+        },
+        icon: Icon(icon, size: 16, color: AppColors.primary),
+        label: Text(label,
+            style: GoogleFonts.urbanist(
+                fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.primary)),
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: AppColors.primary),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         ),
-        child: const Icon(Icons.shopping_bag_rounded,
-            color: AppColors.primary, size: 28),
+      ),
+    );
+  }
+
+  /// Opens/creates the DM with the item's vendor, sends an inquiry, and lands
+  /// the client in the chat. The vendor then sends a quote.
+  Future<void> _requestQuote(EventModel event, ListingModel p) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.of(context);
+    try {
+      final conv = await MessagingService().startWithVendor(p.vendorId);
+      final d = event.date;
+      await MessagingService().sendMessage(
+        conversationId: conv.id,
+        content:
+            'Hi! I\'d like a quote for "${p.title}" for my event "${event.name}" '
+            'on ${d.day}/${d.month}/${d.year}.',
       );
+      if (!mounted) return;
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Inquiry sent — the vendor will send you a quote')),
+      );
+      router.push(AppRoutes.conversationDetailPath(conv.id));
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
+    }
+  }
+
+  /// Pops back, or falls back to the events list when the stack is empty
+  /// (e.g. this screen was reached fresh via a redirect after adding an item).
+  void _goBack() {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go(AppRoutes.events);
+    }
+  }
+
+  Future<void> _openGroupChat(EventModel event) async {
+    if (!event.hasGroupChat) {
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: ctx.c.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Text('Create group chat?',
+              style: GoogleFonts.urbanist(
+                  fontSize: 17, fontWeight: FontWeight.w800, color: ctx.c.textPrimary)),
+          content: Text(
+            'All vendors attached to this event will automatically join — including any you add later. '
+            'Quotes and invoices stay private in your direct chats.',
+            style: GoogleFonts.urbanist(fontSize: 14, color: ctx.c.textSecondary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text('Cancel',
+                  style: GoogleFonts.urbanist(
+                      fontWeight: FontWeight.w600, color: ctx.c.textSecondary)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: Text('Create',
+                  style: GoogleFonts.urbanist(
+                      fontWeight: FontWeight.w700, color: AppColors.primary)),
+            ),
+          ],
+        ),
+      );
+      if (ok != true || !mounted) return;
+    }
+    await context.push(AppRoutes.eventGroupChat,
+        extra: {'eventId': event.id, 'eventName': event.name});
+    if (mounted) _load(); // refresh hasGroupChat after returning
+  }
+
+  Future<void> _removeListing(EventModel event, ListingModel listing) async {
+    final ok = await confirmEventAction(
+      context,
+      title: 'Remove from event?',
+      message: 'Remove "${listing.title}" from ${event.name}?',
+      confirmLabel: 'Remove',
+      destructive: true,
+    );
+    if (!ok || !mounted) return;
+    try {
+      await EventService().removeListing(event.id, listing.id);
+      notifyEventsChanged();
+      await _load();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${listing.title} removed')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      );
+    }
+  }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
 

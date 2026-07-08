@@ -69,20 +69,21 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     return 'Price on request';
   }
 
-  Widget _sectionLabel(String text) {
+  Widget _sectionLabel(BuildContext context, String text) {
     return Padding(
       padding: const EdgeInsets.only(left: 20, bottom: 8),
       child: Text(
         text,
         style: GoogleFonts.urbanist(
           fontSize: 13,
-          color: const Color(0xFF6B7280),
+          color: context.c.textSecondary,
         ),
       ),
     );
   }
 
-  Widget _summaryRow(String label, String value, {bool isBold = false}) {
+  Widget _summaryRow(BuildContext context, String label, String value,
+      {bool isBold = false}) {
     return Row(
       children: [
         Text(
@@ -90,9 +91,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           style: GoogleFonts.urbanist(
             fontSize: 13,
             fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
-            color: isBold
-                ? const Color(0xFF1A1A2E)
-                : const Color(0xFF6B7280),
+            color: isBold ? context.c.textPrimary : context.c.textSecondary,
           ),
         ),
         const Spacer(),
@@ -101,7 +100,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           style: GoogleFonts.urbanist(
             fontSize: isBold ? 18 : 13,
             fontWeight: isBold ? FontWeight.w800 : FontWeight.w600,
-            color: isBold ? AppColors.primary : const Color(0xFF1A1A2E),
+            color: isBold ? AppColors.primary : context.c.textPrimary,
           ),
         ),
       ],
@@ -111,9 +110,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F5FF),
+        backgroundColor: context.c.background,
         elevation: 0,
         leading: GestureDetector(
           onTap: () => context.pop(),
@@ -138,7 +137,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
           style: GoogleFonts.urbanist(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF1A1A2E),
+            color: context.c.textPrimary,
           ),
         ),
         centerTitle: true,
@@ -152,12 +151,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 const SizedBox(height: 16),
 
                 // ── Your Item ────────────────────────────────────────────────
-                _sectionLabel('Your Item'),
+                _sectionLabel(context, 'Your Item'),
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 20),
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.c.surface,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -180,7 +179,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                 errorBuilder: (ctx, err, stack) => Container(
                                   width: 60,
                                   height: 60,
-                                  color: AppColors.primaryLight,
+                                  color: ctx.c.primaryLight,
                                   child: const Icon(
                                     Icons.image_not_supported_outlined,
                                     color: AppColors.primary,
@@ -191,7 +190,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             : Container(
                                 width: 60,
                                 height: 60,
-                                color: AppColors.primaryLight,
+                                color: context.c.primaryLight,
                                 child: const Icon(
                                   Icons.storefront_outlined,
                                   color: AppColors.primary,
@@ -211,7 +210,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               style: GoogleFonts.urbanist(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
-                                color: const Color(0xFF1A1A2E),
+                                color: context.c.textPrimary,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -230,7 +229,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                   style: GoogleFonts.urbanist(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
-                                    color: const Color(0xFF6B7280),
+                                    color: context.c.textSecondary,
                                   ),
                                 ),
                               ],
@@ -242,7 +241,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 5),
                         decoration: BoxDecoration(
-                          color: AppColors.primaryLight,
+                          color: context.c.primaryLight,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -261,13 +260,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 const SizedBox(height: 20),
 
                 // ── Delivery / Pickup toggle ─────────────────────────────────
-                _sectionLabel('Saved address'),
+                _sectionLabel(context, 'Saved address'),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Container(
                     height: 52,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEEEEEE),
+                      color: context.c.surfaceElevated,
                       borderRadius: BorderRadius.circular(30),
                     ),
                     padding: const EdgeInsets.all(4),
@@ -297,9 +296,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     margin: const EdgeInsets.symmetric(horizontal: 20),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.c.surface,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                      border: Border.all(color: context.c.border),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -318,7 +317,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               style: GoogleFonts.urbanist(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: const Color(0xFF1A1A2E),
+                                color: context.c.textPrimary,
                               ),
                             ),
                           ],
@@ -339,7 +338,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               'Use same event location',
                               style: GoogleFonts.urbanist(
                                 fontSize: 13,
-                                color: const Color(0xFF6B7280),
+                                color: context.c.textSecondary,
                               ),
                             ),
                           ],
@@ -359,9 +358,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.add,
-                                  color: Color(0xFF9CA3AF),
+                                  color: context.c.textHint,
                                   size: 18,
                                 ),
                                 const SizedBox(width: 6),
@@ -369,7 +368,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                   '+ Use another address',
                                   style: GoogleFonts.urbanist(
                                     fontSize: 13,
-                                    color: const Color(0xFF9CA3AF),
+                                    color: context.c.textHint,
                                   ),
                                 ),
                               ],
@@ -391,7 +390,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           style: GoogleFonts.urbanist(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF1A1A2E),
+                            color: context.c.textPrimary,
                           ),
                         ),
                         Text(
@@ -408,22 +407,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.c.surface,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                      border: Border.all(color: context.c.border),
                     ),
                     child: TextField(
                       controller: _instructionsCtrl,
                       maxLines: 4,
                       style: GoogleFonts.urbanist(
                         fontSize: 14,
-                        color: const Color(0xFF1A1A2E),
+                        color: context.c.textPrimary,
                       ),
                       decoration: InputDecoration(
                         hintText: 'e.g Call me when you get to the gate',
                         hintStyle: GoogleFonts.urbanist(
                           fontSize: 14,
-                          color: const Color(0xFF9CA3AF),
+                          color: context.c.textHint,
                         ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.all(16),
@@ -437,7 +436,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     margin: const EdgeInsets.symmetric(horizontal: 20),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
+                      color: context.c.primaryLight,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -494,13 +493,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             errorBuilder: (ctx, err, stack) => Container(
                               height: 180,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE5E7EB),
+                                color: ctx.c.border,
                                 borderRadius: BorderRadius.circular(14),
                               ),
-                              child: const Center(
+                              child: Center(
                                 child: Icon(
                                   Icons.map_outlined,
-                                  color: Color(0xFF9CA3AF),
+                                  color: ctx.c.textHint,
                                   size: 40,
                                 ),
                               ),
@@ -520,9 +519,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     margin: const EdgeInsets.symmetric(horizontal: 20),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.c.surface,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                      border: Border.all(color: context.c.border),
                     ),
                     child: Row(
                       children: [
@@ -537,7 +536,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           style: GoogleFonts.urbanist(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF1A1A2E),
+                            color: context.c.textPrimary,
                           ),
                         ),
                       ],
@@ -552,7 +551,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: 20),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.c.surface,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -570,14 +569,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         style: GoogleFonts.urbanist(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF1A1A2E),
+                          color: context.c.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 12),
-                      _summaryRow('Platform Fee', '₦ 2,300'),
+                      _summaryRow(context, 'Platform Fee', '₦ 2,300'),
                       if (_isDelivery) ...[
                         const SizedBox(height: 8),
                         _summaryRow(
+                          context,
                           'Delivery (Lagos Island → Lekki)',
                           '₦ 5,000',
                         ),
@@ -585,9 +585,9 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       const SizedBox(height: 8),
                       const Divider(height: 1),
                       const SizedBox(height: 8),
-                      _summaryRow('Sub-total', '₦ 307,300'),
+                      _summaryRow(context, 'Sub-total', '₦ 307,300'),
                       const SizedBox(height: 8),
-                      _summaryRow('Total', '₦ 302,300', isBold: true),
+                      _summaryRow(context, 'Total', '₦ 302,300', isBold: true),
                     ],
                   ),
                 ),
@@ -603,7 +603,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             right: 0,
             bottom: 0,
             child: Container(
-              color: Colors.white,
+              color: context.c.surface,
               child: SafeArea(
                 top: false,
                 child: Padding(
@@ -670,9 +670,7 @@ class _ToggleTab extends StatelessWidget {
               style: GoogleFonts.urbanist(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: isSelected
-                    ? AppColors.primary
-                    : const Color(0xFF9CA3AF),
+                color: isSelected ? AppColors.primary : context.c.textHint,
               ),
             ),
           ),

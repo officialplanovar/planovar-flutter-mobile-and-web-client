@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/mock/mock_data.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/services/event_service.dart';
+import '../../../core/services/vendor_service.dart';
+import '../../../core/state/overlay_state.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/models/event_model.dart';
 import '../../../shared/models/listing_model.dart';
 import '../../../shared/models/vendor_model.dart';
 import '../../../shared/widgets/glossy_button.dart';
@@ -23,25 +25,67 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
   int _activeCategory = 0;
   final Set<String> _sourcedVendorIds = {};
   bool _showReview = false;
+  List<VendorModel> _allVendors = const [];
+  bool _vendorsLoading = true;
+
+  String? get _fromListingId => widget.eventData['fromListingId'] as String?;
 
   @override
   void initState() {
     super.initState();
-    _persistEvent();
+    _finish();
   }
 
-  /// Wizard data is complete by this step — persist the event to the API
-  /// (best-effort; the recommendations UI works regardless).
-  Future<void> _persistEvent() async {
-    if (widget.eventData.isEmpty) return;
+  /// Wizard data is complete — persist the event. If we arrived from a
+  /// listing's "Add to Event" sheet, adopt that listing's vendor into the new
+  /// event and return to the listing detail (skipping vendor selection).
+  Future<void> _finish() async {
+    EventModel? event;
     try {
-      await EventService().createFromWizard(widget.eventData);
+      event = await EventService().createFromWizard(widget.eventData);
+      notifyEventsChanged();
+    } catch (_) {}
+    if (!mounted) return;
+
+    if (_fromListingId != null) {
+      if (event != null) {
+        try {
+          await EventService().addListing(event.id, _fromListingId!);
+        } catch (_) {}
+      }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Event created 🎉')),
+        const SnackBar(content: Text('Event created — added to it 🎉')),
       );
+      // Unwind the wizard (step 1–4) to return to the listing detail that
+      // launched it — using pop, not go, so the wizard leaves the history.
+      final router = GoRouter.of(context);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        for (var i = 0; i < 4 && router.canPop(); i++) {
+          router.pop();
+        }
+      });
+      return;
+    }
+
+    // Raw create flow — show real vendor recommendations.
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Event created 🎉')),
+    );
+    _loadVendors();
+  }
+
+  Future<void> _loadVendors() async {
+    try {
+      final vendors = await VendorService().getVendors();
+      if (mounted) {
+        setState(() {
+          _allVendors = vendors;
+          _vendorsLoading = false;
+        });
+      }
     } catch (_) {
-      // Stay silent — the user can retry from My Events.
+      if (mounted) setState(() => _vendorsLoading = false);
     }
   }
 
@@ -49,10 +93,27 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
       (widget.eventData['categories'] as List<dynamic>?)
           ?.cast<String>()
           .toList() ??
-      ['Catering', 'Photography', 'Decor'];
+      const [];
+
+  /// Vendors matching the given category (by tag); falls back to all.
+  List<VendorModel> _vendorsFor(String category) {
+    final c = category.toLowerCase();
+    final matched = _allVendors
+        .where((v) => v.categories.any((t) => t.toLowerCase().contains(c)))
+        .toList();
+    return matched.isNotEmpty ? matched : _allVendors;
+  }
 
   @override
   Widget build(BuildContext context) {
+    // From "Add to Event": we adopt the listing and navigate away — show a
+    // brief loader instead of the vendor-selection UI.
+    if (_fromListingId != null) {
+      return Scaffold(
+        backgroundColor: context.c.background,
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
     return _showReview ? _buildReviewScreen() : _buildBrowsingScreen();
   }
 
@@ -60,12 +121,15 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
 
   Widget _buildBrowsingScreen() {
     final categories = _categories;
-    final vendors = MockData.vendors.take(6).toList();
+    final vendors = categories.isEmpty
+        ? _allVendors
+        : _vendorsFor(categories[
+            _activeCategory.clamp(0, categories.length - 1)]);
     final sourced = _sourcedVendorIds.length;
     final total = categories.length;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: Column(
         children: [
           EventStepHeader(
@@ -86,7 +150,7 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
                     style: GoogleFonts.urbanist(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -95,7 +159,7 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF6B7280),
+                      color: context.c.textSecondary,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -114,12 +178,12 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
                             decoration: BoxDecoration(
                               color: active
                                   ? AppColors.primary
-                                  : Colors.white,
+                                  : context.c.surface,
                               borderRadius: BorderRadius.circular(24),
                               border: Border.all(
                                 color: active
                                     ? AppColors.primary
-                                    : const Color(0xFFE5E7EB),
+                                    : context.c.border,
                               ),
                             ),
                             child: Text(
@@ -146,15 +210,15 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
                           height: 48,
                           padding: const EdgeInsets.symmetric(horizontal: 14),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: context.c.surface,
                             borderRadius: BorderRadius.circular(12),
                             border:
-                                Border.all(color: const Color(0xFFE5E7EB)),
+                                Border.all(color: context.c.border),
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.search_rounded,
-                                  color: Color(0xFF9CA3AF), size: 20),
+                              Icon(Icons.search_rounded,
+                                  color: context.c.textHint, size: 20),
                               const SizedBox(width: 8),
                               Text(
                                 'Search for items',
@@ -182,6 +246,23 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
                   ),
                   const SizedBox(height: 16),
                   // Vendor grid
+                  if (_vendorsLoading)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 40),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else if (vendors.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 40),
+                      child: Center(
+                        child: Text(
+                          'No vendors available yet',
+                          style: GoogleFonts.urbanist(
+                              color: context.c.textHint),
+                        ),
+                      ),
+                    )
+                  else
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -224,10 +305,12 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
 
   Widget _buildReviewScreen() {
     final categories = _categories;
-    final vendors = MockData.vendors.take(categories.length).toList();
+    final vendors = _allVendors
+        .where((v) => _sourcedVendorIds.contains(v.id))
+        .toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: Column(
         children: [
           EventStepHeader(
@@ -239,7 +322,7 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
           ),
           // Category chips — all checked
           Container(
-            color: const Color(0xFFF8F5FF),
+            color: context.c.background,
             padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -251,7 +334,7 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 8),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.c.surface,
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(color: AppColors.primary),
                         ),
@@ -288,7 +371,7 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
                     style: GoogleFonts.urbanist(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -306,7 +389,7 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
             ),
           ),
           Container(
-            color: Colors.white,
+            color: context.c.surface,
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
             child: GlossyButton(
               label: 'Create Event',
@@ -345,7 +428,7 @@ class _VendorGridCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surface,
         borderRadius: BorderRadius.circular(14),
         border: isSourced
             ? Border.all(color: AppColors.primary, width: 2)
@@ -370,9 +453,9 @@ class _VendorGridCard extends StatelessWidget {
                     height: 110,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (ctx, e, st) => _placeholder(),
+                    errorBuilder: (ctx, e, st) => _placeholder(context),
                   )
-                : _placeholder(),
+                : _placeholder(context),
           ),
           Padding(
             padding: const EdgeInsets.all(10),
@@ -384,7 +467,7 @@ class _VendorGridCard extends StatelessWidget {
                   style: GoogleFonts.urbanist(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1A1A2E),
+                    color: context.c.textPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -400,13 +483,13 @@ class _VendorGridCard extends StatelessWidget {
                       style: GoogleFonts.urbanist(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF1A1A2E)),
+                          color: context.c.textPrimary),
                     ),
                     Text(
                       ' (${vendor.reviewCount})',
                       style: GoogleFonts.urbanist(
                           fontSize: 11,
-                          color: const Color(0xFF6B7280)),
+                          color: context.c.textSecondary),
                     ),
                   ],
                 ),
@@ -416,7 +499,7 @@ class _VendorGridCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
+                      color: context.c.primaryLight,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
@@ -436,9 +519,9 @@ class _VendorGridCard extends StatelessWidget {
     );
   }
 
-  Widget _placeholder() => Container(
+  Widget _placeholder(BuildContext context) => Container(
         height: 110,
-        color: AppColors.primaryLight,
+        color: context.c.primaryLight,
         child: const Center(
           child: Icon(Icons.store_rounded,
               color: AppColors.primary, size: 28),
@@ -461,7 +544,7 @@ class _BrowsingBottomBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: context.c.surface,
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -510,15 +593,53 @@ class _VendorDetailSheetState extends State<_VendorDetailSheet> {
     'Equipment rentals',
   ];
 
+  List<ListingModel> _allListings = const [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final l = await VendorService().getVendorListings(widget.vendor.id);
+      if (mounted) {
+        setState(() {
+          _allListings = l;
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  List<ListingModel> get _tabListings {
+    switch (_tab) {
+      case 1: // Services to book
+        return _allListings
+            .where((l) => !l.isRentable && l.pricingType.toLowerCase() != 'fixed')
+            .toList();
+      case 2: // Equipment rentals
+        return _allListings.where((l) => l.isRentable).toList();
+      default: // Products to buy
+        return _allListings
+            .where((l) => !l.isRentable && l.pricingType.toLowerCase() == 'fixed')
+            .toList();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final listings = MockData.listings.take(4).toList();
+    final listings = _tabListings;
     final bottom = MediaQuery.of(context).padding.bottom;
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: context.c.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -529,7 +650,7 @@ class _VendorDetailSheetState extends State<_VendorDetailSheet> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: const Color(0xFFE5E7EB),
+              color: context.c.border,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -549,7 +670,7 @@ class _VendorDetailSheetState extends State<_VendorDetailSheet> {
                           style: GoogleFonts.urbanist(
                             fontSize: 20,
                             fontWeight: FontWeight.w800,
-                            color: const Color(0xFF1A1A2E),
+                            color: context.c.textPrimary,
                           ),
                         ),
                       ),
@@ -584,7 +705,7 @@ class _VendorDetailSheetState extends State<_VendorDetailSheet> {
                             style: GoogleFonts.urbanist(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: const Color(0xFF1A1A2E)),
+                                color: context.c.textPrimary),
                           ),
                         ],
                       ),
@@ -607,14 +728,14 @@ class _VendorDetailSheetState extends State<_VendorDetailSheet> {
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.location_on_rounded,
-                              color: Color(0xFF6B7280), size: 13),
+                          Icon(Icons.location_on_rounded,
+                              color: context.c.textSecondary, size: 13),
                           const SizedBox(width: 3),
                           Text(
                             widget.vendor.location ?? 'Abuja, Nigeria',
                             style: GoogleFonts.urbanist(
                                 fontSize: 13,
-                                color: const Color(0xFF6B7280)),
+                                color: context.c.textSecondary),
                           ),
                         ],
                       ),
@@ -627,7 +748,7 @@ class _VendorDetailSheetState extends State<_VendorDetailSheet> {
                         'Award-winning custom cakes for every occasion in Lagos. We bring your vision to life with edible artistry, from classic tiers to sculpted showpieces.',
                     style: GoogleFonts.urbanist(
                       fontSize: 13,
-                      color: const Color(0xFF6B7280),
+                      color: context.c.textSecondary,
                       height: 1.5,
                     ),
                   ),
@@ -649,14 +770,14 @@ class _VendorDetailSheetState extends State<_VendorDetailSheet> {
                     text: 'Responds within ~30 mins',
                   ),
                   const SizedBox(height: 20),
-                  const Divider(color: Color(0xFFE5E7EB)),
+                  Divider(color: context.c.border),
                   const SizedBox(height: 16),
                   Text(
                     'Select an option based on your Preference',
                     style: GoogleFonts.urbanist(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -674,13 +795,13 @@ class _VendorDetailSheetState extends State<_VendorDetailSheet> {
                                 horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
                               color: active
-                                  ? AppColors.primaryLight
-                                  : Colors.white,
+                                  ? context.c.primaryLight
+                                  : context.c.surface,
                               borderRadius: BorderRadius.circular(24),
                               border: Border.all(
                                 color: active
                                     ? AppColors.primary
-                                    : const Color(0xFFE5E7EB),
+                                    : context.c.border,
                               ),
                             ),
                             child: Text(
@@ -700,10 +821,24 @@ class _VendorDetailSheetState extends State<_VendorDetailSheet> {
                   ),
                   const SizedBox(height: 16),
                   // Listing items
-                  ...listings.map((listing) => GestureDetector(
-                        onTap: () => _openServiceDetail(listing),
-                        child: _ListingRow(listing: listing),
-                      )),
+                  if (_loading)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 24),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else if (listings.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: Text(
+                        'Nothing here yet.',
+                        style: GoogleFonts.urbanist(color: context.c.textHint),
+                      ),
+                    )
+                  else
+                    ...listings.map((listing) => GestureDetector(
+                          onTap: () => _openServiceDetail(listing),
+                          child: _ListingRow(listing: listing),
+                        )),
                 ],
               ),
             ),
@@ -762,7 +897,7 @@ class _ListingRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F5FF),
+        color: context.c.background,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -775,9 +910,9 @@ class _ListingRow extends StatelessWidget {
                     width: 60,
                     height: 60,
                     fit: BoxFit.cover,
-                    errorBuilder: (ctx, e, st) => _imgPlaceholder(),
+                    errorBuilder: (ctx, e, st) => _imgPlaceholder(context),
                   )
-                : _imgPlaceholder(),
+                : _imgPlaceholder(context),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -789,7 +924,7 @@ class _ListingRow extends StatelessWidget {
                   style: GoogleFonts.urbanist(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1A1A2E),
+                    color: context.c.textPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -813,10 +948,10 @@ class _ListingRow extends StatelessWidget {
     );
   }
 
-  Widget _imgPlaceholder() => Container(
+  Widget _imgPlaceholder(BuildContext context) => Container(
         width: 60,
         height: 60,
-        color: AppColors.primaryLight,
+        color: context.c.primaryLight,
         child: const Icon(Icons.image_rounded,
             color: AppColors.primary, size: 20),
       );
@@ -883,9 +1018,9 @@ class _ServiceDetailSheet extends StatelessWidget {
     final bottom = MediaQuery.of(context).padding.bottom;
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      decoration: BoxDecoration(
+        color: context.c.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -896,7 +1031,7 @@ class _ServiceDetailSheet extends StatelessWidget {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: const Color(0xFFE5E7EB),
+              color: context.c.border,
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -912,10 +1047,10 @@ class _ServiceDetailSheet extends StatelessWidget {
                     children: [
                       GestureDetector(
                         onTap: () => Navigator.pop(context),
-                        child: const Icon(
+                        child: Icon(
                             Icons.arrow_back_ios_new_rounded,
                             size: 18,
-                            color: Color(0xFF1A1A2E)),
+                            color: context.c.textPrimary),
                       ),
                       const SizedBox(width: 12),
                       Text(
@@ -923,7 +1058,7 @@ class _ServiceDetailSheet extends StatelessWidget {
                         style: GoogleFonts.urbanist(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
-                          color: const Color(0xFF1A1A2E),
+                          color: context.c.textPrimary,
                         ),
                       ),
                     ],
@@ -939,7 +1074,7 @@ class _ServiceDetailSheet extends StatelessWidget {
                           style: GoogleFonts.urbanist(
                             fontSize: 20,
                             fontWeight: FontWeight.w800,
-                            color: const Color(0xFF1A1A2E),
+                            color: context.c.textPrimary,
                           ),
                         ),
                       ),
@@ -955,7 +1090,7 @@ class _ServiceDetailSheet extends StatelessWidget {
                             style: GoogleFonts.urbanist(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF1A1A2E),
+                              color: context.c.textPrimary,
                             ),
                           ),
                         ],
@@ -978,7 +1113,7 @@ class _ServiceDetailSheet extends StatelessWidget {
                     width: double.infinity,
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8F5FF),
+                      color: context.c.background,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -989,7 +1124,7 @@ class _ServiceDetailSheet extends StatelessWidget {
                           style: GoogleFonts.urbanist(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF1A1A2E),
+                            color: context.c.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 6),
@@ -998,7 +1133,7 @@ class _ServiceDetailSheet extends StatelessWidget {
                               'Award-winning custom cakes for every occasion in Lagos. We bring your vision to life with edible artistry, from classic tiers to sculpted showpieces.',
                           style: GoogleFonts.urbanist(
                             fontSize: 13,
-                            color: const Color(0xFF6B7280),
+                            color: context.c.textSecondary,
                             height: 1.5,
                           ),
                         ),
@@ -1012,7 +1147,7 @@ class _ServiceDetailSheet extends StatelessWidget {
                     value: 'Moderate',
                     hasInfo: true,
                   ),
-                  const Divider(color: Color(0xFFE5E7EB), height: 24),
+                  Divider(color: context.c.border, height: 24),
                   const _DetailRow(
                     label: 'Minimum Service Duration:',
                     value: '4 hours',
@@ -1050,14 +1185,14 @@ class _DetailRow extends StatelessWidget {
       children: [
         Text(label,
             style: GoogleFonts.urbanist(
-                fontSize: 13, color: const Color(0xFF6B7280))),
+                fontSize: 13, color: context.c.textSecondary)),
         Row(
           children: [
             Text(value,
                 style: GoogleFonts.urbanist(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1A1A2E))),
+                    color: context.c.textPrimary)),
             if (hasInfo) ...[
               const SizedBox(width: 6),
               const Icon(Icons.info_outline_rounded,
@@ -1091,7 +1226,7 @@ class _SourcedVendorCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surface,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
@@ -1114,9 +1249,9 @@ class _SourcedVendorCard extends StatelessWidget {
                         width: 46,
                         height: 46,
                         fit: BoxFit.cover,
-                        errorBuilder: (ctx, e, st) => _avatar(),
+                        errorBuilder: (ctx, e, st) => _avatar(context),
                       )
-                    : _avatar(),
+                    : _avatar(context),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -1128,7 +1263,7 @@ class _SourcedVendorCard extends StatelessWidget {
                       style: GoogleFonts.urbanist(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1A1A2E),
+                        color: context.c.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -1142,13 +1277,13 @@ class _SourcedVendorCard extends StatelessWidget {
                           style: GoogleFonts.urbanist(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: const Color(0xFF1A1A2E)),
+                              color: context.c.textPrimary),
                         ),
                         Text(
                           ' (${vendor.reviewCount})',
                           style: GoogleFonts.urbanist(
                               fontSize: 12,
-                              color: const Color(0xFF6B7280)),
+                              color: context.c.textSecondary),
                         ),
                         const SizedBox(width: 6),
                         if (vendor.isVerified) ...[
@@ -1164,15 +1299,15 @@ class _SourcedVendorCard extends StatelessWidget {
                           ),
                         ],
                         const SizedBox(width: 6),
-                        const Icon(Icons.location_on_rounded,
-                            color: Color(0xFF6B7280), size: 12),
+                        Icon(Icons.location_on_rounded,
+                            color: context.c.textSecondary, size: 12),
                         const SizedBox(width: 2),
                         Flexible(
                           child: Text(
                             vendor.location ?? 'Abuja, Nigeria',
                             style: GoogleFonts.urbanist(
                                 fontSize: 11,
-                                color: const Color(0xFF6B7280)),
+                                color: context.c.textSecondary),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
@@ -1259,10 +1394,10 @@ class _SourcedVendorCard extends StatelessWidget {
     );
   }
 
-  Widget _avatar() => Container(
+  Widget _avatar(BuildContext context) => Container(
         width: 46,
         height: 46,
-        color: AppColors.primaryLight,
+        color: context.c.primaryLight,
         child: const Icon(Icons.store_rounded,
             color: AppColors.primary, size: 22),
       );
@@ -1280,9 +1415,9 @@ class _StatusChip extends StatelessWidget {
       padding:
           const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surface,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: context.c.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1296,7 +1431,7 @@ class _StatusChip extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 4),
-          Icon(icon, size: 12, color: const Color(0xFF6B7280)),
+          Icon(icon, size: 12, color: context.c.textSecondary),
         ],
       ),
     );

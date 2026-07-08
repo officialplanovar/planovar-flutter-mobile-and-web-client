@@ -83,7 +83,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: context.c.surface,
         body: SafeArea(
           child: Column(
             children: [
@@ -111,7 +111,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                         style: GoogleFonts.urbanist(
                           fontSize: 26,
                           fontWeight: FontWeight.w800,
-                          color: const Color(0xFF1A1A1A),
+                          color: context.c.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -121,7 +121,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                               textAlign: TextAlign.center,
                               style: GoogleFonts.urbanist(
                                 fontSize: 14,
-                                color: const Color(0xFF9CA3AF),
+                                color: context.c.textHint,
                                 height: 1.55,
                               ),
                             )
@@ -130,7 +130,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                                 text: 'Enter the OTP Sent to ',
                                 style: GoogleFonts.urbanist(
                                   fontSize: 14,
-                                  color: const Color(0xFF9CA3AF),
+                                  color: context.c.textHint,
                                   height: 1.55,
                                 ),
                                 children: [
@@ -173,10 +173,10 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                                 fieldHeight: 56,
                                 fieldWidth: 48,
                                 borderWidth: 1.5,
-                                activeFillColor: Colors.white,
-                                selectedFillColor: Colors.white,
-                                inactiveFillColor: Colors.white,
-                                inactiveColor: AppColors.border,
+                                activeFillColor: context.c.surface,
+                                selectedFillColor: context.c.surface,
+                                inactiveFillColor: context.c.surface,
+                                inactiveColor: context.c.border,
                                 selectedColor: AppColors.primary,
                                 activeColor: AppColors.primary,
                               ),
@@ -185,7 +185,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                               textStyle: GoogleFonts.urbanist(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
+                                color: context.c.textPrimary,
                               ),
                             ),
                           ),
@@ -197,7 +197,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                               'Resend in ${_secondsRemaining}s',
                               style: GoogleFonts.urbanist(
                                 fontSize: 14,
-                                color: const Color(0xFF9CA3AF),
+                                color: context.c.textHint,
                               ),
                             )
                           : GestureDetector(

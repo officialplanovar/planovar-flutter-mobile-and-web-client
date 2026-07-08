@@ -72,7 +72,7 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       body: SafeArea(
         child: _loading
             ? const Center(child: CircularProgressIndicator())
@@ -102,7 +102,7 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
                               style: GoogleFonts.urbanist(
                                 fontSize: 26,
                                 fontWeight: FontWeight.w800,
-                                color: const Color(0xFF1A1A1A),
+                                color: context.c.textPrimary,
                               ),
                             ),
                           ),
@@ -113,7 +113,7 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
                             hint: Text(
                               'Select Country',
                               style: GoogleFonts.urbanist(
-                                  fontSize: 15, color: const Color(0xFF9CA3AF)),
+                                  fontSize: 15, color: context.c.textHint),
                             ),
                             items: _countries
                                 .map((c) => DropdownMenuItem(
@@ -122,7 +122,7 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
                                         '${c.flagEmoji} ${c.name}',
                                         style: GoogleFonts.urbanist(
                                             fontSize: 15,
-                                            color: const Color(0xFF1A1A1A)),
+                                            color: context.c.textPrimary),
                                       ),
                                     ))
                                 .toList(),
@@ -134,8 +134,8 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
                               });
                               if (c != null) _loadCities(c.id);
                             },
-                            icon: const Icon(Icons.keyboard_arrow_down_rounded,
-                                color: Color(0xFF6B7280)),
+                            icon: Icon(Icons.keyboard_arrow_down_rounded,
+                                color: context.c.textSecondary),
                             decoration: const InputDecoration(),
                           ),
                           const SizedBox(height: 20),
@@ -145,7 +145,7 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
                             hint: Text(
                               'Select your city',
                               style: GoogleFonts.urbanist(
-                                  fontSize: 15, color: const Color(0xFF9CA3AF)),
+                                  fontSize: 15, color: context.c.textHint),
                             ),
                             items: _cities
                                 .map((c) => DropdownMenuItem(
@@ -154,13 +154,13 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
                                         '${c.name}, ${c.state}',
                                         style: GoogleFonts.urbanist(
                                             fontSize: 15,
-                                            color: const Color(0xFF1A1A1A)),
+                                            color: context.c.textPrimary),
                                       ),
                                     ))
                                 .toList(),
                             onChanged: (c) => setState(() => _selectedCity = c),
-                            icon: const Icon(Icons.keyboard_arrow_down_rounded,
-                                color: Color(0xFF6B7280)),
+                            icon: Icon(Icons.keyboard_arrow_down_rounded,
+                                color: context.c.textSecondary),
                             decoration: const InputDecoration(),
                           ),
                           const SizedBox(height: 24),
@@ -174,7 +174,7 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
                                   'or',
                                   style: GoogleFonts.urbanist(
                                       fontSize: 13,
-                                      color: const Color(0xFF9CA3AF)),
+                                      color: context.c.textHint),
                                 ),
                               ),
                               const Expanded(child: Divider()),
@@ -232,7 +232,7 @@ class _FieldLabel extends StatelessWidget {
         style: GoogleFonts.urbanist(
           fontSize: 15,
           fontWeight: FontWeight.w700,
-          color: const Color(0xFF1A1A1A),
+          color: context.c.textPrimary,
         ),
       ),
     );

@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../core/mock/mock_messaging_service.dart';
+import '../../../core/services/chat_orders_service.dart';
+import '../../../core/services/chat_socket.dart';
+import '../../../core/services/messaging_service.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/models/conversation_model.dart';
 import '../../../shared/models/message_model.dart';
 import '../../../shared/models/vendor_model.dart';
+import '../../../shared/widgets/chat_order_cards.dart';
+import '../../../shared/widgets/create_todo_sheet.dart';
+import '../../auth/bloc/auth_bloc.dart';
+import '../../auth/bloc/auth_state.dart';
 
+/// Real event GROUP chat — get-or-creates the conversation (auto-adds every
+/// event vendor), streams messages over the socket, supports to-dos, and free
+/// chat. Quotes/invoices are DM-only, so they don't appear here.
 class EventGroupChatScreen extends StatefulWidget {
   final String eventId;
   final String eventName;
@@ -26,303 +37,258 @@ class EventGroupChatScreen extends StatefulWidget {
 }
 
 class _EventGroupChatScreenState extends State<EventGroupChatScreen> {
-  final _service = MockMessagingService();
+  final _service = MessagingService();
+  final _orders = ChatOrdersService();
+  final _socket = ChatSocket();
   final _msgCtrl = TextEditingController();
   final _scrollCtrl = ScrollController();
 
-  static const _currentUserId = 'user-001';
-  static const _myName = 'Adaeze';
-  static const _myAvatar = 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=100';
-
+  String _currentUserId = '';
+  String? _conversationId;
+  ConversationModel? _conversation;
   List<MessageModel> _messages = [];
   bool _loading = true;
-
-  // fallback hardcoded messages used when no conversationId provided
-  static const _fallbackMessages = [
-    _GCMsg(id: 'm1', senderId: 'user-001', text: 'Hey everyone, how is the event preparation going?', time: '9:10 AM', senderName: 'Adaeze', avatarUrl: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=100'),
-    _GCMsg(id: 'm2', senderId: 'vendor-03', text: 'We\'re all set for the photography! Arriving at 8am sharp.', time: '9:15 AM', senderName: 'Lumière Photography', avatarUrl: 'https://images.unsplash.com/photo-1554048612-b6a482bc67e5?w=100'),
-    _GCMsg(id: 'm3', senderId: 'vendor-02', text: 'Cake delivery confirmed for 10am. 4-tier champagne & strawberry.', time: '9:20 AM', senderName: 'Sugared Dreams', avatarUrl: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=100'),
-    _GCMsg(id: 'm4', senderId: 'user-001', text: 'Perfect! Please make sure you coordinate with the venue manager on arrival.', time: '9:25 AM', senderName: 'Adaeze', avatarUrl: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=100'),
-  ];
 
   @override
   void initState() {
     super.initState();
-    _load();
+    final auth = context.read<AuthBloc>().state;
+    if (auth is AuthAuthenticated) _currentUserId = auth.user.id;
+    _resolveMyId();
+    _load(connect: true);
+  }
+
+  Future<void> _resolveMyId() async {
+    final id = await _service.myId();
+    if (id != null && id.isNotEmpty && mounted && id != _currentUserId) {
+      setState(() => _currentUserId = id);
+    }
   }
 
   @override
   void dispose() {
+    if (_conversationId != null) _socket.leave(_conversationId!);
+    _socket.dispose();
     _msgCtrl.dispose();
     _scrollCtrl.dispose();
     super.dispose();
   }
 
-  Future<void> _load() async {
-    if (widget.conversationId != null) {
-      final msgs = await _service.getMessages(widget.conversationId!);
-      if (mounted) {
-        setState(() {
-          _messages = msgs;
-          _loading = false;
-        });
-        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-      }
-    } else {
-      setState(() => _loading = false);
+  Future<void> _load({bool connect = false}) async {
+    try {
+      final conv = await _service.getOrCreateEventGroup(widget.eventId);
+      final msgs = await _service.getMessages(conv.id);
+      if (!mounted) return;
+      setState(() {
+        _conversation = conv;
+        _conversationId = conv.id;
+        _messages = msgs;
+        _loading = false;
+      });
+      if (connect) _connectSocket(conv.id);
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
     }
+  }
+
+  Future<void> _connectSocket(String convId) async {
+    await _socket.connect();
+    _socket.onReady(() => _socket.join(convId));
+    _socket.join(convId);
+    _socket.onMessage((data) {
+      final msg = MessageModel.fromJson(data);
+      if (msg.conversationId != convId) return;
+      if (_messages.any((m) => m.id == msg.id)) return;
+      if (!mounted) return;
+      setState(() => _messages.add(msg));
+      _socket.markRead(convId);
+      WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+    });
   }
 
   void _scrollToBottom() {
     if (_scrollCtrl.hasClients) {
-      _scrollCtrl.animateTo(
-        _scrollCtrl.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
+      _scrollCtrl.animateTo(_scrollCtrl.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300), curve: Curves.easeOut);
     }
   }
 
-  // Resolve sender display info from groupVendors list
-  ({String name, String? avatarUrl}) _senderInfo(String senderId) {
-    if (senderId == _currentUserId) return (name: _myName, avatarUrl: _myAvatar);
-    for (final v in widget.groupVendors) {
-      if (v.id == senderId) return (name: v.businessName, avatarUrl: v.coverUrl);
+  void _sendMessage() {
+    final text = _msgCtrl.text.trim();
+    if (text.isEmpty || _conversationId == null) return;
+    _msgCtrl.clear();
+    _socket.sendMessage(conversationId: _conversationId!, content: text);
+  }
+
+  Future<void> _toggleTodo(String todoId) async {
+    try {
+      await _orders.toggleTodo(todoId);
+      await _load();
+    } catch (_) {}
+  }
+
+  void _addTodo() {
+    if (_conversation == null || _conversationId == null) return;
+    final members = _conversation!.participants
+        .map((p) => TodoMemberOption(userId: p.userId, name: p.name))
+        .toList();
+    if (members.isEmpty) {
+      members.add(TodoMemberOption(userId: _currentUserId, name: 'You'));
     }
-    return (name: 'Vendor', avatarUrl: null);
+    showCreateTodoSheet(
+      context,
+      conversationId: _conversationId!,
+      members: members,
+      currentUserId: _currentUserId,
+      onCreated: _load,
+    );
   }
 
-  String _formatTime(DateTime dt) {
-    final h = dt.hour.toString().padLeft(2, '0');
-    final m = dt.minute.toString().padLeft(2, '0');
-    return '$h:$m';
+  String _senderName(String id) {
+    if (id == _currentUserId) return 'You';
+    for (final p in _conversation?.participants ?? const <ChatParticipant>[]) {
+      if (p.userId == id) return p.name;
+    }
+    return 'Member';
   }
-
-  bool _isSameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
 
   @override
   Widget build(BuildContext context) {
-    // Member avatars for header: my avatar + vendor avatars (max 3 shown)
-    final memberAvatars = <String?>[_myAvatar, ...widget.groupVendors.map((v) => v.coverUrl)];
-    final onlineCount = (widget.groupVendors.length + 1 > 2) ? 2 : widget.groupVendors.length;
-    final totalCount = widget.groupVendors.length + 1; // vendors + organiser
-
+    final memberCount =
+        _conversation?.participants.length ?? (widget.groupVendors.length + 1);
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
-      body: Column(
-        children: [
-          _buildHeader(context, memberAvatars, onlineCount, totalCount),
-          Expanded(
-            child: _loading
-                ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-                : widget.conversationId != null
-                    ? _buildLiveList()
-                    : _buildFallbackList(),
-          ),
-          _buildInputBar(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLiveList() {
-    return ListView.builder(
-      controller: _scrollCtrl,
-      padding: const EdgeInsets.all(16),
-      itemCount: _messages.length,
-      itemBuilder: (ctx, i) {
-        final msg = _messages[i];
-        final showDate = i == 0 || !_isSameDay(_messages[i - 1].createdAt, msg.createdAt);
-        return Column(
+      backgroundColor: context.c.background,
+      body: SafeArea(
+        child: Column(
           children: [
-            if (showDate) _buildDateSeparator(msg.createdAt),
-            _buildLiveMessage(msg),
+            _buildHeader(memberCount),
+            Expanded(
+              child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _messages.isEmpty
+                      ? Center(
+                          child: Text('No messages yet — say hello 👋',
+                              style: GoogleFonts.urbanist(color: context.c.textHint)))
+                      : ListView.builder(
+                          controller: _scrollCtrl,
+                          padding: const EdgeInsets.fromLTRB(14, 8, 14, 8),
+                          itemCount: _messages.length,
+                          itemBuilder: (context, i) => _buildMessage(_messages[i]),
+                        ),
+            ),
+            _buildInputBar(),
           ],
-        );
-      },
-    );
-  }
-
-  Widget _buildFallbackList() {
-    return ListView.builder(
-      controller: _scrollCtrl,
-      padding: const EdgeInsets.all(16),
-      itemCount: _fallbackMessages.length + 1,
-      itemBuilder: (ctx, i) {
-        if (i == 0) return _buildDateLabel('Today');
-        final msg = _fallbackMessages[i - 1];
-        return _buildFallbackMessage(msg);
-      },
-    );
-  }
-
-  Widget _buildDateSeparator(DateTime date) {
-    final now = DateTime.now();
-    final isToday = _isSameDay(date, now);
-    final label = isToday ? 'Today' : '${date.day}/${date.month}/${date.year}';
-    return _buildDateLabel(label);
-  }
-
-  Widget _buildDateLabel(String label) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        children: [
-          const Expanded(child: Divider(color: Color(0xFFE5E7EB))),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text(label, style: GoogleFonts.urbanist(fontSize: 12, color: const Color(0xFF9CA3AF))),
-          ),
-          const Expanded(child: Divider(color: Color(0xFFE5E7EB))),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildLiveMessage(MessageModel msg) {
-    final isMe = msg.senderId == _currentUserId;
-    final info = _senderInfo(msg.senderId);
-    return _buildBubble(
-      isMe: isMe,
-      text: msg.content ?? '',
-      time: _formatTime(msg.createdAt),
-      senderName: info.name,
-      avatarUrl: info.avatarUrl,
-    );
-  }
-
-  Widget _buildFallbackMessage(_GCMsg msg) {
-    final isMe = msg.senderId == _currentUserId;
-    return _buildBubble(
-      isMe: isMe,
-      text: msg.text,
-      time: msg.time,
-      senderName: msg.senderName,
-      avatarUrl: msg.avatarUrl,
-    );
-  }
-
-  Widget _buildBubble({
-    required bool isMe,
-    required String text,
-    required String time,
-    required String senderName,
-    String? avatarUrl,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Row(
-        mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (!isMe) ...[
-            _Avatar(url: avatarUrl, size: 28),
-            const SizedBox(width: 8),
-          ],
-          Container(
-            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.68),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            decoration: BoxDecoration(
-              gradient: isMe ? const LinearGradient(colors: [Color(0xFFAB52F5), Color(0xFF7420D0)]) : null,
-              color: isMe ? null : Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(18),
-                topRight: const Radius.circular(18),
-                bottomLeft: Radius.circular(isMe ? 18 : 4),
-                bottomRight: Radius.circular(isMe ? 4 : 18),
-              ),
-              boxShadow: [
-                BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 1)),
-              ],
-            ),
-            child: Column(
-              crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-              children: [
-                if (!isMe)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 3),
-                    child: Text(senderName,
-                        style: GoogleFonts.urbanist(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary)),
-                  ),
-                Text(text,
-                    style: GoogleFonts.urbanist(fontSize: 14, color: isMe ? Colors.white : const Color(0xFF1A1A2E))),
-                const SizedBox(height: 3),
-                Text(time,
-                    style: GoogleFonts.urbanist(
-                        fontSize: 10,
-                        color: isMe ? Colors.white.withValues(alpha: 0.7) : const Color(0xFF9CA3AF))),
-              ],
-            ),
-          ),
-          if (isMe) ...[
-            const SizedBox(width: 8),
-            _Avatar(url: avatarUrl, size: 28),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context, List<String?> memberAvatars, int onlineCount, int totalCount) {
-    final shown = memberAvatars.take(3).toList();
+  Widget _buildHeader(int memberCount) {
     return Container(
-      color: AppColors.primaryLight,
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 8,
-        left: 16, right: 16, bottom: 14,
+      padding: const EdgeInsets.fromLTRB(6, 6, 6, 10),
+      decoration: BoxDecoration(
+        color: context.c.surface,
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 6,
+              offset: const Offset(0, 2)),
+        ],
       ),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => context.pop(),
-            child: Container(
-              width: 36, height: 36,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 8, offset: const Offset(0, 2))],
-              ),
-              child: const Icon(Icons.arrow_back_ios_new_rounded, size: 16, color: Color(0xFF1A1A2E)),
-            ),
+          IconButton(
+            icon: Icon(Icons.arrow_back_ios_new_rounded,
+                size: 20, color: context.c.textPrimary),
+            onPressed: () => context.pop(),
           ),
-          const SizedBox(width: 12),
-          SizedBox(
-            width: 20.0 * shown.length + 16,
-            height: 36,
-            child: Stack(
-              children: shown.asMap().entries.map((entry) {
-                return Positioned(
-                  left: entry.key * 20.0,
-                  child: Container(
-                    width: 36, height: 36,
-                    decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)),
-                    child: ClipOval(child: _Avatar(url: entry.value, size: 36)),
-                  ),
-                );
-              }).toList(),
-            ),
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+                color: context.c.primaryLight, shape: BoxShape.circle),
+            child: const Icon(Icons.groups_rounded, color: AppColors.primary, size: 20),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(widget.eventName,
-                    style: GoogleFonts.urbanist(fontSize: 15, fontWeight: FontWeight.w700, color: const Color(0xFF1A1A2E)),
-                    maxLines: 1, overflow: TextOverflow.ellipsis),
-                Text('$onlineCount of $totalCount members online',
-                    style: GoogleFonts.urbanist(fontSize: 12, color: AppColors.primary)),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: GoogleFonts.urbanist(
+                        fontSize: 16, fontWeight: FontWeight.w800, color: context.c.textPrimary)),
+                Text('$memberCount members',
+                    style: GoogleFonts.urbanist(fontSize: 12, color: context.c.textSecondary)),
               ],
             ),
           ),
-          Container(
-            width: 40, height: 40,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(colors: [Color(0xFFAB52F5), Color(0xFF7420D0)]),
-              shape: BoxShape.circle,
+          IconButton(
+            tooltip: 'Add a to-do',
+            icon: const Icon(Icons.playlist_add_check_rounded, color: AppColors.primary),
+            onPressed: _addTodo,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMessage(MessageModel msg) {
+    if (msg.type == 'todo' && msg.todo != null) {
+      return TodoCard(
+        todo: msg.todo!,
+        currentUserId: _currentUserId,
+        onToggle: () => _toggleTodo(msg.todo!.id),
+      );
+    }
+    if (msg.type == 'milestone_paid' || msg.type == 'deposit_refunded') {
+      return const ChatSystemBanner(
+          label: 'Payment update', color: Color(0xFF047857), bg: Color(0xFFF0FDF4), icon: Icons.payments_rounded);
+    }
+    if (msg.type == 'booking_confirmed' ||
+        msg.type == 'order_accepted' ||
+        msg.type == 'quote_accepted') {
+      return const ChatSystemBanner(
+          label: 'Confirmed', color: Color(0xFF047857), bg: Color(0xFFF0FDF4));
+    }
+
+    // Plain chat bubble
+    final isMe = msg.senderId == _currentUserId;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Column(
+        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          if (!isMe)
+            Padding(
+              padding: const EdgeInsets.only(left: 6, bottom: 2),
+              child: Text(_senderName(msg.senderId),
+                  style: GoogleFonts.urbanist(
+                      fontSize: 11, fontWeight: FontWeight.w600, color: context.c.textHint)),
             ),
-            child: const Icon(Icons.phone_rounded, color: Colors.white, size: 18),
+          Container(
+            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.74),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              gradient: isMe
+                  ? const LinearGradient(colors: [Color(0xFFAB52F5), Color(0xFF7420D0)])
+                  : null,
+              color: isMe ? null : context.c.surface,
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(16),
+                topRight: const Radius.circular(16),
+                bottomLeft: Radius.circular(isMe ? 16 : 4),
+                bottomRight: Radius.circular(isMe ? 4 : 16),
+              ),
+              border: isMe ? null : Border.all(color: context.c.border),
+            ),
+            child: Text(
+              msg.content ?? '',
+              style: GoogleFonts.urbanist(
+                  fontSize: 14, color: isMe ? Colors.white : context.c.textPrimary),
+            ),
           ),
         ],
       ),
@@ -331,55 +297,42 @@ class _EventGroupChatScreenState extends State<EventGroupChatScreen> {
 
   Widget _buildInputBar() {
     return Container(
-      color: Colors.white,
-      padding: EdgeInsets.only(
-          left: 12, right: 12, top: 10,
-          bottom: MediaQuery.of(context).padding.bottom + 10),
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+      decoration: BoxDecoration(
+        color: context.c.surface,
+        border: Border(top: BorderSide(color: context.c.border)),
+      ),
       child: Row(
         children: [
-          Container(
-            width: 46, height: 46,
-            decoration: BoxDecoration(color: AppColors.primaryLight, borderRadius: BorderRadius.circular(12)),
-            child: const Icon(Icons.attach_file_rounded, color: AppColors.primary, size: 22),
-          ),
-          const SizedBox(width: 10),
           Expanded(
-            child: Container(
-              decoration: BoxDecoration(border: Border.all(color: const Color(0xFFE5E7EB)), borderRadius: BorderRadius.circular(24)),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _msgCtrl,
-                      style: GoogleFonts.urbanist(fontSize: 14),
-                      maxLines: null,
-                      decoration: InputDecoration(
-                        hintText: 'Type a message',
-                        hintStyle: GoogleFonts.urbanist(fontSize: 14, color: const Color(0xFF9CA3AF)),
-                        border: InputBorder.none,
-                        isDense: true,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                      ),
-                    ),
-                  ),
-                  const Icon(Icons.mic_rounded, color: Color(0xFF9CA3AF), size: 20),
-                ],
+            child: TextField(
+              controller: _msgCtrl,
+              style: GoogleFonts.urbanist(color: context.c.textPrimary),
+              onSubmitted: (_) => _sendMessage(),
+              decoration: InputDecoration(
+                hintText: 'Message the group…',
+                hintStyle: GoogleFonts.urbanist(color: context.c.textHint),
+                filled: true,
+                fillColor: context.c.background,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(24),
+                  borderSide: BorderSide(color: context.c.border),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(24),
+                  borderSide: BorderSide(color: context.c.border),
+                ),
               ),
             ),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 8),
           GestureDetector(
-            onTap: () {
-              if (_msgCtrl.text.trim().isEmpty) return;
-              _msgCtrl.clear();
-            },
+            onTap: _sendMessage,
             child: Container(
-              width: 46, height: 46,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(colors: [Color(0xFFAB52F5), Color(0xFF7420D0)]),
-                shape: BoxShape.circle,
-              ),
+              width: 46,
+              height: 46,
+              decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
               child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),
             ),
           ),
@@ -387,41 +340,4 @@ class _EventGroupChatScreenState extends State<EventGroupChatScreen> {
       ),
     );
   }
-}
-
-// ─── Avatar helper ─────────────────────────────────────────────────────────────
-class _Avatar extends StatelessWidget {
-  final String? url;
-  final double size;
-  const _Avatar({this.url, required this.size});
-
-  @override
-  Widget build(BuildContext context) {
-    if (url != null) {
-      return ClipOval(
-        child: Image.network(url!, width: size, height: size, fit: BoxFit.cover,
-            errorBuilder: (_, __, ___) => _placeholder()),
-      );
-    }
-    return _placeholder();
-  }
-
-  Widget _placeholder() => Container(
-        width: size, height: size,
-        decoration: const BoxDecoration(color: AppColors.primaryLight, shape: BoxShape.circle),
-        child: const Icon(Icons.person, color: AppColors.primary, size: 14),
-      );
-}
-
-// ─── Fallback message model ────────────────────────────────────────────────────
-class _GCMsg {
-  final String id, senderId, text, time, senderName, avatarUrl;
-  const _GCMsg({
-    required this.id,
-    required this.senderId,
-    required this.text,
-    required this.time,
-    required this.senderName,
-    required this.avatarUrl,
-  });
 }

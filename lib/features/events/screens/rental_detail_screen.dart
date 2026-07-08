@@ -29,12 +29,12 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
     );
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: Column(
         children: [
           // ── Header ──────────────────────────────────────────────────────
           Container(
-            color: AppColors.primaryLight,
+            color: context.c.primaryLight,
             padding: EdgeInsets.only(
               top: MediaQuery.of(context).padding.top + 8,
               left: 16,
@@ -51,7 +51,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.c.surface,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
@@ -61,10 +61,10 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                             ),
                           ],
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.arrow_back_ios_new_rounded,
                           size: 16,
-                          color: Color(0xFF1A1A2E),
+                          color: context.c.textPrimary,
                         ),
                       ),
                     ),
@@ -75,7 +75,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                         style: GoogleFonts.urbanist(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF1A1A2E),
+                          color: context.c.textPrimary,
                         ),
                       ),
                     ),
@@ -88,7 +88,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                   height: 48,
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.c.surface,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -121,7 +121,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
               child: _tabIndex == 0
-                  ? _buildDetailsTab(listing)
+                  ? _buildDetailsTab(context, listing)
                   : _buildTimelineTab(context),
             ),
           ),
@@ -132,14 +132,14 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
 
   // ── Details Tab ─────────────────────────────────────────────────────────────
 
-  Widget _buildDetailsTab(dynamic listing) {
+  Widget _buildDetailsTab(BuildContext context, dynamic listing) {
     return Column(
       children: [
         // ── Order Summary Card ────────────────────────────────────────────
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.c.surface,
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
@@ -164,9 +164,10 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                             width: 80,
                             height: 80,
                             fit: BoxFit.cover,
-                            errorBuilder: (ctx, e, st) => _imgPlaceholder(),
+                            errorBuilder: (ctx, e, st) =>
+                                _imgPlaceholder(context),
                           )
-                        : _imgPlaceholder(),
+                        : _imgPlaceholder(context),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -178,7 +179,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                           style: GoogleFonts.urbanist(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF1A1A2E),
+                            color: context.c.textPrimary,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -188,7 +189,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                           '13 Mar 2026',
                           style: GoogleFonts.urbanist(
                             fontSize: 12,
-                            color: const Color(0xFF6B7280),
+                            color: context.c.textSecondary,
                           ),
                         ),
                         const SizedBox(height: 3),
@@ -196,7 +197,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                           listing.vendor?.businessName ?? 'Vendor',
                           style: GoogleFonts.urbanist(
                             fontSize: 12,
-                            color: const Color(0xFF6B7280),
+                            color: context.c.textSecondary,
                           ),
                         ),
                       ],
@@ -231,7 +232,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                             style: GoogleFonts.urbanist(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF1A1A2E),
+                              color: context.c.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -270,7 +271,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                             style: GoogleFonts.urbanist(
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF1A1A2E),
+                              color: context.c.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -353,7 +354,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.c.surface,
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
@@ -373,7 +374,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                     'Status',
                     style: GoogleFonts.urbanist(
                       fontSize: 13,
-                      color: const Color(0xFF6B7280),
+                      color: context.c.textSecondary,
                     ),
                   ),
                   const Spacer(),
@@ -400,10 +401,10 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                 ],
               ),
               const SizedBox(height: 14),
-              _feeRow('Rental duration', '2 days'),
-              _feeRow('Rental fee (2 × ₦8,000)', '₦16,000'),
-              _feeRow('Delivery Fee', '₦1,300'),
-              _feeRow('Refundable deposit', '₦20,000'),
+              _feeRow(context, 'Rental duration', '2 days'),
+              _feeRow(context, 'Rental fee (2 × ₦8,000)', '₦16,000'),
+              _feeRow(context, 'Delivery Fee', '₦1,300'),
+              _feeRow(context, 'Refundable deposit', '₦20,000'),
               const Divider(height: 24),
               Row(
                 children: [
@@ -412,7 +413,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                     style: GoogleFonts.urbanist(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                   const Spacer(),
@@ -421,7 +422,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                     style: GoogleFonts.urbanist(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                 ],
@@ -445,7 +446,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
     );
   }
 
-  Widget _feeRow(String label, String value) {
+  Widget _feeRow(BuildContext context, String label, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -454,7 +455,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
             label,
             style: GoogleFonts.urbanist(
               fontSize: 13,
-              color: const Color(0xFF6B7280),
+              color: context.c.textSecondary,
             ),
           ),
           const Spacer(),
@@ -463,7 +464,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
             style: GoogleFonts.urbanist(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: const Color(0xFF1A1A2E),
+              color: context.c.textPrimary,
             ),
           ),
         ],
@@ -507,7 +508,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.c.surface,
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
@@ -525,7 +526,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                 style: GoogleFonts.urbanist(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A1A2E),
+                  color: context.c.textPrimary,
                 ),
               ),
               const SizedBox(height: 20),
@@ -533,7 +534,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                 final i = entry.key;
                 final step = entry.value;
                 final isLast = i == steps.length - 1;
-                return _buildStep(step, isLast);
+                return _buildStep(context, step, isLast);
               }),
             ],
           ),
@@ -574,7 +575,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.c.surface,
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
@@ -592,7 +593,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                 style: GoogleFonts.urbanist(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A1A2E),
+                  color: context.c.textPrimary,
                 ),
               ),
               const SizedBox(height: 14),
@@ -642,7 +643,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
     );
   }
 
-  Widget _buildStep(_RentalStep step, bool isLast) {
+  Widget _buildStep(BuildContext context, _RentalStep step, bool isLast) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -674,10 +675,10 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                 width: 2,
                 height: 44,
                 margin: const EdgeInsets.symmetric(vertical: 2),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   border: Border(
                     left: BorderSide(
-                      color: Color(0xFFE5E7EB),
+                      color: context.c.border,
                       width: 1,
                     ),
                   ),
@@ -701,7 +702,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                         style: GoogleFonts.urbanist(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF1A1A2E),
+                          color: context.c.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -709,7 +710,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                         step.subtitle,
                         style: GoogleFonts.urbanist(
                           fontSize: 12,
-                          color: const Color(0xFF9CA3AF),
+                          color: context.c.textHint,
                         ),
                       ),
                     ],
@@ -743,11 +744,11 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
     );
   }
 
-  Widget _imgPlaceholder() => Container(
+  Widget _imgPlaceholder(BuildContext context) => Container(
         width: 80,
         height: 80,
         decoration: BoxDecoration(
-          color: AppColors.primaryLight,
+          color: context.c.primaryLight,
           borderRadius: BorderRadius.circular(10),
         ),
         child: const Icon(Icons.chair_outlined, color: AppColors.primary, size: 28),
@@ -844,7 +845,7 @@ class _SegTab extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            color: active ? AppColors.primaryLight : Colors.transparent,
+            color: active ? context.c.primaryLight : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
           alignment: Alignment.center,
@@ -853,7 +854,7 @@ class _SegTab extends StatelessWidget {
             style: GoogleFonts.urbanist(
               fontSize: 13,
               fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-              color: active ? AppColors.primary : const Color(0xFF9CA3AF),
+              color: active ? AppColors.primary : context.c.textHint,
             ),
           ),
         ),

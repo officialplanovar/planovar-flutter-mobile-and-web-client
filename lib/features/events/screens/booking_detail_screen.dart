@@ -26,12 +26,12 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: Column(
         children: [
           // ── Header ──────────────────────────────────────────────────────
           Container(
-            color: AppColors.primaryLight,
+            color: context.c.primaryLight,
             padding: EdgeInsets.only(
               top: MediaQuery.of(context).padding.top + 8,
               left: 16,
@@ -48,7 +48,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.c.surface,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
@@ -58,10 +58,10 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
                             ),
                           ],
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.arrow_back_ios_new_rounded,
                           size: 16,
-                          color: Color(0xFF1A1A2E),
+                          color: context.c.textPrimary,
                         ),
                       ),
                     ),
@@ -72,7 +72,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
                         style: GoogleFonts.urbanist(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF1A1A2E),
+                          color: context.c.textPrimary,
                         ),
                       ),
                     ),
@@ -85,7 +85,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
                   height: 48,
                   padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.c.surface,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -118,7 +118,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: _tabIndex == 0
-                  ? _buildDetailsTab()
+                  ? _buildDetailsTab(context)
                   : _buildTimelineTab(),
             ),
           ),
@@ -129,14 +129,14 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
 
   // ── Details Tab ────────────────────────────────────────────────────────────
 
-  Widget _buildDetailsTab() {
+  Widget _buildDetailsTab(BuildContext context) {
     return Column(
       children: [
         // ── Service card ──────────────────────────────────────────────────
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.c.surface,
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
@@ -164,7 +164,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
                         width: 80,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: AppColors.primaryLight,
+                          color: context.c.primaryLight,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Icon(Icons.store,
@@ -182,7 +182,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
                           style: GoogleFonts.urbanist(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF1A1A2E),
+                            color: context.c.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 3),
@@ -190,7 +190,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
                           widget.vendorName,
                           style: GoogleFonts.urbanist(
                             fontSize: 12,
-                            color: const Color(0xFF6B7280),
+                            color: context.c.textSecondary,
                           ),
                         ),
                         const SizedBox(height: 6),
@@ -203,7 +203,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
                               '4.9 (89 reviews)',
                               style: GoogleFonts.urbanist(
                                 fontSize: 12,
-                                color: const Color(0xFF6B7280),
+                                color: context.c.textSecondary,
                               ),
                             ),
                           ],
@@ -258,7 +258,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
                   label,
                   style: GoogleFonts.urbanist(
                     fontSize: 12,
-                    color: const Color(0xFF9CA3AF),
+                    color: context.c.textHint,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -267,7 +267,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
                   style: GoogleFonts.urbanist(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF1A1A2E),
+                    color: context.c.textPrimary,
                   ),
                 ),
               ],
@@ -401,7 +401,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.c.surface,
             borderRadius: BorderRadius.circular(14),
             boxShadow: [
               BoxShadow(
@@ -419,7 +419,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
                 style: GoogleFonts.urbanist(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A1A2E),
+                  color: context.c.textPrimary,
                 ),
               ),
               const SizedBox(height: 20),
@@ -495,7 +495,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
                         style: GoogleFonts.urbanist(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
-                          color: const Color(0xFF1A1A2E),
+                          color: context.c.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -503,7 +503,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
                         step.date,
                         style: GoogleFonts.urbanist(
                           fontSize: 12,
-                          color: const Color(0xFF9CA3AF),
+                          color: context.c.textHint,
                         ),
                       ),
                     ],
@@ -544,7 +544,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surface,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
@@ -562,7 +562,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
             style: GoogleFonts.urbanist(
               fontSize: 16,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF1A1A2E),
+              color: context.c.textPrimary,
             ),
           ),
           const SizedBox(height: 14),
@@ -695,7 +695,7 @@ class _SegTab extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            color: active ? AppColors.primaryLight : Colors.transparent,
+            color: active ? context.c.primaryLight : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
           ),
           alignment: Alignment.center,
@@ -704,7 +704,7 @@ class _SegTab extends StatelessWidget {
             style: GoogleFonts.urbanist(
               fontSize: 13,
               fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-              color: active ? AppColors.primary : const Color(0xFF9CA3AF),
+              color: active ? AppColors.primary : context.c.textHint,
             ),
           ),
         ),

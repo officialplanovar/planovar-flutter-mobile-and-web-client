@@ -76,7 +76,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: context.c.surface,
         body: SafeArea(
           child: Column(
             children: [
@@ -95,7 +95,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           style: GoogleFonts.urbanist(
                             fontSize: 26,
                             fontWeight: FontWeight.w800,
-                            color: const Color(0xFF1A1A1A),
+                            color: context.c.textPrimary,
                           ),
                         ),
                       ),
@@ -112,7 +112,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                               _obscure1
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
-                              color: const Color(0xFF9CA3AF),
+                              color: context.c.textHint,
                               size: 20,
                             ),
                             onPressed: () =>
@@ -133,7 +133,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                               _obscure2
                                   ? Icons.visibility_off_outlined
                                   : Icons.visibility_outlined,
-                              color: const Color(0xFF9CA3AF),
+                              color: context.c.textHint,
                               size: 20,
                             ),
                             onPressed: () =>
@@ -205,7 +205,7 @@ class _FieldLabel extends StatelessWidget {
         style: GoogleFonts.urbanist(
           fontSize: 15,
           fontWeight: FontWeight.w700,
-          color: const Color(0xFF1A1A1A),
+          color: context.c.textPrimary,
         ),
       ),
     );
@@ -276,7 +276,7 @@ class _CriteriaRow extends StatelessWidget {
             label,
             style: GoogleFonts.urbanist(
               fontSize: 14,
-              color: met ? const Color(0xFF1A1A1A) : const Color(0xFF6B7280),
+              color: met ? context.c.textPrimary : context.c.textSecondary,
               fontWeight: met ? FontWeight.w500 : FontWeight.normal,
             ),
           ),

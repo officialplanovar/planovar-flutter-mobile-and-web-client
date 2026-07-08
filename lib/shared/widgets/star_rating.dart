@@ -25,13 +25,13 @@ class StarRating extends StatelessWidget {
         const SizedBox(width: 3),
         Text(
           rating.toStringAsFixed(1),
-          style: AppTextStyles.label.copyWith(fontSize: starSize - 2),
+          style: AppTextStyles.label(context).copyWith(fontSize: starSize - 2),
         ),
         if (showCount && reviewCount > 0) ...[
           const SizedBox(width: 3),
           Text(
             '($reviewCount)',
-            style: AppTextStyles.caption.copyWith(fontSize: starSize - 3),
+            style: AppTextStyles.caption(context).copyWith(fontSize: starSize - 3),
           ),
         ],
       ],

@@ -155,20 +155,21 @@ class _RentProductScreenState extends State<RentProductScreen> {
 
   // ── Section helpers ────────────────────────────────────────────────────────
 
-  Widget _sectionLabel(String text) {
+  Widget _sectionLabel(BuildContext context, String text) {
     return Padding(
       padding: const EdgeInsets.only(left: 20, bottom: 8),
       child: Text(
         text,
         style: GoogleFonts.urbanist(
           fontSize: 13,
-          color: const Color(0xFF6B7280),
+          color: context.c.textSecondary,
         ),
       ),
     );
   }
 
-  Widget _summaryRow(String label, String value, {bool isBold = false}) {
+  Widget _summaryRow(BuildContext context, String label, String value,
+      {bool isBold = false}) {
     return Row(
       children: [
         Text(
@@ -176,9 +177,7 @@ class _RentProductScreenState extends State<RentProductScreen> {
           style: GoogleFonts.urbanist(
             fontSize: 13,
             fontWeight: isBold ? FontWeight.w700 : FontWeight.w400,
-            color: isBold
-                ? const Color(0xFF1A1A2E)
-                : const Color(0xFF6B7280),
+            color: isBold ? context.c.textPrimary : context.c.textSecondary,
           ),
         ),
         const Spacer(),
@@ -187,7 +186,7 @@ class _RentProductScreenState extends State<RentProductScreen> {
           style: GoogleFonts.urbanist(
             fontSize: isBold ? 18 : 13,
             fontWeight: isBold ? FontWeight.w800 : FontWeight.w600,
-            color: isBold ? AppColors.primary : const Color(0xFF1A1A2E),
+            color: isBold ? AppColors.primary : context.c.textPrimary,
           ),
         ),
       ],
@@ -197,9 +196,9 @@ class _RentProductScreenState extends State<RentProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F5FF),
+        backgroundColor: context.c.background,
         elevation: 0,
         leading: GestureDetector(
           onTap: () => context.pop(),
@@ -224,7 +223,7 @@ class _RentProductScreenState extends State<RentProductScreen> {
           style: GoogleFonts.urbanist(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF1A1A2E),
+            color: context.c.textPrimary,
           ),
         ),
         centerTitle: true,
@@ -247,10 +246,9 @@ class _RentProductScreenState extends State<RentProductScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: context.c.surface,
                             borderRadius: BorderRadius.circular(14),
-                            border:
-                                Border.all(color: const Color(0xFFE5E7EB)),
+                            border: Border.all(color: context.c.border),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -262,7 +260,7 @@ class _RentProductScreenState extends State<RentProductScreen> {
                                 style: GoogleFonts.urbanist(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w800,
-                                  color: const Color(0xFF1A1A2E),
+                                  color: context.c.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -270,7 +268,7 @@ class _RentProductScreenState extends State<RentProductScreen> {
                                 'Per day',
                                 style: GoogleFonts.urbanist(
                                   fontSize: 13,
-                                  color: const Color(0xFF6B7280),
+                                  color: context.c.textSecondary,
                                 ),
                               ),
                             ],
@@ -283,10 +281,9 @@ class _RentProductScreenState extends State<RentProductScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: context.c.surface,
                             borderRadius: BorderRadius.circular(14),
-                            border:
-                                Border.all(color: const Color(0xFFE5E7EB)),
+                            border: Border.all(color: context.c.border),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -298,7 +295,7 @@ class _RentProductScreenState extends State<RentProductScreen> {
                                 style: GoogleFonts.urbanist(
                                   fontSize: 20,
                                   fontWeight: FontWeight.w800,
-                                  color: const Color(0xFF1A1A2E),
+                                  color: context.c.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -306,7 +303,7 @@ class _RentProductScreenState extends State<RentProductScreen> {
                                 'Refundable deposit',
                                 style: GoogleFonts.urbanist(
                                   fontSize: 13,
-                                  color: const Color(0xFF6B7280),
+                                  color: context.c.textSecondary,
                                 ),
                               ),
                             ],
@@ -327,7 +324,7 @@ class _RentProductScreenState extends State<RentProductScreen> {
                     style: GoogleFonts.urbanist(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                 ),
@@ -341,10 +338,9 @@ class _RentProductScreenState extends State<RentProductScreen> {
                           onTap: _pickStartDate,
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: context.c.surface,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                  color: const Color(0xFFE5E7EB)),
+                              border: Border.all(color: context.c.border),
                             ),
                             child: TextField(
                               controller: _startDateCtrl,
@@ -352,13 +348,13 @@ class _RentProductScreenState extends State<RentProductScreen> {
                               enabled: false,
                               style: GoogleFonts.urbanist(
                                 fontSize: 13,
-                                color: const Color(0xFF1A1A2E),
+                                color: context.c.textPrimary,
                               ),
                               decoration: InputDecoration(
                                 hintText: 'DD-MM-YYYY',
                                 hintStyle: GoogleFonts.urbanist(
                                   fontSize: 13,
-                                  color: const Color(0xFF9CA3AF),
+                                  color: context.c.textHint,
                                 ),
                                 border: InputBorder.none,
                                 contentPadding:
@@ -381,7 +377,7 @@ class _RentProductScreenState extends State<RentProductScreen> {
                           '—',
                           style: GoogleFonts.urbanist(
                             fontSize: 16,
-                            color: const Color(0xFF6B7280),
+                            color: context.c.textSecondary,
                           ),
                         ),
                       ),
@@ -391,10 +387,9 @@ class _RentProductScreenState extends State<RentProductScreen> {
                           onTap: _pickEndDate,
                           child: Container(
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: context.c.surface,
                               borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                  color: const Color(0xFFE5E7EB)),
+                              border: Border.all(color: context.c.border),
                             ),
                             child: TextField(
                               controller: _endDateCtrl,
@@ -402,13 +397,13 @@ class _RentProductScreenState extends State<RentProductScreen> {
                               enabled: false,
                               style: GoogleFonts.urbanist(
                                 fontSize: 13,
-                                color: const Color(0xFF1A1A2E),
+                                color: context.c.textPrimary,
                               ),
                               decoration: InputDecoration(
                                 hintText: 'DD-MM-YYYY',
                                 hintStyle: GoogleFonts.urbanist(
                                   fontSize: 13,
-                                  color: const Color(0xFF9CA3AF),
+                                  color: context.c.textHint,
                                 ),
                                 border: InputBorder.none,
                                 contentPadding:
@@ -431,12 +426,12 @@ class _RentProductScreenState extends State<RentProductScreen> {
                 const SizedBox(height: 20),
 
                 // ── Event Details ────────────────────────────────────────────
-                _sectionLabel('Event Details'),
+                _sectionLabel(context, 'Event Details'),
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 20),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.c.surface,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -454,7 +449,7 @@ class _RentProductScreenState extends State<RentProductScreen> {
                         style: GoogleFonts.urbanist(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
-                          color: const Color(0xFF1A1A2E),
+                          color: context.c.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -489,13 +484,13 @@ class _RentProductScreenState extends State<RentProductScreen> {
                 const SizedBox(height: 20),
 
                 // ── Delivery / Pickup toggle ─────────────────────────────────
-                _sectionLabel('Saved address'),
+                _sectionLabel(context, 'Saved address'),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Container(
                     height: 52,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEEEEEE),
+                      color: context.c.surfaceElevated,
                       borderRadius: BorderRadius.circular(30),
                     ),
                     padding: const EdgeInsets.all(4),
@@ -524,9 +519,9 @@ class _RentProductScreenState extends State<RentProductScreen> {
                     margin: const EdgeInsets.symmetric(horizontal: 20),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.c.surface,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                      border: Border.all(color: context.c.border),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -544,7 +539,7 @@ class _RentProductScreenState extends State<RentProductScreen> {
                               style: GoogleFonts.urbanist(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: const Color(0xFF1A1A2E),
+                                color: context.c.textPrimary,
                               ),
                             ),
                           ],
@@ -564,7 +559,7 @@ class _RentProductScreenState extends State<RentProductScreen> {
                               'Use same event location',
                               style: GoogleFonts.urbanist(
                                 fontSize: 13,
-                                color: const Color(0xFF6B7280),
+                                color: context.c.textSecondary,
                               ),
                             ),
                           ],
@@ -583,9 +578,9 @@ class _RentProductScreenState extends State<RentProductScreen> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.add,
-                                  color: Color(0xFF9CA3AF),
+                                  color: context.c.textHint,
                                   size: 18,
                                 ),
                                 const SizedBox(width: 6),
@@ -593,7 +588,7 @@ class _RentProductScreenState extends State<RentProductScreen> {
                                   '+ Use another address',
                                   style: GoogleFonts.urbanist(
                                     fontSize: 13,
-                                    color: const Color(0xFF9CA3AF),
+                                    color: context.c.textHint,
                                   ),
                                 ),
                               ],
@@ -622,13 +617,13 @@ class _RentProductScreenState extends State<RentProductScreen> {
                             errorBuilder: (ctx, err, stack) => Container(
                               height: 180,
                               decoration: BoxDecoration(
-                                color: const Color(0xFFE5E7EB),
+                                color: ctx.c.border,
                                 borderRadius: BorderRadius.circular(14),
                               ),
-                              child: const Center(
+                              child: Center(
                                 child: Icon(
                                   Icons.map_outlined,
-                                  color: Color(0xFF9CA3AF),
+                                  color: ctx.c.textHint,
                                   size: 40,
                                 ),
                               ),
@@ -648,9 +643,9 @@ class _RentProductScreenState extends State<RentProductScreen> {
                     margin: const EdgeInsets.symmetric(horizontal: 20),
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.c.surface,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                      border: Border.all(color: context.c.border),
                     ),
                     child: Row(
                       children: [
@@ -665,7 +660,7 @@ class _RentProductScreenState extends State<RentProductScreen> {
                           style: GoogleFonts.urbanist(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF1A1A2E),
+                            color: context.c.textPrimary,
                           ),
                         ),
                       ],
@@ -680,7 +675,7 @@ class _RentProductScreenState extends State<RentProductScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: 20),
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.c.surface,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -698,28 +693,32 @@ class _RentProductScreenState extends State<RentProductScreen> {
                         style: GoogleFonts.urbanist(
                           fontSize: 15,
                           fontWeight: FontWeight.w700,
-                          color: const Color(0xFF1A1A2E),
+                          color: context.c.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 12),
                       _summaryRow(
+                        context,
                         'Rental duration',
                         '$_rentalDays ${_rentalDays == 1 ? "day" : "days"}',
                       ),
                       const SizedBox(height: 8),
                       _summaryRow(
+                        context,
                         'Rental fee ($_rentalDays × ₦${_fmt(_perDayRate)})',
                         '₦ ${_fmt(_rentalFee)}',
                       ),
                       if (_isDelivery) ...[
                         const SizedBox(height: 8),
                         _summaryRow(
+                          context,
                           'Delivery Fee',
                           '₦ ${_fmt(_deliveryFee)}',
                         ),
                       ],
                       const SizedBox(height: 8),
                       _summaryRow(
+                        context,
                         'Refundable deposit',
                         '₦ ${_fmt(_depositAmount)}',
                       ),
@@ -727,6 +726,7 @@ class _RentProductScreenState extends State<RentProductScreen> {
                       const Divider(height: 1),
                       const SizedBox(height: 8),
                       _summaryRow(
+                        context,
                         'Charged now',
                         '₦ ${_fmt(_chargedNow)}',
                         isBold: true,
@@ -736,7 +736,7 @@ class _RentProductScreenState extends State<RentProductScreen> {
                         'Deposit refunded within 48hrs of return in good condition',
                         style: GoogleFonts.urbanist(
                           fontSize: 12,
-                          color: const Color(0xFF9CA3AF),
+                          color: context.c.textHint,
                           height: 1.4,
                         ),
                       ),
@@ -755,7 +755,7 @@ class _RentProductScreenState extends State<RentProductScreen> {
             right: 0,
             bottom: 0,
             child: Container(
-              color: Colors.white,
+              color: context.c.surface,
               child: SafeArea(
                 top: false,
                 child: Padding(
@@ -791,7 +791,7 @@ class _RentProductScreenState extends State<RentProductScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(16),
                             ),
-                            backgroundColor: Colors.white,
+                            backgroundColor: context.c.surface,
                           ),
                           child: Text(
                             'Ask Vendor a Question',
@@ -854,9 +854,7 @@ class _ToggleTab extends StatelessWidget {
               style: GoogleFonts.urbanist(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: isSelected
-                    ? AppColors.primary
-                    : const Color(0xFF9CA3AF),
+                color: isSelected ? AppColors.primary : context.c.textHint,
               ),
             ),
           ),
@@ -884,7 +882,7 @@ class _InfoChip extends StatelessWidget {
           label,
           style: GoogleFonts.urbanist(
             fontSize: 12,
-            color: const Color(0xFF6B7280),
+            color: context.c.textSecondary,
           ),
         ),
       ],

@@ -31,3 +31,43 @@ class AppColors {
   static const darkTextHint = Color(0xFF6B7280);
   static const darkPrimaryLight = Color(0xFF2A1A40); // primary tint for dark surfaces
 }
+
+/// Theme-aware palette. Resolve *structural* colors from `context.c` so they
+/// adapt to light/dark, e.g. `color: context.c.surface`. Brand colors
+/// (primary, success, error, starColor, …) stay constant via [AppColors] and
+/// should NOT go through this palette.
+class AppPalette {
+  final bool dark;
+  const AppPalette(this.dark);
+
+  /// Scaffold / page background.
+  Color get background =>
+      dark ? AppColors.darkBackground : AppColors.backgroundLight;
+
+  /// Cards, sheets, app bars — anything that was previously plain white.
+  Color get surface => dark ? AppColors.darkSurface : AppColors.surface;
+
+  /// Slightly raised fill (input fields, muted chips).
+  Color get surfaceElevated =>
+      dark ? AppColors.darkSurfaceElevated : const Color(0xFFF2F2F2);
+
+  Color get textPrimary =>
+      dark ? AppColors.darkTextPrimary : AppColors.textPrimary;
+  Color get textSecondary =>
+      dark ? AppColors.darkTextSecondary : AppColors.textSecondary;
+  Color get textHint => dark ? AppColors.darkTextHint : AppColors.textHint;
+
+  Color get border => dark ? AppColors.darkBorder : AppColors.border;
+  Color get divider => dark ? AppColors.darkDivider : AppColors.divider;
+
+  /// Tinted brand-light surface (selected chips, icon squares).
+  Color get primaryLight =>
+      dark ? AppColors.darkPrimaryLight : AppColors.primaryLight;
+}
+
+extension AppColorsContext on BuildContext {
+  /// Theme-aware palette: `context.c.surface`, `context.c.textPrimary`, …
+  AppPalette get c =>
+      AppPalette(Theme.of(this).brightness == Brightness.dark);
+  bool get isDark => Theme.of(this).brightness == Brightness.dark;
+}

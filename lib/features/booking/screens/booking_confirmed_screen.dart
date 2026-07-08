@@ -20,7 +20,7 @@ class BookingConfirmedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -55,7 +55,7 @@ class BookingConfirmedScreen extends StatelessWidget {
                   style: GoogleFonts.urbanist(
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
-                    color: const Color(0xFF1A1A2E),
+                    color: context.c.textPrimary,
                   ),
                   children: [
                     const TextSpan(text: "It's Officially a "),
@@ -76,7 +76,7 @@ class BookingConfirmedScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: GoogleFonts.urbanist(
                   fontSize: 14,
-                  color: const Color(0xFF6B7280),
+                  color: context.c.textSecondary,
                   height: 1.65,
                 ),
               ),
@@ -85,9 +85,9 @@ class BookingConfirmedScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.c.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE5E7EB)),
+                  border: Border.all(color: context.c.border),
                   boxShadow: [
                     BoxShadow(
                       color: Colors.black.withValues(alpha: 0.05),
@@ -99,9 +99,9 @@ class BookingConfirmedScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     _Row(label: 'Event ID', value: bookingRef),
-                    const Divider(height: 1, color: Color(0xFFF3F4F6)),
+                    Divider(height: 1, color: context.c.divider),
                     _Row(label: 'Vendor(s)', value: vendorName),
-                    const Divider(height: 1, color: Color(0xFFF3F4F6)),
+                    Divider(height: 1, color: context.c.divider),
                     _Row(label: 'Date', value: date),
                   ],
                 ),
@@ -147,7 +147,7 @@ class _Row extends StatelessWidget {
             label,
             style: GoogleFonts.urbanist(
               fontSize: 13,
-              color: const Color(0xFF9CA3AF),
+              color: context.c.textHint,
             ),
           ),
           const Spacer(),
@@ -156,7 +156,7 @@ class _Row extends StatelessWidget {
             style: GoogleFonts.urbanist(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: const Color(0xFF1A1A2E),
+              color: context.c.textPrimary,
             ),
           ),
         ],
