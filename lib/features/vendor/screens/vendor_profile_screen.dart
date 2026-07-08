@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/mock/mock_data.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/services/reviews_service.dart';
 import '../../../core/services/vendor_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/listing_model.dart';
@@ -13,7 +14,17 @@ import '../../../shared/widgets/glass_circle_button.dart';
 class VendorProfileScreen extends StatefulWidget {
   final String vendorId;
 
-  const VendorProfileScreen({super.key, required this.vendorId});
+  /// When browsing from *within* an event, carries the event so listing
+  /// details reached from here can save straight back to it.
+  final String? eventId;
+  final String? eventName;
+
+  const VendorProfileScreen({
+    super.key,
+    required this.vendorId,
+    this.eventId,
+    this.eventName,
+  });
 
   @override
   State<VendorProfileScreen> createState() => _VendorProfileScreenState();
@@ -24,12 +35,13 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
   late TabController _tabController;
   late PageController _pageController;
   VendorModel? _vendorOrNull;
-  List<ListingModel> _listings = [];
   List<ListingModel> _products = [];
   List<ListingModel> _services = [];
   List<String> _images = [];
   int _currentPage = 0;
   bool _isFavorited = false;
+  bool _favBusy = false;
+  bool _loadFailed = false;
 
   /// Non-null once loaded; build() shows a loader until then.
   VendorModel get _vendor => _vendorOrNull!;
@@ -43,7 +55,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
   }
 
   Future<void> _load() async {
-    // Live vendor + listings from the API; mock fallback for demo ids.
+    // Live vendor + listings from the API (no mock fallback).
     VendorModel? vendor;
     List<ListingModel> listings = [];
     try {
@@ -53,31 +65,69 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
         listings = await service.getVendorListings(widget.vendorId);
       }
     } catch (_) {}
+    if (!mounted) return;
     if (vendor == null) {
-      vendor = MockData.vendors
-              .where((v) => v.id == widget.vendorId)
-              .firstOrNull ??
-          (MockData.vendors.isNotEmpty ? MockData.vendors.first : null);
-      if (vendor != null) {
-        listings = MockData.listings
-            .where((l) => l.vendorId == vendor!.id)
-            .toList();
+      setState(() => _loadFailed = true);
+      return;
+    }
+
+    // Real gallery: vendor portfolio, else distinct listing cover images,
+    // else the single cover. (Repeating the cover 3× made it look static.)
+    final gallery = <String>[...vendor.portfolioUrls];
+    if (gallery.isEmpty) {
+      if (vendor.coverUrl != null) gallery.add(vendor.coverUrl!);
+      for (final l in listings) {
+        if (l.media.isNotEmpty) gallery.add(l.media.first);
       }
     }
-    if (!mounted || vendor == null) return;
+
+    // Whether the current user has saved this vendor (best-effort).
+    bool fav = false;
+    try {
+      fav = (await VendorService().favouriteIds()).contains(widget.vendorId);
+    } catch (_) {}
+
+    if (!mounted) return;
     setState(() {
       _vendorOrNull = vendor;
-      _listings = listings;
       _products = listings
           .where((l) => l.pricingType.toLowerCase() == 'fixed')
           .toList();
       _services = listings
           .where((l) => l.pricingType.toLowerCase() != 'fixed')
           .toList();
-      _images = vendor!.coverUrl != null
-          ? [vendor.coverUrl!, vendor.coverUrl!, vendor.coverUrl!]
-          : [];
+      _images = gallery.toSet().toList();
+      _isFavorited = fav;
     });
+  }
+
+  Future<void> _toggleFavourite() async {
+    if (_favBusy) return;
+    final prev = _isFavorited;
+    setState(() {
+      _isFavorited = !prev;
+      _favBusy = true;
+    });
+    try {
+      await VendorService().toggleFavourite(widget.vendorId, prev);
+    } catch (_) {
+      if (mounted) setState(() => _isFavorited = prev);
+    } finally {
+      if (mounted) setState(() => _favBusy = false);
+    }
+  }
+
+  Future<void> _share() async {
+    final v = _vendorOrNull;
+    if (v == null) return;
+    final link = 'https://planovar.com/vendors/${v.slug}';
+    await Clipboard.setData(
+      ClipboardData(text: '${v.businessName} on Planovar — $link'),
+    );
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Link copied to clipboard')),
+    );
   }
 
   @override
@@ -99,16 +149,32 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (_loadFailed) {
+      return Scaffold(
+        backgroundColor: context.c.background,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          iconTheme: IconThemeData(color: context.c.textPrimary),
+        ),
+        body: Center(
+          child: Text(
+            'Vendor not found',
+            style: GoogleFonts.urbanist(color: context.c.textSecondary),
+          ),
+        ),
+      );
+    }
     if (_vendorOrNull == null) {
-      return const Scaffold(
-        backgroundColor: Color(0xFFF8F5FF),
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        backgroundColor: context.c.background,
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           // ── Cover image sliver ─────────────────────────────────────────────
@@ -132,7 +198,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 8, right: 4),
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: _share,
                   child: const GlassCircleButton(
                     child: Icon(Icons.share_rounded,
                         color: Colors.white, size: 18),
@@ -142,7 +208,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 8, right: 12),
                 child: GestureDetector(
-                  onTap: () => setState(() => _isFavorited = !_isFavorited),
+                  onTap: _toggleFavourite,
                   child: GlassCircleButton(
                     child: Icon(
                       _isFavorited
@@ -161,7 +227,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
                 children: [
                   if (_images.isEmpty)
                     Container(
-                      color: AppColors.primaryLight,
+                      color: context.c.primaryLight,
                       child: const Center(
                         child: Icon(Icons.store_rounded,
                             color: AppColors.primary, size: 60),
@@ -177,7 +243,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
                         _images[i],
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) => Container(
-                          color: AppColors.primaryLight,
+                          color: context.c.primaryLight,
                           child: const Center(
                             child: Icon(Icons.store_rounded,
                                 color: AppColors.primary, size: 60),
@@ -222,9 +288,9 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
             child: Transform.translate(
               offset: const Offset(0, -24),
               child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                decoration: BoxDecoration(
+                  color: context.c.surface,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,7 +302,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
                         height: 4,
                         margin: const EdgeInsets.symmetric(vertical: 10),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFE5E7EB),
+                          color: context.c.border,
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -250,11 +316,11 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
                           // Vendor name
                           Text(
                             _vendor.businessName,
-                            style: const TextStyle(
+                            style: TextStyle(
 
                               fontWeight: FontWeight.w800,
                               fontSize: 22,
-                              color: Color(0xFF1A1A2E),
+                              color: context.c.textPrimary,
                               height: 1.2,
                             ),
                           ),
@@ -268,20 +334,20 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
                               const SizedBox(width: 3),
                               Text(
                                 _vendor.ratingAvg.toStringAsFixed(1),
-                                style: const TextStyle(
+                                style: TextStyle(
 
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
-                                  color: Color(0xFF1A1A2E),
+                                  color: context.c.textPrimary,
                                 ),
                               ),
                               const SizedBox(width: 3),
                               Text(
                                 '(${_vendor.reviewCount})',
-                                style: const TextStyle(
+                                style: TextStyle(
 
                                   fontSize: 12,
-                                  color: Color(0xFF6B7280),
+                                  color: context.c.textSecondary,
                                 ),
                               ),
                               if (_vendor.isVerified) ...[
@@ -299,21 +365,22 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
                                   ),
                                 ),
                               ],
-                              const SizedBox(width: 10),
-                              const Icon(Icons.location_on_rounded,
-                                  color: Color(0xFF6B7280), size: 14),
-                              const SizedBox(width: 2),
-                              Expanded(
-                                child: Text(
-                                  _vendor.location ?? 'Lagos, Nigeria',
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-
-                                    fontSize: 12,
-                                    color: Color(0xFF6B7280),
+                              if ((_vendor.location ?? '').isNotEmpty) ...[
+                                const SizedBox(width: 10),
+                                Icon(Icons.location_on_rounded,
+                                    color: context.c.textSecondary, size: 14),
+                                const SizedBox(width: 2),
+                                Expanded(
+                                  child: Text(
+                                    _vendor.location!,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: context.c.textSecondary,
+                                    ),
                                   ),
                                 ),
-                              ),
+                              ],
                             ],
                           ),
                         ],
@@ -340,7 +407,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
                       ),
                       indicatorSize: TabBarIndicatorSize.label,
                       labelColor: AppColors.primary,
-                      unselectedLabelColor: Color(0xFF9CA3AF),
+                      unselectedLabelColor: context.c.textHint,
                       labelStyle: const TextStyle(
 
                         fontWeight: FontWeight.w600,
@@ -354,7 +421,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
                       isScrollable: false,
                       dividerColor: Colors.transparent,
                     ),
-                    const Divider(height: 1, color: Color(0xFFE5E7EB)),
+                    Divider(height: 1, color: context.c.border),
                   ],
                 ),
               ),
@@ -367,8 +434,16 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
           controller: _tabController,
           children: [
             _AboutTab(vendor: _vendor),
-            _ProductsTab(products: _products, fmt: _fmt),
-            _ServicesTab(services: _services, fmt: _fmt),
+            _ProductsTab(
+                products: _products,
+                fmt: _fmt,
+                eventId: widget.eventId,
+                eventName: widget.eventName),
+            _ServicesTab(
+                services: _services,
+                fmt: _fmt,
+                eventId: widget.eventId,
+                eventName: widget.eventName),
             _ReviewsTab(vendor: _vendor),
           ],
         ),
@@ -406,9 +481,9 @@ class _AboutTabState extends State<_AboutTab> {
             description,
             maxLines: _expanded ? null : 3,
             overflow: _expanded ? TextOverflow.visible : TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: Color(0xFF6B7280),
+              color: context.c.textSecondary,
               height: 1.65,
             ),
           ),
@@ -424,93 +499,45 @@ class _AboutTabState extends State<_AboutTab> {
               ),
             ),
           ),
-          const SizedBox(height: 22),
-          // Info rows
-          _InfoRow(Icons.location_on_outlined,
-              '${widget.vendor.location ?? 'Lagos Island'} · 20km service radius'),
-          _InfoRow(Icons.access_time_outlined, 'Mon–Sat · 9am–6pm'),
-          _InfoRow(Icons.flash_on_outlined, 'Responds within ~30 mins'),
-          const SizedBox(height: 22),
-          // Also offers
-          const Text(
-            'Also offers',
-            style: TextStyle(
-
-              fontWeight: FontWeight.w700,
-              fontSize: 15,
-              color: Color(0xFF1A1A2E),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children:
-                ['Products to buy', 'Services to book', 'Equipment rentals']
-                    .map(
-                      (label) => Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 8),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: const Color(0xFFE5E7EB)),
-                          borderRadius: BorderRadius.circular(24),
-                        ),
-                        child: Text(
-                          label,
-                          style: const TextStyle(
-
-                            fontSize: 13,
-                            color: Color(0xFF374151),
-                          ),
-                        ),
-                      ),
-                    )
-                    .toList(),
-          ),
-          const SizedBox(height: 26),
-          // Directions
-          const Text(
-            'Directions',
-            style: TextStyle(
-
-              fontWeight: FontWeight.w700,
-              fontSize: 15,
-              color: Color(0xFF1A1A2E),
-            ),
-          ),
-          const SizedBox(height: 10),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(14),
-            child: SizedBox(
-              height: 200,
-              width: double.infinity,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  // Realistic static map tile
-                  Image.network(
-                    'https://tile.openstreetmap.org/13/4921/3972.png',
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      color: const Color(0xFFE8EAD8),
-                      child: const Center(
-                        child: Icon(Icons.map_rounded,
-                            size: 48, color: Color(0xFFBBBBBB)),
-                      ),
-                    ),
-                  ),
-                  // Pin overlay
-                  const Center(
-                    child: Icon(
-                      Icons.location_pin,
-                      color: AppColors.primary,
-                      size: 36,
-                    ),
-                  ),
-                ],
+          if ((widget.vendor.location ?? '').isNotEmpty) ...[
+            const SizedBox(height: 22),
+            _InfoRow(Icons.location_on_outlined, widget.vendor.location!),
+          ],
+          if (widget.vendor.categories.isNotEmpty) ...[
+            const SizedBox(height: 22),
+            Text(
+              'Categories',
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 15,
+                color: context.c.textPrimary,
               ),
             ),
-          ),
+            const SizedBox(height: 10),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: widget.vendor.categories
+                  .map(
+                    (label) => Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: context.c.border),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: context.c.textSecondary,
+                        ),
+                      ),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ],
           const SizedBox(height: 100),
         ],
       ),
@@ -554,19 +581,25 @@ class _InfoRow extends StatelessWidget {
 class _ProductsTab extends StatelessWidget {
   final List<ListingModel> products;
   final String Function(num) fmt;
+  final String? eventId;
+  final String? eventName;
 
-  const _ProductsTab({required this.products, required this.fmt});
+  const _ProductsTab(
+      {required this.products,
+      required this.fmt,
+      this.eventId,
+      this.eventName});
 
   @override
   Widget build(BuildContext context) {
     if (products.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'No products available',
           style: TextStyle(
 
             fontSize: 14,
-            color: Color(0xFF9CA3AF),
+            color: context.c.textHint,
           ),
         ),
       );
@@ -582,7 +615,11 @@ class _ProductsTab extends StatelessWidget {
       ),
       itemCount: products.length,
       itemBuilder: (context, index) {
-        return _ProductCard(listing: products[index], fmt: fmt);
+        return _ProductCard(
+            listing: products[index],
+            fmt: fmt,
+            eventId: eventId,
+            eventName: eventName);
       },
     );
   }
@@ -591,8 +628,14 @@ class _ProductsTab extends StatelessWidget {
 class _ProductCard extends StatefulWidget {
   final ListingModel listing;
   final String Function(num) fmt;
+  final String? eventId;
+  final String? eventName;
 
-  const _ProductCard({required this.listing, required this.fmt});
+  const _ProductCard(
+      {required this.listing,
+      required this.fmt,
+      this.eventId,
+      this.eventName});
 
   @override
   State<_ProductCard> createState() => _ProductCardState();
@@ -614,23 +657,26 @@ class _ProductCardState extends State<_ProductCard> {
         : 'Get Quote';
 
     return GestureDetector(
-      onTap: () => context.push(AppRoutes.listingDetailPath(listing.id)),
+      onTap: () => context.push(
+        AppRoutes.listingDetailPath(listing.id),
+        extra: widget.eventId != null
+            ? {'eventId': widget.eventId, 'eventName': widget.eventName}
+            : null,
+      ),
       child: _ListingCard(
         imageUrl: imageUrl,
         isFaved: _isFaved,
         onFavTap: () => setState(() => _isFaved = !_isFaved),
         title: listing.title,
-        rating: '4.8',
+        rating: listing.reviewCount > 0 ? listing.ratingAvg.toStringAsFixed(1) : '',
         price: priceLabel,
         buttonLabel: buttonLabel,
-        onButtonTap: () => showAddToEventSheet(
-          context,
-          listing: listing,
-          onConfirm: (eventIds) => context.push(
-            AppRoutes.serviceDetails,
-            extra: {'listingId': listing.id, 'eventId': eventIds.first},
-          ),
-        ),
+        onButtonTap: () => widget.eventId != null
+            ? confirmAddListingToEvent(context,
+                listing: listing,
+                eventId: widget.eventId!,
+                eventName: widget.eventName)
+            : showAddToEventSheet(context, listing: listing),
       ),
     );
   }
@@ -641,19 +687,25 @@ class _ProductCardState extends State<_ProductCard> {
 class _ServicesTab extends StatelessWidget {
   final List<ListingModel> services;
   final String Function(num) fmt;
+  final String? eventId;
+  final String? eventName;
 
-  const _ServicesTab({required this.services, required this.fmt});
+  const _ServicesTab(
+      {required this.services,
+      required this.fmt,
+      this.eventId,
+      this.eventName});
 
   @override
   Widget build(BuildContext context) {
     if (services.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           'No services available',
           style: TextStyle(
 
             fontSize: 14,
-            color: Color(0xFF9CA3AF),
+            color: context.c.textHint,
           ),
         ),
       );
@@ -669,7 +721,11 @@ class _ServicesTab extends StatelessWidget {
       ),
       itemCount: services.length,
       itemBuilder: (context, index) {
-        return _ServiceCard(listing: services[index], fmt: fmt);
+        return _ServiceCard(
+            listing: services[index],
+            fmt: fmt,
+            eventId: eventId,
+            eventName: eventName);
       },
     );
   }
@@ -678,8 +734,14 @@ class _ServicesTab extends StatelessWidget {
 class _ServiceCard extends StatefulWidget {
   final ListingModel listing;
   final String Function(num) fmt;
+  final String? eventId;
+  final String? eventName;
 
-  const _ServiceCard({required this.listing, required this.fmt});
+  const _ServiceCard(
+      {required this.listing,
+      required this.fmt,
+      this.eventId,
+      this.eventName});
 
   @override
   State<_ServiceCard> createState() => _ServiceCardState();
@@ -705,13 +767,18 @@ class _ServiceCardState extends State<_ServiceCard> {
     }
 
     return GestureDetector(
-      onTap: () => context.push(AppRoutes.listingDetailPath(listing.id)),
+      onTap: () => context.push(
+        AppRoutes.listingDetailPath(listing.id),
+        extra: widget.eventId != null
+            ? {'eventId': widget.eventId, 'eventName': widget.eventName}
+            : null,
+      ),
       child: _ListingCard(
         imageUrl: imageUrl,
         isFaved: _isFaved,
         onFavTap: () => setState(() => _isFaved = !_isFaved),
         title: listing.title,
-        rating: '4.8',
+        rating: listing.reviewCount > 0 ? listing.ratingAvg.toStringAsFixed(1) : '',
         price: priceDisplay,
         showButton: false,
         priceColor: AppColors.primary,
@@ -732,7 +799,8 @@ class _ListingCard extends StatelessWidget {
   final bool showButton;
   final String? buttonLabel;
   final VoidCallback? onButtonTap;
-  final Color priceColor;
+  /// Null → theme-aware `context.c.textPrimary` (adapts to light/dark).
+  final Color? priceColor;
 
   const _ListingCard({
     required this.imageUrl,
@@ -744,14 +812,14 @@ class _ListingCard extends StatelessWidget {
     this.showButton = true,
     this.buttonLabel,
     this.onButtonTap,
-    this.priceColor = const Color(0xFF1A1A2E),
+    this.priceColor,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surface,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
@@ -776,9 +844,9 @@ class _ListingCard extends StatelessWidget {
                         height: 130,
                         width: double.infinity,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _imgPlaceholder(),
+                        errorBuilder: (_, __, ___) => _imgPlaceholder(context),
                       )
-                    : _imgPlaceholder(),
+                    : _imgPlaceholder(context),
               ),
               Positioned(
                 top: 8,
@@ -829,24 +897,26 @@ class _ListingCard extends StatelessWidget {
                           title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF374151),
+                            color: context.c.textPrimary,
                           ),
                         ),
                       ),
-                      const SizedBox(width: 6),
-                      const Icon(Icons.star_rounded,
-                          color: AppColors.starColor, size: 12),
-                      const SizedBox(width: 2),
-                      Text(
-                        rating,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: 11,
-                          color: Color(0xFF6B7280),
+                      if (rating.isNotEmpty) ...[
+                        const SizedBox(width: 6),
+                        const Icon(Icons.star_rounded,
+                            color: AppColors.starColor, size: 12),
+                        const SizedBox(width: 2),
+                        Text(
+                          rating,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 11,
+                            color: context.c.textSecondary,
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -857,7 +927,7 @@ class _ListingCard extends StatelessWidget {
                     style: TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 15,
-                      color: priceColor,
+                      color: priceColor ?? context.c.textPrimary,
                     ),
                   ),
                   if (showButton) ...[
@@ -899,9 +969,9 @@ class _ListingCard extends StatelessWidget {
     );
   }
 
-  Widget _imgPlaceholder() => Container(
+  Widget _imgPlaceholder(BuildContext context) => Container(
         height: 130,
-        color: AppColors.primaryLight,
+        color: context.c.primaryLight,
         child: const Center(
           child: Icon(Icons.image_rounded, color: AppColors.primary, size: 32),
         ),
@@ -910,37 +980,49 @@ class _ListingCard extends StatelessWidget {
 
 // ─── Reviews Tab ──────────────────────────────────────────────────────────────
 
-class _ReviewsTab extends StatelessWidget {
+class _ReviewsTab extends StatefulWidget {
   final VendorModel vendor;
 
   const _ReviewsTab({required this.vendor});
 
-  static const _mockReviews = [
-    (
-      name: 'Ngozi A.',
-      rating: 4,
-      body:
-          'Absolutely stunning and tasted incredible. Delivered on time and exactly as designed.',
-      date: 'Mar 2026',
-    ),
-    (
-      name: 'Chidi O.',
-      rating: 5,
-      body:
-          'Professional and creative team. They made our event look absolutely magical from start to finish.',
-      date: 'Feb 2026',
-    ),
-    (
-      name: 'Amaka E.',
-      rating: 4,
-      body:
-          'Very responsive and accommodating. Great value for the quality delivered. Would definitely hire again.',
-      date: 'Jan 2026',
-    ),
+  @override
+  State<_ReviewsTab> createState() => _ReviewsTabState();
+}
+
+class _ReviewsTabState extends State<_ReviewsTab> {
+  List<ReviewItem> _reviews = const [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final r = await ReviewsService().forVendor(widget.vendor.id);
+      if (mounted) {
+        setState(() {
+          _reviews = r;
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  static const _months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
   ];
+  String _fmtDate(DateTime? d) =>
+      d == null ? '' : '${_months[d.month - 1]} ${d.year}';
 
   @override
   Widget build(BuildContext context) {
+    final vendor = widget.vendor;
     final rating = vendor.ratingAvg;
 
     return SingleChildScrollView(
@@ -953,7 +1035,7 @@ class _ReviewsTab extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppColors.primaryLight,
+              color: context.c.primaryLight,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: AppColors.primary, width: 1.2),
             ),
@@ -964,7 +1046,7 @@ class _ReviewsTab extends StatelessWidget {
                   rating.toStringAsFixed(1),
                   style: GoogleFonts.spirax(
                     fontSize: 56,
-                    color: const Color(0xFF1A1A2E),
+                    color: context.c.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -991,85 +1073,104 @@ class _ReviewsTab extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   '${vendor.reviewCount} verified reviews',
-                  style: const TextStyle(
+                  style: TextStyle(
 
                     fontSize: 13,
-                    color: Color(0xFF6B7280),
+                    color: context.c.textSecondary,
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 16),
-          // Review cards
-          ..._mockReviews.map(
-            (review) => Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
+          // Review cards (real, from the API)
+          if (_loading)
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 32),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (_reviews.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 28),
+              child: Center(
+                child: Text(
+                  'No reviews yet',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: context.c.textHint,
                   ),
-                ],
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        review.name,
-                        style: const TextStyle(
-
-                          fontWeight: FontWeight.w700,
-                          fontSize: 14,
-                          color: Color(0xFF1A1A2E),
-                        ),
-                      ),
-                      const Spacer(),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: List.generate(
-                          5,
-                          (i) => Icon(
-                            Icons.star_rounded,
-                            color: i < review.rating
-                                ? AppColors.starColor
-                                : const Color(0xFFD1D5DB),
-                            size: 14,
+            )
+          else
+            ..._reviews.map(
+              (review) => Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: context.c.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            review.name,
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14,
+                              color: context.c.textPrimary,
+                            ),
                           ),
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: List.generate(
+                            5,
+                            (i) => Icon(
+                              Icons.star_rounded,
+                              color: i < review.rating
+                                  ? AppColors.starColor
+                                  : const Color(0xFFD1D5DB),
+                              size: 14,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      review.body,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: context.c.textSecondary,
+                        height: 1.5,
+                      ),
+                    ),
+                    if (_fmtDate(review.createdAt).isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        _fmtDate(review.createdAt),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: context.c.textHint,
                         ),
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    review.body,
-                    style: const TextStyle(
-
-                      fontSize: 13,
-                      color: Color(0xFF6B7280),
-                      height: 1.5,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    review.date,
-                    style: const TextStyle(
-
-                      fontSize: 11,
-                      color: Color(0xFF9CA3AF),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
           const SizedBox(height: 100),
         ],
       ),

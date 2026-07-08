@@ -59,7 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFF8F5FF),
+        backgroundColor: context.c.background,
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -69,7 +69,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 16),
 
               // ── Stats card ──────────────────────────────────────────────────
-              _buildStatsCard(),
+              _buildStatsCard(context),
               const SizedBox(height: 24),
 
               // ── My Account section ──────────────────────────────────────────
@@ -79,7 +79,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   'My account',
                   style: GoogleFonts.urbanist(
                     fontSize: 13,
-                    color: const Color(0xFF9CA3AF),
+                    color: context.c.textHint,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -94,7 +94,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   'Settings',
                   style: GoogleFonts.urbanist(
                     fontSize: 13,
-                    color: const Color(0xFF9CA3AF),
+                    color: context.c.textHint,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -143,11 +143,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildHeader(BuildContext context, UserModel? user) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [Color(0xFFECDEFA), Color(0xFFF8F5FF)],
+          colors: [context.c.primaryLight, context.c.background],
         ),
       ),
       child: SafeArea(
@@ -168,7 +168,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     user?.image ?? '',
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
-                      color: AppColors.primaryLight,
+                      color: context.c.primaryLight,
                       child: const Icon(Icons.person_rounded, color: AppColors.primary, size: 40),
                     ),
                   ),
@@ -180,7 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: GoogleFonts.urbanist(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: const Color(0xFF1A1A2E),
+                  color: context.c.textPrimary,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -189,7 +189,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 user?.email ?? '',
                 style: GoogleFonts.urbanist(
                   fontSize: 13,
-                  color: const Color(0xFF9CA3AF),
+                  color: context.c.textHint,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -200,12 +200,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildStatsCard() {
+  Widget _buildStatsCard(BuildContext context) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.symmetric(vertical: 18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -219,11 +219,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Row(
           children: [
             _StatCol(value: _events?.toString() ?? '—', label: 'Events'),
-            const VerticalDivider(width: 1, thickness: 1, color: Color(0xFFE5E7EB)),
+            VerticalDivider(width: 1, thickness: 1, color: context.c.border),
             _StatCol(value: _orders?.toString() ?? '—', label: 'Orders'),
-            const VerticalDivider(width: 1, thickness: 1, color: Color(0xFFE5E7EB)),
+            VerticalDivider(width: 1, thickness: 1, color: context.c.border),
             _StatCol(value: _saved?.toString() ?? '—', label: 'Saved'),
-            const VerticalDivider(width: 1, thickness: 1, color: Color(0xFFE5E7EB)),
+            VerticalDivider(width: 1, thickness: 1, color: context.c.border),
             const _StatCol(value: '—', label: 'Reviews'),
           ],
         ),
@@ -235,7 +235,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -253,7 +253,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             subtitle: 'Your Wishlist',
             onTap: () => context.push(AppRoutes.favourites),
           ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+          Divider(height: 1, thickness: 1, color: context.c.divider),
           _ProfileRow(
             icon: Icons.star_rounded,
             label: 'My Reviews',
@@ -269,7 +269,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -287,28 +287,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
             subtitle: 'Select your preferred display',
             onTap: () => context.push(AppRoutes.themeSettings),
           ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+          Divider(height: 1, thickness: 1, color: context.c.divider),
           _ProfileRow(
             icon: Icons.notifications_rounded,
             label: 'Notifications',
             subtitle: 'Manage alerts & preferences',
             onTap: () => context.push(AppRoutes.notificationSettings),
           ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+          Divider(height: 1, thickness: 1, color: context.c.divider),
           _ProfileRow(
             icon: Icons.lock_rounded,
             label: 'Privacy and Security',
             subtitle: 'Account security settings',
             onTap: () => context.push(AppRoutes.privacy),
           ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+          Divider(height: 1, thickness: 1, color: context.c.divider),
           _ProfileRow(
             icon: Icons.help_outline_rounded,
             label: 'Help and Support',
             subtitle: 'Visit our help centre for inquiries',
             onTap: () => context.push(AppRoutes.help),
           ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+          Divider(height: 1, thickness: 1, color: context.c.divider),
           _ProfileRow(
             icon: Icons.delete_outline_rounded,
             label: 'Delete your account',
@@ -338,10 +338,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF3F4F6),
+                      color: context.c.divider,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.close_rounded, size: 18, color: Color(0xFF6B7280)),
+                    child: Icon(Icons.close_rounded, size: 18, color: context.c.textSecondary),
                   ),
                 ),
               ),
@@ -363,7 +363,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 8),
               Text(
                 'Are you sure you want to sign out',
-                style: GoogleFonts.urbanist(fontSize: 14, color: const Color(0xFF6B7280)),
+                style: GoogleFonts.urbanist(fontSize: 14, color: context.c.textSecondary),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),
@@ -452,7 +452,7 @@ class _StatCol extends StatelessWidget {
             label,
             style: GoogleFonts.urbanist(
               fontSize: 12,
-              color: const Color(0xFF9CA3AF),
+              color: context.c.textHint,
             ),
           ),
         ],
@@ -487,7 +487,7 @@ class _ProfileRow extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: AppColors.primaryLight,
+                color: context.c.primaryLight,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: AppColors.primary, size: 22),
@@ -502,7 +502,7 @@ class _ProfileRow extends StatelessWidget {
                     style: GoogleFonts.urbanist(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -510,13 +510,13 @@ class _ProfileRow extends StatelessWidget {
                     subtitle,
                     style: GoogleFonts.urbanist(
                       fontSize: 12,
-                      color: const Color(0xFF9CA3AF),
+                      color: context.c.textHint,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: Color(0xFF9CA3AF), size: 22),
+            Icon(Icons.chevron_right_rounded, color: context.c.textHint, size: 22),
           ],
         ),
       ),

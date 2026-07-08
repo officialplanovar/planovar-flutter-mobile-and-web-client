@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/auth_illustration.dart';
 import '../../../shared/widgets/auth_step_bar.dart';
 import '../../../shared/widgets/glossy_button.dart';
@@ -57,7 +58,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -85,7 +86,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
                         style: GoogleFonts.urbanist(
                           fontSize: 26,
                           fontWeight: FontWeight.w800,
-                          color: const Color(0xFF1A1A1A),
+                          color: context.c.textPrimary,
                         ),
                       ),
                     ),
@@ -96,7 +97,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
                         textAlign: TextAlign.center,
                         style: GoogleFonts.urbanist(
                           fontSize: 14,
-                          color: const Color(0xFF9CA3AF),
+                          color: context.c.textHint,
                           height: 1.55,
                         ),
                       ),
@@ -111,7 +112,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
                             height: 56,
                             padding: const EdgeInsets.symmetric(horizontal: 14),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF2F2F2),
+                              color: context.c.surfaceElevated,
                               borderRadius: BorderRadius.circular(14),
                             ),
                             child: Row(
@@ -121,11 +122,11 @@ class _PhoneScreenState extends State<PhoneScreen> {
                                     style: GoogleFonts.urbanist(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w600,
-                                      color: const Color(0xFF1A1A1A),
+                                      color: context.c.textPrimary,
                                     )),
                                 const SizedBox(width: 6),
-                                const Icon(Icons.keyboard_arrow_down_rounded,
-                                    size: 18, color: Color(0xFF6B7280)),
+                                Icon(Icons.keyboard_arrow_down_rounded,
+                                    size: 18, color: context.c.textSecondary),
                               ],
                             ),
                           ),
@@ -136,14 +137,14 @@ class _PhoneScreenState extends State<PhoneScreen> {
                           child: Container(
                             height: 56,
                             decoration: BoxDecoration(
-                              color: const Color(0xFFF2F2F2),
+                              color: context.c.surfaceElevated,
                               borderRadius: BorderRadius.circular(14),
                             ),
                             child: Row(
                               children: [
                                 const SizedBox(width: 16),
-                                const Icon(Icons.phone_outlined,
-                                    size: 18, color: Color(0xFF9CA3AF)),
+                                Icon(Icons.phone_outlined,
+                                    size: 18, color: context.c.textHint),
                                 const SizedBox(width: 10),
                                 Expanded(
                                   child: TextField(
@@ -153,7 +154,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
                                       hintText: 'Enter Phone Number',
                                       hintStyle: GoogleFonts.urbanist(
                                         fontSize: 14,
-                                        color: const Color(0xFF9CA3AF),
+                                        color: context.c.textHint,
                                       ),
                                       border: InputBorder.none,
                                       enabledBorder: InputBorder.none,
@@ -163,7 +164,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
                                     ),
                                     style: GoogleFonts.urbanist(
                                       fontSize: 15,
-                                      color: const Color(0xFF1A1A1A),
+                                      color: context.c.textPrimary,
                                     ),
                                   ),
                                 ),
@@ -193,7 +194,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
                           'Skip for now',
                           style: GoogleFonts.urbanist(
                             fontSize: 14,
-                            color: const Color(0xFF9CA3AF),
+                            color: context.c.textHint,
                             fontWeight: FontWeight.w500,
                           ),
                         ),

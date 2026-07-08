@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glossy_button.dart';
 
 class AwaitingResponseScreen extends StatelessWidget {
@@ -19,21 +20,21 @@ class AwaitingResponseScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: context.c.surface,
         elevation: 0,
         leading: GestureDetector(
           onTap: () => context.pop(),
           child: Container(
             margin: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFFF8F5FF),
+              color: context.c.background,
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.arrow_back_ios_new_rounded,
-              color: Color(0xFF1A1A2E),
+              color: context.c.textPrimary,
               size: 18,
             ),
           ),
@@ -43,7 +44,7 @@ class AwaitingResponseScreen extends StatelessWidget {
           style: GoogleFonts.urbanist(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF1A1A2E),
+            color: context.c.textPrimary,
           ),
         ),
         centerTitle: true,
@@ -63,7 +64,7 @@ class AwaitingResponseScreen extends StatelessWidget {
               style: GoogleFonts.urbanist(
                 fontSize: 26,
                 fontWeight: FontWeight.w800,
-                color: const Color(0xFF1A1A2E),
+                color: context.c.textPrimary,
               ),
               textAlign: TextAlign.center,
             ),
@@ -73,7 +74,7 @@ class AwaitingResponseScreen extends StatelessWidget {
               text: TextSpan(
                 style: GoogleFonts.urbanist(
                   fontSize: 14,
-                  color: const Color(0xFF6B7280),
+                  color: context.c.textSecondary,
                   height: 1.6,
                 ),
                 children: [
@@ -84,7 +85,7 @@ class AwaitingResponseScreen extends StatelessWidget {
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                       height: 1.6,
                     ),
                   ),

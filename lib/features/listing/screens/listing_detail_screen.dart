@@ -2,18 +2,29 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/mock/mock_data.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/services/favourites_service.dart';
 import '../../../core/services/listing_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/listing_model.dart';
 import '../../../shared/widgets/add_to_event_sheet.dart';
 import '../../../shared/widgets/glass_circle_button.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../../../shared/widgets/request_order_sheet.dart';
 
 class ListingDetailScreen extends StatefulWidget {
   final String listingId;
-  const ListingDetailScreen({super.key, required this.listingId});
+
+  /// When reached from *within* an event, "Add to Event" saves straight to this
+  /// event (with confirmation) instead of opening the event picker.
+  final String? eventId;
+  final String? eventName;
+  const ListingDetailScreen({
+    super.key,
+    required this.listingId,
+    this.eventId,
+    this.eventName,
+  });
 
   @override
   State<ListingDetailScreen> createState() => _ListingDetailScreenState();
@@ -22,8 +33,11 @@ class ListingDetailScreen extends StatefulWidget {
 class _ListingDetailScreenState extends State<ListingDetailScreen> {
   bool _descExpanded = false;
   bool _isFavourite = false;
+  bool _favBusy = false;
+  bool _loadFailed = false;
   bool _policyOverlayVisible = false;
   int _heroIndex = 0;
+  final _heroPageController = PageController();
   String? _selectedSize;
   String? _selectedColor;
   int _quantity = 1;
@@ -39,22 +53,53 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
     _load();
   }
 
+  @override
+  void dispose() {
+    _heroPageController.dispose();
+    super.dispose();
+  }
+
   Future<void> _load() async {
     // Live listing from the API; falls back to mock data for demo ids.
     ListingModel? loaded;
     try {
       loaded = await ListingService().getListing(widget.listingId);
+      // Record a real view (fire-and-forget) so the vendor's count reflects it.
+      if (loaded != null) {
+        ListingService().recordView(widget.listingId);
+      }
     } catch (_) {}
-    loaded ??= MockData.listings
-            .where((l) => l.id == widget.listingId)
-            .firstOrNull ??
-        (MockData.listings.isNotEmpty ? MockData.listings.first : null);
-    if (!mounted || loaded == null) return;
+    if (!mounted) return;
+    if (loaded == null) {
+      setState(() => _loadFailed = true);
+      return;
+    }
     setState(() {
       _listing = loaded;
       if (loaded!.sizes.isNotEmpty) _selectedSize = loaded.sizes.first;
       if (loaded.colors.isNotEmpty) _selectedColor = loaded.colors.first;
     });
+    // Reflect whether this listing is already saved (best-effort).
+    try {
+      final ids = await FavouritesService().favouriteIds();
+      if (mounted) setState(() => _isFavourite = ids.contains(widget.listingId));
+    } catch (_) {}
+  }
+
+  Future<void> _toggleFavourite() async {
+    if (_favBusy) return;
+    final prev = _isFavourite;
+    setState(() {
+      _isFavourite = !prev;
+      _favBusy = true;
+    });
+    try {
+      await FavouritesService().toggle(widget.listingId, prev);
+    } catch (_) {
+      if (mounted) setState(() => _isFavourite = prev); // revert on failure
+    } finally {
+      if (mounted) setState(() => _favBusy = false);
+    }
   }
 
   static String _fmt(double n) {
@@ -69,33 +114,48 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
 
   bool get _isProduct => listing.pricingType == 'fixed';
 
+  List<String> _policyTerms(String policy) {
+    switch (policy) {
+      case 'Flexible':
+        return [
+          'Full refund if cancelled up to 24 hours before the event.',
+          'A small processing fee may apply.',
+        ];
+      case 'Strict':
+        return ['No refund once the booking is confirmed.'];
+      case 'Moderate':
+      default:
+        return [
+          '100% refund if cancelled 7+ days before the event.',
+          '50% refund if cancelled 3–6 days before the event.',
+          'No refund within 48 hours of the event.',
+        ];
+    }
+  }
+
   String get _servicePriceRange {
     if (listing.packages.isNotEmpty) {
       final prices = listing.packages.map((p) => p.price).toList()..sort();
       String f(double n) => '₦ ${_fmt(n)}';
-      return prices.length == 1 ? f(prices.first) : '${f(prices.first)} - ${f(prices.last)}';
+      return prices.length == 1
+          ? f(prices.first)
+          : '${f(prices.first)} - ${f(prices.last)}';
     }
-    return 'Get Quote';
+    if (listing.basePrice != null && listing.basePrice! > 0) {
+      return 'From ₦ ${_fmt(listing.basePrice!)}';
+    }
+    return 'Quote on request';
   }
 
   void _showAddToEventSheet() {
-    showAddToEventSheet(
-      context,
-      listing: listing,
-      onConfirm: (eventIds) {
-        final eventId = eventIds.first;
-        if (listing.isRentable) {
-          context.push(AppRoutes.rentProduct,
-              extra: {'listingId': listing.id, 'eventId': eventId});
-        } else if (_isProduct) {
-          context.push(AppRoutes.checkout,
-              extra: {'listingId': listing.id, 'eventId': eventId});
-        } else {
-          context.push(AppRoutes.serviceDetails,
-              extra: {'listingId': listing.id, 'eventId': eventId});
-        }
-      },
-    );
+    if (widget.eventId != null) {
+      confirmAddListingToEvent(context,
+          listing: listing,
+          eventId: widget.eventId!,
+          eventName: widget.eventName);
+    } else {
+      showAddToEventSheet(context, listing: listing);
+    }
   }
 
   Color _hexColor(String hex) {
@@ -105,16 +165,32 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_loadFailed) {
+      return Scaffold(
+        backgroundColor: context.c.surface,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          iconTheme: IconThemeData(color: context.c.textPrimary),
+        ),
+        body: Center(
+          child: Text(
+            'Listing not found',
+            style: GoogleFonts.urbanist(color: context.c.textSecondary),
+          ),
+        ),
+      );
+    }
     if (_listing == null) {
-      return const Scaffold(
-        backgroundColor: Colors.white,
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        backgroundColor: context.c.surface,
+        body: const Center(child: CircularProgressIndicator()),
       );
     }
     final screenH = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
@@ -148,7 +224,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                     ),
                   ),
                   GestureDetector(
-                    onTap: () => setState(() => _isFavourite = !_isFavourite),
+                    onTap: _toggleFavourite,
                     child: Padding(
                       padding: const EdgeInsets.only(right: 16),
                       child: GlassCircleButton(
@@ -165,19 +241,57 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                   ),
                 ],
                 flexibleSpace: FlexibleSpaceBar(
-                  background: listing.media.isNotEmpty
-                      ? Image.network(
-                          listing.media[_heroIndex],
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            color: AppColors.primaryLight,
-                            child: const Icon(
-                                Icons.image_not_supported_outlined,
-                                color: AppColors.primary,
-                                size: 48),
-                          ),
-                        )
-                      : Container(color: AppColors.primaryLight),
+                  background: listing.media.isEmpty
+                      ? Container(color: context.c.primaryLight)
+                      : Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            PageView.builder(
+                              controller: _heroPageController,
+                              itemCount: listing.media.length,
+                              onPageChanged: (i) =>
+                                  setState(() => _heroIndex = i),
+                              itemBuilder: (_, i) => Image.network(
+                                listing.media[i],
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, __, ___) => Container(
+                                  color: context.c.primaryLight,
+                                  child: const Icon(
+                                      Icons.image_not_supported_outlined,
+                                      color: AppColors.primary,
+                                      size: 48),
+                                ),
+                              ),
+                            ),
+                            if (listing.media.length > 1)
+                              Positioned(
+                                bottom: 12,
+                                left: 0,
+                                right: 0,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: List.generate(
+                                    listing.media.length,
+                                    (i) => AnimatedContainer(
+                                      duration:
+                                          const Duration(milliseconds: 200),
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 3),
+                                      width: _heroIndex == i ? 18 : 6,
+                                      height: 6,
+                                      decoration: BoxDecoration(
+                                        color: _heroIndex == i
+                                            ? Colors.white
+                                            : Colors.white
+                                                .withValues(alpha: 0.6),
+                                        borderRadius: BorderRadius.circular(3),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
                 ),
               ),
 
@@ -185,16 +299,23 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // ── Thumbnail strip (products only) ─────────────────────
-                    if (_isProduct && listing.media.length > 1)
+                    // ── Thumbnail strip (any listing with >1 image) ─────────
+                    if (listing.media.length > 1)
                       Container(
-                        color: Colors.white,
+                        color: context.c.surface,
                         padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                         child: Row(
                           children: List.generate(
                             min(listing.media.length, 4),
                             (i) => GestureDetector(
-                              onTap: () => setState(() => _heroIndex = i),
+                              onTap: () {
+                                setState(() => _heroIndex = i);
+                                _heroPageController.animateToPage(
+                                  i,
+                                  duration: const Duration(milliseconds: 250),
+                                  curve: Curves.easeInOut,
+                                );
+                              },
                               child: Container(
                                 margin: const EdgeInsets.only(right: 8),
                                 width: 72,
@@ -213,8 +334,8 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                   child: Image.network(
                                     listing.media[i],
                                     fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Container(
-                                        color: AppColors.primaryLight),
+                                    errorBuilder: (context, __, ___) => Container(
+                                        color: context.c.primaryLight),
                                   ),
                                 ),
                               ),
@@ -231,7 +352,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                           height: 4,
                           margin: const EdgeInsets.only(top: 12),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE5E7EB),
+                            color: context.c.border,
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
@@ -250,23 +371,24 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                     style: GoogleFonts.urbanist(
                                       fontSize: 22,
                                       fontWeight: FontWeight.w800,
-                                      color: const Color(0xFF1A1A2E),
+                                      color: context.c.textPrimary,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                const Icon(Icons.star_rounded,
-                                    color: AppColors.starColor, size: 18),
-                                const SizedBox(width: 3),
-                                Text(
-                                  (listing.vendor?.ratingAvg ?? 4.7)
-                                      .toStringAsFixed(1),
-                                  style: GoogleFonts.urbanist(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color(0xFF1A1A2E),
+                                if (listing.reviewCount > 0) ...[
+                                  const SizedBox(width: 8),
+                                  const Icon(Icons.star_rounded,
+                                      color: AppColors.starColor, size: 18),
+                                  const SizedBox(width: 3),
+                                  Text(
+                                    listing.ratingAvg.toStringAsFixed(1),
+                                    style: GoogleFonts.urbanist(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w700,
+                                      color: context.c.textPrimary,
+                                    ),
                                   ),
-                                ),
+                                ],
                               ],
                             ),
                             const SizedBox(height: 6),
@@ -278,12 +400,31 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                 color: AppColors.primary,
                               ),
                             ),
+                            if (listing.category?.name != null) ...[
+                              const SizedBox(height: 12),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: context.c.primaryLight,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  listing.category!.name,
+                                  style: GoogleFonts.urbanist(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                            ],
                             const SizedBox(height: 16),
                             Text(
                               'Description',
                               style: GoogleFonts.urbanist(
                                 fontSize: 13,
-                                color: const Color(0xFF9CA3AF),
+                                color: context.c.textHint,
                               ),
                             ),
                             const SizedBox(height: 6),
@@ -291,7 +432,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                               listing.description ?? '',
                               style: GoogleFonts.urbanist(
                                 fontSize: 14,
-                                color: const Color(0xFF6B7280),
+                                color: context.c.textSecondary,
                                 height: 1.6,
                               ),
                             ),
@@ -311,8 +452,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                               Row(
                                 children: [
                                   ...List.generate(5, (i) {
-                                    final avg =
-                                        listing.vendor?.ratingAvg ?? 4.5;
+                                    final avg = listing.ratingAvg;
                                     return Icon(
                                       i < avg.floor()
                                           ? Icons.star_rounded
@@ -330,7 +470,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                     '(${listing.reviewCount}) Reviews',
                                     style: GoogleFonts.urbanist(
                                       fontSize: 13,
-                                      color: const Color(0xFF6B7280),
+                                      color: context.c.textSecondary,
                                     ),
                                   ),
                                 ],
@@ -342,7 +482,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                               style: GoogleFonts.urbanist(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w800,
-                                color: const Color(0xFF1A1A2E),
+                                color: context.c.textPrimary,
                               ),
                             ),
                             const SizedBox(height: 6),
@@ -356,7 +496,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                     listing.description ?? '',
                                     style: GoogleFonts.urbanist(
                                       fontSize: 14,
-                                      color: const Color(0xFF6B7280),
+                                      color: context.c.textSecondary,
                                       height: 1.6,
                                     ),
                                     maxLines: _descExpanded ? null : 3,
@@ -397,7 +537,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                               style: GoogleFonts.urbanist(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
-                                color: const Color(0xFF1A1A2E),
+                                color: context.c.textPrimary,
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -405,10 +545,10 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 12, vertical: 4),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: context.c.surface,
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
-                                    color: const Color(0xFFE5E7EB)),
+                                    color: context.c.border),
                               ),
                               child: DropdownButtonHideUnderline(
                                 child: DropdownButton<int>(
@@ -448,7 +588,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                           style: GoogleFonts.urbanist(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF1A1A2E),
+                            color: context.c.textPrimary,
                           ),
                         ),
                       ),
@@ -470,12 +610,12 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                 decoration: BoxDecoration(
                                   color: selected
                                       ? AppColors.primary
-                                      : Colors.white,
+                                      : context.c.surface,
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
                                     color: selected
                                         ? AppColors.primary
-                                        : const Color(0xFFE5E7EB),
+                                        : context.c.border,
                                   ),
                                 ),
                                 child: Text(
@@ -505,7 +645,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                           style: GoogleFonts.urbanist(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF1A1A2E),
+                            color: context.c.textPrimary,
                           ),
                         ),
                       ),
@@ -550,8 +690,10 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                       ),
                     ],
 
-                    // ── Cancellation policy (quote listings) ────────────────
-                    if (!_isProduct) ...[
+                    // ── Cancellation policy + duration (service listings) ────
+                    if (!_isProduct &&
+                        (listing.cancellationPolicy != null ||
+                            listing.durationValue != null)) ...[
                       const SizedBox(height: 16),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -559,99 +701,100 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                           children: [
                             const Divider(),
                             const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Text(
-                                  'Cancellation Policy:',
-                                  style: GoogleFonts.urbanist(
-                                    fontSize: 13,
-                                    color: const Color(0xFF6B7280),
-                                  ),
-                                ),
-                                const Spacer(),
-                                Text(
-                                  'Moderate',
-                                  style: GoogleFonts.urbanist(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color(0xFF1A1A2E),
-                                  ),
-                                ),
-                                const SizedBox(width: 4),
-                                GestureDetector(
-                                  onTap: () => setState(() =>
-                                      _policyOverlayVisible =
-                                          !_policyOverlayVisible),
-                                  child: const Icon(
-                                      Icons.info_outline_rounded,
-                                      color: AppColors.primary,
-                                      size: 16),
-                                ),
-                              ],
-                            ),
-                            if (_policyOverlayVisible) ...[
-                              const SizedBox(height: 8),
-                              Container(
-                                padding: const EdgeInsets.all(14),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryLight,
-                                  borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: AppColors.primary
-                                        .withValues(alpha: 0.25),
-                                  ),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Moderate Cancellation Policy',
-                                      style: GoogleFonts.urbanist(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w700,
-                                        color: const Color(0xFF1A1A2E),
-                                      ),
+                            if (listing.cancellationPolicy != null) ...[
+                              Row(
+                                children: [
+                                  Text(
+                                    'Cancellation Policy:',
+                                    style: GoogleFonts.urbanist(
+                                      fontSize: 13,
+                                      color: context.c.textSecondary,
                                     ),
-                                    const SizedBox(height: 6),
-                                    _PolicyLine(
-                                        '100% refund if cancelled 7+ days before the event.'),
-                                    _PolicyLine(
-                                        '50% refund if cancelled 3–6 days before the event.'),
-                                    _PolicyLine(
-                                        'No refund within 48 hours of the event.'),
-                                  ],
-                                ),
-                              ),
-                            ],
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                Text(
-                                  'Minimum Service Duration:',
-                                  style: GoogleFonts.urbanist(
-                                    fontSize: 13,
-                                    color: const Color(0xFF6B7280),
                                   ),
-                                ),
-                                const Spacer(),
-                                Text(
-                                  '4 hours',
-                                  style: GoogleFonts.urbanist(
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color(0xFF1A1A2E),
+                                  const Spacer(),
+                                  Text(
+                                    listing.cancellationPolicy!,
+                                    style: GoogleFonts.urbanist(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                      color: context.c.textPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  GestureDetector(
+                                    onTap: () => setState(() =>
+                                        _policyOverlayVisible =
+                                            !_policyOverlayVisible),
+                                    child: const Icon(
+                                        Icons.info_outline_rounded,
+                                        color: AppColors.primary,
+                                        size: 16),
+                                  ),
+                                ],
+                              ),
+                              if (_policyOverlayVisible) ...[
+                                const SizedBox(height: 8),
+                                Container(
+                                  padding: const EdgeInsets.all(14),
+                                  decoration: BoxDecoration(
+                                    color: context.c.primaryLight,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: AppColors.primary
+                                          .withValues(alpha: 0.25),
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '${listing.cancellationPolicy!} Cancellation Policy',
+                                        style: GoogleFonts.urbanist(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w700,
+                                          color: context.c.textPrimary,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 6),
+                                      ..._policyTerms(
+                                              listing.cancellationPolicy!)
+                                          .map((t) => _PolicyLine(t)),
+                                    ],
                                   ),
                                 ),
                               ],
-                            ),
+                              const SizedBox(height: 8),
+                            ],
+                            if (listing.durationValue != null)
+                              Row(
+                                children: [
+                                  Text(
+                                    'Service Duration:',
+                                    style: GoogleFonts.urbanist(
+                                      fontSize: 13,
+                                      color: context.c.textSecondary,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  Text(
+                                    '${listing.durationValue}'
+                                    '${(listing.durationUnit ?? '').isNotEmpty ? ' ${listing.durationUnit}' : ''}',
+                                    style: GoogleFonts.urbanist(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w700,
+                                      color: context.c.textPrimary,
+                                    ),
+                                  ),
+                                ],
+                              ),
                           ],
                         ),
                       ),
                     ],
 
-                    // ── Vendor Details ──────────────────────────────────────
-                    if (_isProduct && listing.vendor != null) ...[
+                    // ── Vendor Details (products & services) ────────────────
+                    if (listing.vendor != null) ...[
                       const SizedBox(height: 24),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -660,7 +803,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                           style: GoogleFonts.urbanist(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF1A1A2E),
+                            color: context.c.textPrimary,
                           ),
                         ),
                       ),
@@ -673,10 +816,10 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                           child: Container(
                             padding: const EdgeInsets.all(14),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: context.c.surface,
                               borderRadius: BorderRadius.circular(14),
                               border: Border.all(
-                                  color: const Color(0xFFE5E7EB)),
+                                  color: context.c.border),
                             ),
                             child: Column(
                               children: [
@@ -693,9 +836,9 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                               fit: BoxFit.cover,
                                               errorBuilder:
                                                   (_, __, ___) =>
-                                                      _vendorPlaceholder(),
+                                                      _vendorPlaceholder(context),
                                             )
-                                          : _vendorPlaceholder(),
+                                          : _vendorPlaceholder(context),
                                     ),
                                     const SizedBox(width: 12),
                                     Expanded(
@@ -709,7 +852,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                               fontSize: 15,
                                               fontWeight: FontWeight.w700,
                                               color:
-                                                  const Color(0xFF1A1A2E),
+                                                  context.c.textPrimary,
                                             ),
                                           ),
                                           const SizedBox(height: 4),
@@ -725,16 +868,14 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                                 style: GoogleFonts.urbanist(
                                                   fontSize: 12,
                                                   fontWeight: FontWeight.w600,
-                                                  color: const Color(
-                                                      0xFF1A1A2E),
+                                                  color: context.c.textPrimary,
                                                 ),
                                               ),
                                               Text(
                                                 ' (${listing.vendor!.reviewCount})',
                                                 style: GoogleFonts.urbanist(
                                                   fontSize: 12,
-                                                  color: const Color(
-                                                      0xFF6B7280),
+                                                  color: context.c.textSecondary,
                                                 ),
                                               ),
                                               if (listing
@@ -758,9 +899,9 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                               if (listing.vendor!.location !=
                                                   null) ...[
                                                 const SizedBox(width: 8),
-                                                const Icon(
+                                                Icon(
                                                     Icons.location_on_rounded,
-                                                    color: Color(0xFF6B7280),
+                                                    color: context.c.textSecondary,
                                                     size: 13),
                                                 const SizedBox(width: 2),
                                                 Expanded(
@@ -770,8 +911,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                                         TextOverflow.ellipsis,
                                                     style: GoogleFonts.urbanist(
                                                       fontSize: 12,
-                                                      color: const Color(
-                                                          0xFF6B7280),
+                                                      color: context.c.textSecondary,
                                                     ),
                                                   ),
                                                 ),
@@ -790,11 +930,11 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                     height: 44,
                                     width: double.infinity,
                                     decoration: BoxDecoration(
-                                      color: Colors.white,
+                                      color: context.c.surface,
                                       borderRadius:
                                           BorderRadius.circular(10),
                                       border: Border.all(
-                                          color: const Color(0xFFE5E7EB)),
+                                          color: context.c.border),
                                     ),
                                     child: Row(
                                       mainAxisAlignment:
@@ -837,18 +977,48 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
             right: 0,
             bottom: 0,
             child: Container(
-              color: Colors.white,
+              color: context.c.surface,
               child: SafeArea(
                 top: false,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
-                  child: GlossyButton(
-                    label: listing.isRentable
-                        ? 'Rent for your Event'
-                        : _isProduct
-                            ? '+ Add to Event'
-                            : 'Add to Event',
-                    onPressed: _showAddToEventSheet,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      GlossyButton(
+                        label: listing.isRentable
+                            ? 'Rent for your Event'
+                            : _isProduct
+                                ? '+ Add to Event'
+                                : 'Add to Event',
+                        onPressed: _showAddToEventSheet,
+                      ),
+                      if (_isProduct || listing.isRentable) ...[
+                        const SizedBox(height: 10),
+                        SizedBox(
+                          height: 52,
+                          width: double.infinity,
+                          child: OutlinedButton(
+                            onPressed: () => showRequestOrderSheet(
+                              context,
+                              listing: listing,
+                              eventId: widget.eventId,
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.primary,
+                              side: const BorderSide(color: AppColors.primary),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14)),
+                            ),
+                            child: Text(
+                              listing.isRentable ? 'Rent now' : 'Order now',
+                              style: GoogleFonts.urbanist(
+                                  fontSize: 15, fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
               ),
@@ -859,10 +1029,10 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
     );
   }
 
-  Widget _vendorPlaceholder() => Container(
+  Widget _vendorPlaceholder(BuildContext context) => Container(
         width: 48,
         height: 48,
-        color: AppColors.primaryLight,
+        color: context.c.primaryLight,
         child: const Icon(Icons.store_rounded,
             color: AppColors.primary, size: 24),
       );

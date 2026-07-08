@@ -42,7 +42,7 @@ class CategoryCard extends StatelessWidget {
               right: 10,
               child: Text(
                 category.name,
-                style: AppTextStyles.label.copyWith(
+                style: AppTextStyles.label(context).copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),

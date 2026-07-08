@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/mock/mock_data.dart';
@@ -7,6 +8,8 @@ import '../../../core/router/app_routes.dart';
 import '../../../core/services/reference_data_service.dart';
 import '../../../core/state/overlay_state.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../auth/bloc/auth_bloc.dart';
+import '../../auth/bloc/auth_state.dart';
 import '../../../shared/models/category_model.dart';
 
 String _fmtPrice(num n) {
@@ -54,10 +57,72 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   List<CategoryModel> get _filteredCategories {
     final q = _searchCtrl.text.trim().toLowerCase();
-    if (q.isEmpty) return _allCategories;
-    return _allCategories
-        .where((c) => c.name.toLowerCase().contains(q))
-        .toList();
+    // 'products' is promoted to the Services/Products toggle, not a grid tile.
+    final base = _allCategories.where((c) => c.slug != 'products');
+    if (q.isEmpty) return base.toList();
+    return base.where((c) => c.name.toLowerCase().contains(q)).toList();
+  }
+
+  /// Explicit browse mode. Services = category grid (vendors); Products opens
+  /// the dedicated cross-category product browser.
+  void _openProducts() {
+    context.push(
+      AppRoutes.categoryResultsPath('products'),
+      extra: {'categoryName': 'Products'},
+    );
+  }
+
+  Widget _buildModeToggle(BuildContext context) {
+    Widget tab(String label, IconData icon,
+        {required bool selected, required VoidCallback onTap}) {
+      return Expanded(
+        child: GestureDetector(
+          onTap: onTap,
+          behavior: HitTestBehavior.opaque,
+          child: Container(
+            height: 40,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: selected ? AppColors.primary : Colors.transparent,
+              borderRadius: BorderRadius.circular(11),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon,
+                    size: 16,
+                    color: selected ? Colors.white : context.c.textSecondary),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: GoogleFonts.urbanist(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: selected ? Colors.white : context.c.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: context.c.surfaceElevated,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          tab('Services', Icons.handshake_outlined,
+              selected: true, onTap: () {}),
+          tab('Products', Icons.shopping_bag_outlined,
+              selected: false, onTap: _openProducts),
+        ],
+      ),
+    );
   }
 
   void _openFilters() {
@@ -90,18 +155,24 @@ class _ExploreScreenState extends State<ExploreScreen> {
   @override
   Widget build(BuildContext context) {
     final cats = _filteredCategories;
+    final authState = context.watch<AuthBloc>().state;
+    final user = authState is AuthAuthenticated ? authState.user : null;
+    final profile = user?.clientProfile;
+    final locationLabel = [profile?.preferredCity, profile?.preferredCountry]
+        .where((e) => e != null && e.trim().isNotEmpty)
+        .join(', ');
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: CustomScrollView(
         slivers: [
           // ── Header ──────────────────────────────────────────────────────────
           SliverToBoxAdapter(
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0xFFECDEFA), Color(0xFFF8F5FF)],
+                  colors: [context.c.primaryLight, context.c.background],
                 ),
               ),
               child: SafeArea(
@@ -111,31 +182,33 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Location row
-                      Row(
-                        children: [
-                          const Icon(Icons.location_on_rounded,
-                              color: AppColors.primary, size: 16),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Abuja, Nig',
-                            style: GoogleFonts.urbanist(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.primary,
+                      // Location row (real profile location; hidden if unset)
+                      if (locationLabel.isNotEmpty) ...[
+                        Row(
+                          children: [
+                            const Icon(Icons.location_on_rounded,
+                                color: AppColors.primary, size: 16),
+                            const SizedBox(width: 4),
+                            Text(
+                              locationLabel,
+                              style: GoogleFonts.urbanist(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primary,
+                              ),
                             ),
-                          ),
-                          const Icon(Icons.keyboard_arrow_down_rounded,
-                              color: AppColors.primary, size: 16),
-                        ],
-                      ),
-                      const SizedBox(height: 10),
+                            const Icon(Icons.keyboard_arrow_down_rounded,
+                                color: AppColors.primary, size: 16),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                      ],
                       Text(
                         'Find your vibe',
                         style: GoogleFonts.urbanist(
                           fontSize: 26,
                           fontWeight: FontWeight.w800,
-                          color: const Color(0xFF1A1A2E),
+                          color: context.c.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 14),
@@ -146,7 +219,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                             child: Container(
                               height: 48,
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: context.c.surface,
                                 borderRadius: BorderRadius.circular(14),
                                 boxShadow: [
                                   BoxShadow(
@@ -163,11 +236,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                   hintText: 'Search categories...',
                                   hintStyle: GoogleFonts.urbanist(
                                     fontSize: 14,
-                                    color: const Color(0xFF9CA3AF),
+                                    color: context.c.textHint,
                                   ),
-                                  prefixIcon: const Icon(
+                                  prefixIcon: Icon(
                                     Icons.search_rounded,
-                                    color: Color(0xFF9CA3AF),
+                                    color: context.c.textHint,
                                     size: 20,
                                   ),
                                   border: InputBorder.none,
@@ -245,16 +318,22 @@ class _ExploreScreenState extends State<ExploreScreen> {
             ),
           ),
 
+          // ── Services / Products toggle ──────────────────────────────────────
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+            sliver: SliverToBoxAdapter(child: _buildModeToggle(context)),
+          ),
+
           // ── Section title ───────────────────────────────────────────────────
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
             sliver: SliverToBoxAdapter(
               child: Text(
-                'Browse by Categories',
+                'Browse Services by Category',
                 style: GoogleFonts.urbanist(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A1A2E),
+                  color: context.c.textPrimary,
                 ),
               ),
             ),
@@ -270,7 +349,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         'No categories found',
                         style: GoogleFonts.urbanist(
                           fontSize: 15,
-                          color: const Color(0xFF9CA3AF),
+                          color: context.c.textHint,
                         ),
                       ),
                     ),
@@ -326,13 +405,13 @@ class _CategoryImageCard extends StatelessWidget {
                     category.imageUrl!,
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
-                      color: AppColors.primaryLight,
+                      color: context.c.primaryLight,
                       child: const Icon(Icons.image_outlined,
                           color: AppColors.primary, size: 40),
                     ),
                   )
                 : Container(
-                    color: AppColors.primaryLight,
+                    color: context.c.primaryLight,
                     child: const Icon(Icons.image_outlined,
                         color: AppColors.primary, size: 40),
                   ),
@@ -429,9 +508,9 @@ class _FilterSheetState extends State<_FilterSheet> {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: context.c.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           padding: EdgeInsets.only(
             bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -450,7 +529,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                       width: 40,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: const Color(0xFFE5E7EB),
+                        color: context.c.border,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -476,7 +555,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                       style: GoogleFonts.urbanist(
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1A1A2E),
+                        color: context.c.textPrimary,
                       ),
                     ),
                     const SizedBox(width: 40),
@@ -490,7 +569,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                   style: GoogleFonts.urbanist(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1A1A2E),
+                    color: context.c.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -500,7 +579,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                   max: 500000,
                   divisions: 100,
                   activeColor: AppColors.primary,
-                  inactiveColor: AppColors.primaryLight,
+                  inactiveColor: context.c.primaryLight,
                   onChanged: (v) => setState(() => _price = v),
                 ),
                 Row(
@@ -511,7 +590,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                             horizontal: 12, vertical: 10),
                         decoration: BoxDecoration(
                           border:
-                              Border.all(color: const Color(0xFFE5E7EB)),
+                              Border.all(color: context.c.border),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
@@ -519,7 +598,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                           style: GoogleFonts.urbanist(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF1A1A2E),
+                            color: context.c.textPrimary,
                           ),
                         ),
                       ),
@@ -529,7 +608,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                       child: Text(
                         '—',
                         style: GoogleFonts.urbanist(
-                            color: const Color(0xFF9CA3AF)),
+                            color: context.c.textHint),
                       ),
                     ),
                     Expanded(
@@ -538,7 +617,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                             horizontal: 12, vertical: 10),
                         decoration: BoxDecoration(
                           border:
-                              Border.all(color: const Color(0xFFE5E7EB)),
+                              Border.all(color: context.c.border),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Text(
@@ -546,7 +625,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                           style: GoogleFonts.urbanist(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF1A1A2E),
+                            color: context.c.textPrimary,
                           ),
                         ),
                       ),
@@ -561,7 +640,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                   style: GoogleFonts.urbanist(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1A1A2E),
+                    color: context.c.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -581,12 +660,12 @@ class _FilterSheetState extends State<_FilterSheet> {
                           decoration: BoxDecoration(
                             color: active
                                 ? AppColors.primary
-                                : Colors.white,
+                                : context.c.surface,
                             borderRadius: BorderRadius.circular(50),
                             border: Border.all(
                               color: active
                                   ? AppColors.primary
-                                  : const Color(0xFFE5E7EB),
+                                  : context.c.border,
                             ),
                           ),
                           child: Row(
@@ -607,7 +686,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                                   fontWeight: FontWeight.w600,
                                   color: active
                                       ? Colors.white
-                                      : const Color(0xFF1A1A2E),
+                                      : context.c.textPrimary,
                                 ),
                               ),
                             ],
@@ -625,15 +704,15 @@ class _FilterSheetState extends State<_FilterSheet> {
                   style: GoogleFonts.urbanist(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1A1A2E),
+                    color: context.c.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 12),
                 Container(
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF9FAFB),
+                    color: context.c.surfaceElevated,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFE5E7EB)),
+                    border: Border.all(color: context.c.border),
                   ),
                   child: TextField(
                     controller: _locationCtrl,
@@ -642,7 +721,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                       hintText: 'Enter city or area',
                       hintStyle: GoogleFonts.urbanist(
                         fontSize: 14,
-                        color: const Color(0xFF9CA3AF),
+                        color: context.c.textHint,
                       ),
                       prefixIcon: const Icon(
                         Icons.location_on_outlined,

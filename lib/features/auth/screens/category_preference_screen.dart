@@ -54,7 +54,7 @@ class _CategoryPreferenceScreenState extends State<CategoryPreferenceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       body: SafeArea(
         child: _loading
             ? const Center(child: CircularProgressIndicator())
@@ -73,7 +73,7 @@ class _CategoryPreferenceScreenState extends State<CategoryPreferenceScreen> {
                             style: GoogleFonts.urbanist(
                               fontSize: 26,
                               fontWeight: FontWeight.w800,
-                              color: const Color(0xFF1A1A1A),
+                              color: context.c.textPrimary,
                               height: 1.3,
                             ),
                           ),
@@ -82,7 +82,7 @@ class _CategoryPreferenceScreenState extends State<CategoryPreferenceScreen> {
                             "We'll personalize your recommendations and search results.",
                             style: GoogleFonts.urbanist(
                               fontSize: 14,
-                              color: const Color(0xFF9CA3AF),
+                              color: context.c.textHint,
                               height: 1.5,
                             ),
                           ),

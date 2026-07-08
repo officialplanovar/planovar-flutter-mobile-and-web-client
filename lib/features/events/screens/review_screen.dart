@@ -67,12 +67,12 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       body: Column(
         children: [
           // ── Header ──────────────────────────────────────────────────────
           Container(
-            color: AppColors.primaryLight,
+            color: context.c.primaryLight,
             padding: EdgeInsets.only(
               top: MediaQuery.of(context).padding.top + 8,
               left: 16,
@@ -89,7 +89,7 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.c.surface,
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
@@ -99,10 +99,10 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
                             ),
                           ],
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.arrow_back_ios_new_rounded,
                           size: 16,
-                          color: Color(0xFF1A1A2E),
+                          color: context.c.textPrimary,
                         ),
                       ),
                     ),
@@ -114,7 +114,7 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
                             style: GoogleFonts.urbanist(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
-                              color: const Color(0xFF1A1A2E),
+                              color: context.c.textPrimary,
                             ),
                           ),
                           const SizedBox(height: 2),
@@ -122,7 +122,7 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
                             'Let us know how your booking went',
                             style: GoogleFonts.urbanist(
                               fontSize: 12,
-                              color: const Color(0xFF6B7280),
+                              color: context.c.textSecondary,
                             ),
                           ),
                         ],
@@ -155,7 +155,7 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
                           width: 100,
                           height: 100,
                           decoration: BoxDecoration(
-                            color: AppColors.primaryLight,
+                            color: ctx.c.primaryLight,
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Icon(Icons.store,
@@ -172,7 +172,7 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
                       style: GoogleFonts.urbanist(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1A1A2E),
+                        color: context.c.textPrimary,
                       ),
                     ),
                   ),
@@ -207,16 +207,16 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 10),
                   // Feedback text field
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.c.surface,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                      border: Border.all(color: context.c.border),
                     ),
                     child: TextField(
                       controller: _reviewCtrl,
@@ -227,7 +227,7 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
                         hintText: 'Let us know how your experience was',
                         hintStyle: GoogleFonts.urbanist(
                           fontSize: 14,
-                          color: const Color(0xFF9CA3AF),
+                          color: context.c.textHint,
                         ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.all(14),

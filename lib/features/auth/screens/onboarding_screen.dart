@@ -96,7 +96,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       body: SafeArea(
         child: Column(
           children: [
@@ -192,7 +192,7 @@ class _ImageCard extends StatelessWidget {
               slide.assetPath,
               fit: BoxFit.cover,
               errorBuilder: (_, __, ___) => Container(
-                color: const Color(0xFFEDE0FA),
+                color: context.c.primaryLight,
                 child: const Icon(
                   Icons.image_outlined,
                   size: 60,
@@ -236,10 +236,10 @@ class _TitleText extends StatelessWidget {
         RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 26,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF1A1A2E),
+              color: context.c.textPrimary,
               height: 1.3,
             ),
             children: [
@@ -259,9 +259,9 @@ class _TitleText extends StatelessWidget {
         Text(
           body,
           textAlign: TextAlign.center,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: Color(0xFF9CA3AF),
+            color: context.c.textHint,
             height: 1.55,
           ),
         ),
@@ -395,17 +395,17 @@ class _EventsPlannedBadge extends StatelessWidget {
               ),
             ],
           ),
-          child: const Row(
+          child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('🔥', style: TextStyle(fontSize: 16)),
-              SizedBox(width: 8),
+              const Text('🔥', style: TextStyle(fontSize: 16)),
+              const SizedBox(width: 8),
               Text(
                 '1200 Events Planned Today',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 14,
-                  color: Color(0xFF1A1A2E),
+                  color: context.c.textPrimary,
                 ),
               ),
             ],
@@ -463,7 +463,7 @@ class _CommunityAvatars extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           decoration: BoxDecoration(
-            color: AppColors.primaryLight,
+            color: context.c.primaryLight,
             borderRadius: BorderRadius.circular(50),
           ),
           child: const Text(

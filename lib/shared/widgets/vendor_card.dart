@@ -21,9 +21,9 @@ class VendorCard extends StatelessWidget {
         width: 180,
         height: 220,
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.c.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.c.border),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
@@ -58,7 +58,7 @@ class VendorCard extends StatelessWidget {
                         ),
                         child: Text(
                           'Featured',
-                          style: AppTextStyles.caption.copyWith(
+                          style: AppTextStyles.caption(context).copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
                             fontSize: 10,
@@ -78,7 +78,7 @@ class VendorCard extends StatelessWidget {
                     children: [
                       Text(
                         vendor.businessName,
-                        style: AppTextStyles.label,
+                        style: AppTextStyles.label(context),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -86,12 +86,12 @@ class VendorCard extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryLight,
+                            color: context.c.primaryLight,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
                             vendor.categories.first,
-                            style: AppTextStyles.caption.copyWith(
+                            style: AppTextStyles.caption(context).copyWith(
                               color: AppColors.primary,
                               fontSize: 10,
                             ),
@@ -104,13 +104,13 @@ class VendorCard extends StatelessWidget {
                       ),
                       Row(
                         children: [
-                          const Icon(Icons.location_on_rounded,
-                              size: 11, color: AppColors.textSecondary),
+                          Icon(Icons.location_on_rounded,
+                              size: 11, color: context.c.textSecondary),
                           const SizedBox(width: 2),
                           Expanded(
                             child: Text(
                               vendor.location ?? '',
-                              style: AppTextStyles.caption.copyWith(fontSize: 10),
+                              style: AppTextStyles.caption(context).copyWith(fontSize: 10),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -144,9 +144,9 @@ class VendorListCard extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.c.surface,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.c.border),
         ),
         child: Row(
           children: [
@@ -166,7 +166,7 @@ class VendorListCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           vendor.businessName,
-                          style: AppTextStyles.label,
+                          style: AppTextStyles.label(context),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -180,17 +180,17 @@ class VendorListCard extends StatelessWidget {
                   if (vendor.categories.isNotEmpty)
                     Text(
                       vendor.categories.join(', '),
-                      style: AppTextStyles.caption,
+                      style: AppTextStyles.caption(context),
                     ),
                   const SizedBox(height: 4),
                   StarRating(rating: vendor.ratingAvg, reviewCount: vendor.reviewCount),
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.location_on_rounded,
-                          size: 12, color: AppColors.textSecondary),
+                      Icon(Icons.location_on_rounded,
+                          size: 12, color: context.c.textSecondary),
                       const SizedBox(width: 2),
-                      Text(vendor.location ?? '', style: AppTextStyles.caption),
+                      Text(vendor.location ?? '', style: AppTextStyles.caption(context)),
                       const Spacer(),
                       StatusChip(status: vendor.subscriptionTier, fontSize: 10),
                     ],

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/mock/mock_data.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/services/reference_data_service.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/models/category_model.dart';
 import '../../../shared/widgets/glossy_button.dart';
 import 'create_event_step1_screen.dart' show EventStepHeader;
 
@@ -18,15 +19,35 @@ class CreateEventStep3Screen extends StatefulWidget {
 
 class _CreateEventStep3ScreenState extends State<CreateEventStep3Screen> {
   final Set<String> _selected = {};
+  List<CategoryModel> _categories = const [];
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final cats = await CategoryService().getCategories();
+      if (mounted) {
+        setState(() {
+          _categories = cats.where((c) => c.slug != 'products').toList();
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final categories = MockData.categories
-        .where((c) => c.slug != 'products')
-        .toList();
+    final categories = _categories;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       body: Column(
         children: [
           EventStepHeader(
@@ -46,11 +67,17 @@ class _CreateEventStep3ScreenState extends State<CreateEventStep3Screen> {
                     'What services do you need for your event?',
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
-                      color: const Color(0xFF6B7280),
+                      color: context.c.textSecondary,
                       height: 1.5,
                     ),
                   ),
                   const SizedBox(height: 20),
+                  if (_loading)
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 40),
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else
                   Wrap(
                     spacing: 10,
                     runSpacing: 10,
@@ -70,13 +97,13 @@ class _CreateEventStep3ScreenState extends State<CreateEventStep3Screen> {
                               horizontal: 16, vertical: 10),
                           decoration: BoxDecoration(
                             color: selected
-                                ? AppColors.primaryLight
-                                : Colors.white,
+                                ? context.c.primaryLight
+                                : context.c.surface,
                             borderRadius: BorderRadius.circular(24),
                             border: Border.all(
                               color: selected
                                   ? AppColors.primary
-                                  : const Color(0xFFE5E7EB),
+                                  : context.c.border,
                               width: selected ? 1.5 : 1,
                             ),
                           ),
@@ -99,7 +126,7 @@ class _CreateEventStep3ScreenState extends State<CreateEventStep3Screen> {
                                 size: 14,
                                 color: selected
                                     ? AppColors.primary
-                                    : const Color(0xFF9CA3AF),
+                                    : context.c.textHint,
                               ),
                             ],
                           ),
@@ -117,7 +144,7 @@ class _CreateEventStep3ScreenState extends State<CreateEventStep3Screen> {
               label: 'Next',
               onPressed: _selected.isNotEmpty
                   ? () {
-                      final selectedCategories = MockData.categories
+                      final selectedCategories = _categories
                           .where((c) => _selected.contains(c.id))
                           .map((c) => c.name)
                           .toList();

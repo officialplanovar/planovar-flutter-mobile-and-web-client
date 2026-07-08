@@ -6,7 +6,16 @@ import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glossy_button.dart';
 
 class CreateEventStep1Screen extends StatefulWidget {
-  const CreateEventStep1Screen({super.key});
+  /// When launched from a listing's "Add to Event" sheet, these carry the
+  /// listing + its vendor so the new event adopts them on creation.
+  final String? fromListingId;
+  final String? fromVendorId;
+
+  const CreateEventStep1Screen({
+    super.key,
+    this.fromListingId,
+    this.fromVendorId,
+  });
 
   @override
   State<CreateEventStep1Screen> createState() => _CreateEventStep1ScreenState();
@@ -33,13 +42,17 @@ class _CreateEventStep1ScreenState extends State<CreateEventStep1Screen> {
     final type = _selectedType == 'Other' && _otherCtrl.text.isNotEmpty
         ? _otherCtrl.text.trim()
         : (_selectedType ?? '');
-    context.push(AppRoutes.createEventStep2, extra: {'eventType': type});
+    context.push(AppRoutes.createEventStep2, extra: {
+      'eventType': type,
+      if (widget.fromListingId != null) 'fromListingId': widget.fromListingId,
+      if (widget.fromVendorId != null) 'fromVendorId': widget.fromVendorId,
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       body: Column(
         children: [
           // ── Header ──────────────────────────────────────────────────────
@@ -62,7 +75,7 @@ class _CreateEventStep1ScreenState extends State<CreateEventStep1Screen> {
                     style: GoogleFonts.urbanist(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 14),
@@ -82,13 +95,13 @@ class _CreateEventStep1ScreenState extends State<CreateEventStep1Screen> {
                           duration: const Duration(milliseconds: 180),
                           decoration: BoxDecoration(
                             color: selected
-                                ? AppColors.primaryLight
-                                : Colors.white,
+                                ? context.c.primaryLight
+                                : context.c.surface,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                               color: selected
                                   ? AppColors.primary
-                                  : const Color(0xFFE5E7EB),
+                                  : context.c.border,
                               width: selected ? 1.8 : 1,
                             ),
                           ),
@@ -105,7 +118,7 @@ class _CreateEventStep1ScreenState extends State<CreateEventStep1Screen> {
                                   fontWeight: FontWeight.w600,
                                   color: selected
                                       ? AppColors.primary
-                                      : const Color(0xFF6B7280),
+                                      : context.c.textSecondary,
                                 ),
                               ),
                             ],
@@ -121,7 +134,7 @@ class _CreateEventStep1ScreenState extends State<CreateEventStep1Screen> {
                     style: GoogleFonts.urbanist(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -129,7 +142,7 @@ class _CreateEventStep1ScreenState extends State<CreateEventStep1Screen> {
                     onTap: () => setState(() => _selectedType = 'Other'),
                     child: Container(
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF3F4F6),
+                        color: context.c.divider,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: _selectedType == 'Other'
@@ -145,7 +158,7 @@ class _CreateEventStep1ScreenState extends State<CreateEventStep1Screen> {
                             setState(() => _selectedType = 'Other'),
                         style: GoogleFonts.urbanist(
                           fontSize: 14,
-                          color: const Color(0xFF1A1A2E),
+                          color: context.c.textPrimary,
                         ),
                         decoration: InputDecoration(
                           hintText: 'Please Specify',
@@ -200,7 +213,7 @@ class EventStepHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final top = MediaQuery.of(context).padding.top;
     return Container(
-      color: AppColors.primaryLight,
+      color: context.c.primaryLight,
       padding: EdgeInsets.only(
           top: top + 12, bottom: 22, left: 20, right: 20),
       child: Column(
@@ -233,10 +246,10 @@ class EventStepHeader extends StatelessWidget {
                 behavior: HitTestBehavior.opaque,
                 child: Padding(
                   padding: const EdgeInsets.only(top: 3, right: 12),
-                  child: const Icon(
+                  child: Icon(
                     Icons.arrow_back_ios_new_rounded,
                     size: 18,
-                    color: Color(0xFF1A1A2E),
+                    color: context.c.textPrimary,
                   ),
                 ),
               ),
@@ -249,7 +262,7 @@ class EventStepHeader extends StatelessWidget {
                         style: GoogleFonts.urbanist(
                           fontSize: 22,
                           fontWeight: FontWeight.w800,
-                          color: const Color(0xFF1A1A2E),
+                          color: context.c.textPrimary,
                         ),
                         children: [
                           TextSpan(text: titlePrefix),
@@ -269,7 +282,7 @@ class EventStepHeader extends StatelessWidget {
                       subtitle,
                       style: GoogleFonts.urbanist(
                         fontSize: 13,
-                        color: const Color(0xFF6B7280),
+                        color: context.c.textSecondary,
                       ),
                     ),
                   ],

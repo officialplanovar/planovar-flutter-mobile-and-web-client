@@ -95,12 +95,18 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
         : 'there';
     final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
 
+    // Real location from the client's profile prefs (no dummy fallback).
+    final profile = user?.clientProfile;
+    final locationLabel = [profile?.preferredCity, profile?.preferredCountry]
+        .where((e) => e != null && e.trim().isNotEmpty)
+        .join(', ');
+
     final categories = _liveCategories.take(8).toList();
     final vendors = _liveVendors.take(4).toList();
     final products = _liveProducts.take(4).toList();
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       body: RefreshIndicator(
         onRefresh: _loadFeed,
         color: AppColors.primary,
@@ -109,11 +115,11 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
             // ── Header ────────────────────────────────────────────────────
             SliverToBoxAdapter(
               child: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomCenter,
-                    colors: [Color(0xFFECDEFA), Colors.white],
+                    colors: [context.c.primaryLight, context.c.surface],
                     stops: [0.0, 1.0],
                   ),
                 ),
@@ -124,21 +130,22 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.location_on_rounded,
-                                size: 14, color: AppColors.primary),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Abuja, Nig',
-                              style: GoogleFonts.urbanist(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.primary,
+                        if (locationLabel.isNotEmpty)
+                          Row(
+                            children: [
+                              const Icon(Icons.location_on_rounded,
+                                  size: 14, color: AppColors.primary),
+                              const SizedBox(width: 4),
+                              Text(
+                                locationLabel,
+                                style: GoogleFonts.urbanist(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primary,
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
                         const SizedBox(height: 14),
                         Row(
                           children: [
@@ -147,7 +154,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                               backgroundImage: user?.image != null
                                   ? NetworkImage(user!.image!)
                                   : null,
-                              backgroundColor: AppColors.primaryLight,
+                              backgroundColor: context.c.primaryLight,
                               child: user?.image == null
                                   ? const Icon(Icons.person_rounded,
                                       color: AppColors.primary)
@@ -162,7 +169,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                                     'Welcome back',
                                     style: GoogleFonts.urbanist(
                                       fontSize: 13,
-                                      color: const Color(0xFF9CA3AF),
+                                      color: context.c.textHint,
                                     ),
                                   ),
                                   Text.rich(TextSpan(children: [
@@ -171,7 +178,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                                       style: GoogleFonts.urbanist(
                                         fontSize: 18,
                                         fontWeight: FontWeight.w800,
-                                        color: const Color(0xFF1A1A1A),
+                                        color: context.c.textPrimary,
                                       ),
                                     ),
                                     TextSpan(
@@ -195,8 +202,8 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                                   Container(
                                     width: 44,
                                     height: 44,
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.primaryLight,
+                                    decoration: BoxDecoration(
+                                      color: context.c.primaryLight,
                                       shape: BoxShape.circle,
                                     ),
                                     child: const Icon(
@@ -240,7 +247,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 18),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: context.c.surface,
                               borderRadius: BorderRadius.circular(50),
                               boxShadow: [
                                 BoxShadow(
@@ -258,7 +265,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                                     'Search for a vendor or location',
                                     style: GoogleFonts.urbanist(
                                       fontSize: 14,
-                                      color: const Color(0xFF9CA3AF),
+                                      color: context.c.textHint,
                                     ),
                                   ),
                                 ),
@@ -313,14 +320,14 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                     Container(
                       padding: const EdgeInsets.all(28),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFF9F5FF),
+                        color: context.c.surface,
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Center(
                         child: Text(
                           'No upcoming events',
                           style: GoogleFonts.urbanist(
-                              color: const Color(0xFF9CA3AF)),
+                              color: context.c.textHint),
                         ),
                       ),
                     )
@@ -413,7 +420,7 @@ class _SectionHeader extends StatelessWidget {
           style: GoogleFonts.urbanist(
             fontSize: 17,
             fontWeight: FontWeight.w800,
-            color: const Color(0xFF1A1A1A),
+            color: context.c.textPrimary,
           ),
         ),
         if (onViewAll != null)
@@ -468,8 +475,8 @@ class _CategoryIcon extends StatelessWidget {
           Container(
             width: 54,
             height: 54,
-            decoration: const BoxDecoration(
-              color: Color(0xFFF5F5F5),
+            decoration: BoxDecoration(
+              color: context.c.surfaceElevated,
               shape: BoxShape.circle,
             ),
             child: Icon(icon, size: 26, color: const Color(0xFF374151)),
@@ -512,7 +519,7 @@ class _EventCard extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -536,7 +543,7 @@ class _EventCard extends StatelessWidget {
                     imageUrl,
                     fit: BoxFit.cover,
                     errorBuilder: (_, __, ___) => Container(
-                      color: AppColors.primaryLight,
+                      color: context.c.primaryLight,
                       child: const Icon(Icons.event_rounded,
                           color: AppColors.primary, size: 40),
                     ),
@@ -602,14 +609,14 @@ class _EventCard extends StatelessWidget {
                     style: GoogleFonts.urbanist(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1A1A1A),
+                      color: context.c.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.location_on_rounded,
-                          size: 13, color: Color(0xFF9CA3AF)),
+                      Icon(Icons.location_on_rounded,
+                          size: 13, color: context.c.textHint),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
@@ -618,18 +625,18 @@ class _EventCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.urbanist(
                               fontSize: 12,
-                              color: const Color(0xFF9CA3AF)),
+                              color: context.c.textHint),
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Icon(Icons.access_time_rounded,
-                          size: 13, color: Color(0xFF9CA3AF)),
+                      Icon(Icons.access_time_rounded,
+                          size: 13, color: context.c.textHint),
                       const SizedBox(width: 4),
                       Text(
                         '10:20 am',
                         style: GoogleFonts.urbanist(
                             fontSize: 12,
-                            color: const Color(0xFF9CA3AF)),
+                            color: context.c.textHint),
                       ),
                     ],
                   ),
@@ -637,15 +644,15 @@ class _EventCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(Icons.sell_outlined,
-                            size: 14, color: Color(0xFF9CA3AF)),
+                        Icon(Icons.sell_outlined,
+                            size: 14, color: context.c.textHint),
                         const SizedBox(width: 4),
                         Text(
                           _fmtPrice(booking.quoteAmount!),
                           style: GoogleFonts.urbanist(
                             fontSize: 14,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF1A1A1A),
+                            color: context.c.textPrimary,
                           ),
                         ),
                       ],
@@ -674,7 +681,7 @@ class _VendorGridCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.c.surface,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
@@ -698,7 +705,7 @@ class _VendorGridCard extends StatelessWidget {
                       vendor.coverUrl ?? '',
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => Container(
-                        color: AppColors.primaryLight,
+                        color: context.c.primaryLight,
                         child: const Icon(Icons.store_rounded,
                             color: AppColors.primary, size: 40),
                       ),
@@ -714,8 +721,8 @@ class _VendorGridCard extends StatelessWidget {
                         color: Colors.white.withValues(alpha: 0.92),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.favorite_border_rounded,
-                          size: 16, color: Color(0xFF9CA3AF)),
+                      child: Icon(Icons.favorite_border_rounded,
+                          size: 16, color: context.c.textHint),
                     ),
                   ),
                 ],
@@ -731,7 +738,7 @@ class _VendorGridCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryLight,
+                            color: context.c.primaryLight,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -767,7 +774,7 @@ class _VendorGridCard extends StatelessWidget {
                       style: GoogleFonts.urbanist(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1A1A1A),
+                        color: context.c.textPrimary,
                       ),
                     ),
                   ],
@@ -795,20 +802,7 @@ class _ProductCardState extends State<_ProductCard> {
   bool _isFaved = false;
 
   void _onCta(BuildContext context) {
-    showAddToEventSheet(
-      context,
-      listing: widget.listing,
-      onConfirm: (eventIds) {
-        final eventId = eventIds.first;
-        if (widget.listing.isRentable) {
-          context.push(AppRoutes.rentProduct,
-              extra: {'listingId': widget.listing.id, 'eventId': eventId});
-        } else {
-          context.push(AppRoutes.checkout,
-              extra: {'listingId': widget.listing.id, 'eventId': eventId});
-        }
-      },
-    );
+    showAddToEventSheet(context, listing: widget.listing);
   }
 
   @override
@@ -827,7 +821,7 @@ class _ProductCardState extends State<_ProductCard> {
       onTap: () => context.push(AppRoutes.listingDetailPath(listing.id)),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.c.surface,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
@@ -851,7 +845,7 @@ class _ProductCardState extends State<_ProductCard> {
                       imageUrl,
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => Container(
-                        color: AppColors.primaryLight,
+                        color: context.c.primaryLight,
                         child: const Icon(Icons.category_rounded,
                             color: AppColors.primary, size: 40),
                       ),
@@ -899,7 +893,7 @@ class _ProductCardState extends State<_ProductCard> {
                             style: GoogleFonts.urbanist(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: const Color(0xFF1A1A1A),
+                              color: context.c.textPrimary,
                             ),
                           ),
                         ),
@@ -911,7 +905,7 @@ class _ProductCardState extends State<_ProductCard> {
                           listing.vendor?.ratingAvg.toStringAsFixed(1) ?? '',
                           style: GoogleFonts.urbanist(
                             fontSize: 11,
-                            color: const Color(0xFF6B7280),
+                            color: context.c.textSecondary,
                           ),
                         ),
                       ],
@@ -922,7 +916,7 @@ class _ProductCardState extends State<_ProductCard> {
                       style: GoogleFonts.urbanist(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFF1A1A1A),
+                        color: context.c.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 8),

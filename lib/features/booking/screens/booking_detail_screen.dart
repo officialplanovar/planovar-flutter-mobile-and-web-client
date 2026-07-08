@@ -73,14 +73,14 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.c.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: context.c.border),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Progress', style: AppTextStyles.label),
+                  Text('Progress', style: AppTextStyles.label(context)),
                   const SizedBox(height: 16),
                   Row(
                     children: steps.asMap().entries.map((entry) {
@@ -98,20 +98,20 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                                     width: 28,
                                     height: 28,
                                     decoration: BoxDecoration(
-                                      color: isCompleted ? AppColors.primary : AppColors.divider,
+                                      color: isCompleted ? AppColors.primary : context.c.divider,
                                       shape: BoxShape.circle,
                                     ),
                                     child: Icon(
                                       isCompleted ? Icons.check_rounded : Icons.circle_outlined,
                                       size: 14,
-                                      color: isCompleted ? Colors.white : AppColors.textHint,
+                                      color: isCompleted ? Colors.white : context.c.textHint,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     step,
-                                    style: AppTextStyles.caption.copyWith(
-                                      color: isCompleted ? AppColors.primary : AppColors.textHint,
+                                    style: AppTextStyles.caption(context).copyWith(
+                                      color: isCompleted ? AppColors.primary : context.c.textHint,
                                       fontWeight: isCompleted ? FontWeight.w600 : FontWeight.normal,
                                       fontSize: 10,
                                     ),
@@ -124,7 +124,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                               Expanded(
                                 child: Container(
                                   height: 2,
-                                  color: i < currentStep ? AppColors.primary : AppColors.border,
+                                  color: i < currentStep ? AppColors.primary : context.c.border,
                                 ),
                               ),
                           ],
@@ -140,14 +140,14 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.c.surface,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: context.c.border),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Event Details', style: AppTextStyles.label),
+                  Text('Event Details', style: AppTextStyles.label(context)),
                   const SizedBox(height: 12),
                   _DetailRow(icon: Icons.calendar_today_outlined, label: 'Date', value: Formatters.date(booking.eventDate)),
                   if (booking.eventLocation != null)
@@ -168,9 +168,9 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.c.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.c.border),
                 ),
                 child: Row(
                   children: [
@@ -185,13 +185,13 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(booking.vendor?.businessName ?? 'Vendor', style: AppTextStyles.label),
+                          Text(booking.vendor?.businessName ?? 'Vendor', style: AppTextStyles.label(context)),
                           if (booking.vendor?.location != null)
-                            Text(booking.vendor!.location!, style: AppTextStyles.caption),
+                            Text(booking.vendor!.location!, style: AppTextStyles.caption(context)),
                         ],
                       ),
                     ),
-                    const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+                    Icon(Icons.chevron_right_rounded, color: context.c.textSecondary),
                   ],
                 ),
               ),
@@ -202,16 +202,16 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.c.surface,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.c.border),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Text('Quote', style: AppTextStyles.label),
+                        Text('Quote', style: AppTextStyles.label(context)),
                         const Spacer(),
                         StatusChip(status: _quote!.status),
                       ],
@@ -219,7 +219,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                     const SizedBox(height: 8),
                     Text(
                       Formatters.currency(_quote!.amount),
-                      style: AppTextStyles.heading4.copyWith(color: AppColors.primary),
+                      style: AppTextStyles.heading4(context).copyWith(color: AppColors.primary),
                     ),
                     const SizedBox(height: 12),
                     GlossyButton(
@@ -307,14 +307,14 @@ class _DetailRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 16, color: AppColors.textSecondary),
+          Icon(icon, size: 16, color: context.c.textSecondary),
           const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: AppTextStyles.caption),
-                Text(value, style: AppTextStyles.body2),
+                Text(label, style: AppTextStyles.caption(context)),
+                Text(value, style: AppTextStyles.body2(context)),
               ],
             ),
           ),

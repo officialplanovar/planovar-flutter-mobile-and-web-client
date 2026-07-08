@@ -26,14 +26,14 @@ class EmptyState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 80, color: AppColors.textHint),
+            Icon(icon, size: 80, color: context.c.textHint),
             const SizedBox(height: 16),
-            Text(title, style: AppTextStyles.heading4, textAlign: TextAlign.center),
+            Text(title, style: AppTextStyles.heading4(context), textAlign: TextAlign.center),
             if (subtitle != null) ...[
               const SizedBox(height: 8),
               Text(
                 subtitle!,
-                style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
+                style: AppTextStyles.body2(context).copyWith(color: context.c.textSecondary),
                 textAlign: TextAlign.center,
               ),
             ],
@@ -71,11 +71,11 @@ class ErrorState extends StatelessWidget {
           children: [
             const Icon(Icons.error_outline_rounded, size: 80, color: AppColors.error),
             const SizedBox(height: 16),
-            Text('Something went wrong', style: AppTextStyles.heading4),
+            Text('Something went wrong', style: AppTextStyles.heading4(context)),
             const SizedBox(height: 8),
             Text(
               message,
-              style: AppTextStyles.body2.copyWith(color: AppColors.textSecondary),
+              style: AppTextStyles.body2(context).copyWith(color: context.c.textSecondary),
               textAlign: TextAlign.center,
             ),
             if (onRetry != null) ...[

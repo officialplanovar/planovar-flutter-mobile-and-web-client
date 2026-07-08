@@ -10,7 +10,7 @@ class StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (color, bgColor, label) = _statusProps(status);
+    final (color, bgColor, label) = _statusProps(context, status);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
@@ -19,7 +19,7 @@ class StatusChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: AppTextStyles.caption.copyWith(
+        style: AppTextStyles.caption(context).copyWith(
           color: color,
           fontWeight: FontWeight.w600,
           fontSize: fontSize,
@@ -28,14 +28,14 @@ class StatusChip extends StatelessWidget {
     );
   }
 
-  (Color, Color, String) _statusProps(String status) {
+  (Color, Color, String) _statusProps(BuildContext context, String status) {
     switch (status.toLowerCase()) {
       case 'pending':
         return (AppColors.warning, const Color(0xFFFFF8E1), 'Pending');
       case 'confirmed':
         return (AppColors.success, const Color(0xFFE8F5E9), 'Confirmed');
       case 'active':
-        return (AppColors.primary, AppColors.primaryLight, 'Active');
+        return (AppColors.primary, context.c.primaryLight, 'Active');
       case 'completed':
         return (const Color(0xFF1565C0), const Color(0xFFE3F2FD), 'Completed');
       case 'cancelled':
@@ -47,11 +47,11 @@ class StatusChip extends StatelessWidget {
       case 'featured':
         return (AppColors.accent, const Color(0xFFFFF8E1), 'Featured');
       case 'premium':
-        return (AppColors.primary, AppColors.primaryLight, 'Premium');
+        return (AppColors.primary, context.c.primaryLight, 'Premium');
       case 'basic':
-        return (AppColors.textSecondary, AppColors.divider, 'Basic');
+        return (context.c.textSecondary, context.c.divider, 'Basic');
       default:
-        return (AppColors.textSecondary, AppColors.divider, status);
+        return (context.c.textSecondary, context.c.divider, status);
     }
   }
 }

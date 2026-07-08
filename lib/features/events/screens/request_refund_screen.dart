@@ -31,13 +31,13 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // ── Header ──────────────────────────────────────────────────────
           Container(
-            color: Colors.white,
+            color: context.c.surface,
             padding: EdgeInsets.only(
               top: MediaQuery.of(context).padding.top + 8,
               left: 16,
@@ -52,7 +52,7 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
+                      color: context.c.primaryLight,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -71,14 +71,14 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                       style: GoogleFonts.urbanist(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1A1A2E),
+                        color: context.c.textPrimary,
                       ),
                     ),
                     Text(
                       'EF-2026-0341 · Sugared Dreams Cakery',
                       style: GoogleFonts.urbanist(
                         fontSize: 12,
-                        color: const Color(0xFF9CA3AF),
+                        color: context.c.textHint,
                       ),
                     ),
                   ],
@@ -97,7 +97,7 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFEDE9FE),
+                      color: context.c.primaryLight,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: AppColors.primary, width: 1),
                     ),
@@ -141,7 +141,7 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -156,12 +156,12 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 14),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.c.surface,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: selected
                                 ? AppColors.primary
-                                : const Color(0xFFE5E7EB),
+                                : context.c.border,
                             width: selected ? 1.5 : 1.0,
                           ),
                         ),
@@ -177,7 +177,7 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                                       : FontWeight.w500,
                                   color: selected
                                       ? AppColors.primary
-                                      : const Color(0xFF1A1A2E),
+                                      : context.c.textPrimary,
                                 ),
                               ),
                             ),
@@ -196,15 +196,15 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.c.surface,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                      border: Border.all(color: context.c.border),
                     ),
                     child: TextField(
                       controller: _descCtrl,
@@ -215,7 +215,7 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                         hintText: 'Describe what happened in detail...',
                         hintStyle: GoogleFonts.urbanist(
                           fontSize: 14,
-                          color: const Color(0xFF9CA3AF),
+                          color: context.c.textHint,
                         ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.all(14),
@@ -229,7 +229,7 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 10),
@@ -238,9 +238,9 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                     height: 52,
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.c.surface,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                      border: Border.all(color: context.c.border),
                     ),
                     child: Row(
                       children: [
@@ -249,12 +249,12 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                             'Select Bank',
                             style: GoogleFonts.urbanist(
                               fontSize: 14,
-                              color: const Color(0xFF9CA3AF),
+                              color: context.c.textHint,
                             ),
                           ),
                         ),
-                        const Icon(Icons.keyboard_arrow_down_rounded,
-                            color: Color(0xFF9CA3AF), size: 20),
+                        Icon(Icons.keyboard_arrow_down_rounded,
+                            color: context.c.textHint, size: 20),
                       ],
                     ),
                   ),
@@ -262,9 +262,9 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                   // Account number field
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.c.surface,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                      border: Border.all(color: context.c.border),
                     ),
                     child: TextField(
                       keyboardType: TextInputType.number,
@@ -273,7 +273,7 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                         hintText: 'Enter Account Number',
                         hintStyle: GoogleFonts.urbanist(
                           fontSize: 14,
-                          color: const Color(0xFF9CA3AF),
+                          color: context.c.textHint,
                         ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(

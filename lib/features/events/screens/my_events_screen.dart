@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/mock/mock_data.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/services/event_service.dart';
+import '../../../core/state/overlay_state.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/event_model.dart';
 import '../../../shared/models/listing_model.dart';
@@ -28,6 +29,9 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
   void initState() {
     super.initState();
     _loadEvents();
+    // Refetch whenever events change (created / vendor added elsewhere) so the
+    // list is fresh when this tab regains focus.
+    eventsChanged.addListener(_loadEvents);
   }
 
   Future<void> _loadEvents() async {
@@ -44,6 +48,7 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
 
   @override
   void dispose() {
+    eventsChanged.removeListener(_loadEvents);
     _pageController.dispose();
     super.dispose();
   }
@@ -65,14 +70,14 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
     final topPadding = MediaQuery.of(context).padding.top;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: context.c.surface,
       body: Stack(
         children: [
           Column(
             children: [
               // ── Header ────────────────────────────────────────────────
               Container(
-                color: Colors.white,
+                color: context.c.surface,
                 padding: EdgeInsets.only(
                   top: topPadding + 8,
                   left: 20,
@@ -94,7 +99,7 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
                                   style: GoogleFonts.urbanist(
                                     fontSize: 20,
                                     fontWeight: FontWeight.w800,
-                                    color: const Color(0xFF1A1A2E),
+                                    color: context.c.textPrimary,
                                   ),
                                 ),
                                 TextSpan(
@@ -115,7 +120,7 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: AppColors.primaryLight,
+                              color: context.c.primaryLight,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
@@ -133,7 +138,7 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
                       height: 48,
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.c.surface,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
@@ -193,10 +198,10 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
                   onPageChanged: (i) => setState(() => _tabIndex = i),
                   children: [
                     _EventsTab(
-                      events:
-                          _liveEvents.isNotEmpty ? _liveEvents : MockData.events,
+                      events: _liveEvents,
                       fmtDate: _fmtDate,
                       subTabIndex: _subTabIndex,
+                      onRefresh: _loadEvents,
                     ),
                     const _OrderTrackingTab(),
                   ],
@@ -256,7 +261,7 @@ class _SegTab extends StatelessWidget {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           decoration: BoxDecoration(
-            color: active ? AppColors.primaryLight : Colors.transparent,
+            color: active ? context.c.primaryLight : Colors.transparent,
             borderRadius: BorderRadius.circular(12),
             boxShadow: active
                 ? [
@@ -274,7 +279,7 @@ class _SegTab extends StatelessWidget {
             style: GoogleFonts.urbanist(
               fontSize: 12,
               fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-              color: active ? AppColors.primary : const Color(0xFF9CA3AF),
+              color: active ? AppColors.primary : context.c.textHint,
             ),
           ),
         ),
@@ -300,7 +305,7 @@ class _SubTab extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
         decoration: BoxDecoration(
-          color: active ? AppColors.primary : AppColors.primaryLight,
+          color: active ? AppColors.primary : context.c.primaryLight,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
@@ -349,39 +354,63 @@ class _EventsTab extends StatelessWidget {
   final List<EventModel> events;
   final String Function(DateTime) fmtDate;
   final int subTabIndex;
+  final Future<void> Function() onRefresh;
 
   const _EventsTab({
     required this.events,
     required this.fmtDate,
     required this.subTabIndex,
+    required this.onRefresh,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (subTabIndex == 0) {
-      // Upcoming
-      return ListView.builder(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
-        itemCount: events.length,
-        itemBuilder: (ctx, i) => _EventCard(
-          event: events[i],
-          fmtDate: fmtDate,
-          statusLabel: i.isEven ? 'Pending' : 'Confirmed',
-        ),
-      );
-    } else {
-      // Past (subTabIndex==1) or Cancelled (subTabIndex==2)
-      final isCancelled = subTabIndex == 2;
-      return ListView.builder(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
-        itemCount: events.length,
-        itemBuilder: (ctx, i) => _PastEventCard(
-          event: events[i],
-          fmtDate: fmtDate,
-          isCancelled: isCancelled,
-        ),
-      );
-    }
+    // Filter by real status: Upcoming = active, Past = completed, Cancelled.
+    final filtered = events.where((e) {
+      final s = e.status.toUpperCase();
+      switch (subTabIndex) {
+        case 1:
+          return s == 'COMPLETED';
+        case 2:
+          return s == 'CANCELLED';
+        default:
+          return s != 'COMPLETED' && s != 'CANCELLED';
+      }
+    }).toList();
+
+    final label = subTabIndex == 1
+        ? 'past'
+        : subTabIndex == 2
+            ? 'cancelled'
+            : 'upcoming';
+
+    return RefreshIndicator(
+      onRefresh: onRefresh,
+      color: AppColors.primary,
+      child: filtered.isEmpty
+          ? ListView(
+              padding: const EdgeInsets.fromLTRB(16, 80, 16, 120),
+              children: [
+                Center(
+                  child: Text(
+                    'No $label events',
+                    style: GoogleFonts.urbanist(color: context.c.textHint),
+                  ),
+                ),
+              ],
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
+              itemCount: filtered.length,
+              itemBuilder: (ctx, i) => subTabIndex == 0
+                  ? _EventCard(event: filtered[i], fmtDate: fmtDate)
+                  : _PastEventCard(
+                      event: filtered[i],
+                      fmtDate: fmtDate,
+                      isCancelled: subTabIndex == 2,
+                    ),
+            ),
+    );
   }
 }
 
@@ -390,21 +419,21 @@ class _EventsTab extends StatelessWidget {
 class _EventCard extends StatelessWidget {
   final EventModel event;
   final String Function(DateTime) fmtDate;
-  final String statusLabel;
 
   const _EventCard({
     required this.event,
     required this.fmtDate,
-    required this.statusLabel,
   });
 
   @override
   Widget build(BuildContext context) {
-    final isPending = statusLabel == 'Pending';
+    final statusLabel = event.statusLabel;
+    // Confirmed = green; everything else (Draft/Planning) = amber.
+    final isConfirmed = event.status.toUpperCase() == 'CONFIRMED';
     final statusBg =
-        isPending ? const Color(0xFFFFF3CD) : const Color(0xFFD1FAE5);
+        isConfirmed ? const Color(0xFFD1FAE5) : const Color(0xFFFFF3CD);
     final statusText =
-        isPending ? const Color(0xFFB45309) : const Color(0xFF065F46);
+        isConfirmed ? const Color(0xFF065F46) : const Color(0xFFB45309);
 
     return GestureDetector(
       onTap: () => context.push(
@@ -414,7 +443,7 @@ class _EventCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.c.surface,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -442,9 +471,9 @@ class _EventCard extends StatelessWidget {
                             width: 90,
                             height: 90,
                             fit: BoxFit.cover,
-                            errorBuilder: (ctx, e, st) => _placeholder(),
+                            errorBuilder: (ctx, e, st) => _placeholder(context),
                           )
-                        : _placeholder(),
+                        : _placeholder(context),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -505,7 +534,7 @@ class _EventCard extends StatelessWidget {
                           style: GoogleFonts.urbanist(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
-                            color: const Color(0xFF1A1A2E),
+                            color: context.c.textPrimary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -516,7 +545,7 @@ class _EventCard extends StatelessWidget {
                           '${fmtDate(event.date)}${event.location != null ? ' · ${event.location}' : ''}',
                           style: GoogleFonts.urbanist(
                             fontSize: 12,
-                            color: const Color(0xFF6B7280),
+                            color: context.c.textSecondary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -527,41 +556,23 @@ class _EventCard extends StatelessWidget {
                 ],
               ),
             ),
-            // ── Progress bar ───────────────────────────────────────────
+            // ── Vendors sourced (real count) ───────────────────────────
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: Column(
+              child: Row(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(4),
-                    child: LinearProgressIndicator(
-                      value: 0.3,
-                      minHeight: 5,
-                      backgroundColor: AppColors.primaryLight,
-                      valueColor: const AlwaysStoppedAnimation<Color>(
-                          AppColors.primary),
+                  Icon(Icons.storefront_outlined,
+                      size: 14, color: context.c.textSecondary),
+                  const SizedBox(width: 6),
+                  Text(
+                    event.vendorsSourced == 0
+                        ? 'No vendors sourced yet'
+                        : '${event.vendorsSourced} '
+                            '${event.vendorsSourced == 1 ? 'vendor' : 'vendors'} sourced',
+                    style: GoogleFonts.urbanist(
+                      fontSize: 12,
+                      color: context.c.textSecondary,
                     ),
-                  ),
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Text(
-                        '2 of 4 Vendors sourced',
-                        style: GoogleFonts.urbanist(
-                          fontSize: 12,
-                          color: const Color(0xFF6B7280),
-                        ),
-                      ),
-                      const Spacer(),
-                      Text(
-                        '30%',
-                        style: GoogleFonts.urbanist(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.primary,
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
@@ -588,7 +599,7 @@ class _EventCard extends StatelessWidget {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppColors.primaryLight,
+                      color: context.c.primaryLight,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(
@@ -606,11 +617,11 @@ class _EventCard extends StatelessWidget {
     );
   }
 
-  Widget _placeholder() => Container(
+  Widget _placeholder(BuildContext context) => Container(
         width: 90,
         height: 90,
         decoration: BoxDecoration(
-          color: AppColors.primaryLight,
+          color: context.c.primaryLight,
           borderRadius: BorderRadius.circular(12),
         ),
         child: const Icon(Icons.event_rounded, color: AppColors.primary, size: 32),
@@ -640,7 +651,7 @@ class _PastEventCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surface,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -665,9 +676,9 @@ class _PastEventCard extends StatelessWidget {
                         width: 80,
                         height: 80,
                         fit: BoxFit.cover,
-                        errorBuilder: (ctx, e, st) => _placeholder(),
+                        errorBuilder: (ctx, e, st) => _placeholder(context),
                       )
-                    : _placeholder(),
+                    : _placeholder(context),
               ),
               const SizedBox(width: 12),
               Expanded(
@@ -702,7 +713,7 @@ class _PastEventCard extends StatelessWidget {
                       style: GoogleFonts.urbanist(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1A1A2E),
+                        color: context.c.textPrimary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -712,7 +723,7 @@ class _PastEventCard extends StatelessWidget {
                       '${event.location ?? 'Venue'} · ₦280,000',
                       style: GoogleFonts.urbanist(
                         fontSize: 12,
-                        color: const Color(0xFF6B7280),
+                        color: context.c.textSecondary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -727,23 +738,23 @@ class _PastEventCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFFF9FAFB),
-              border: Border.all(color: const Color(0xFFE5E7EB)),
+              color: context.c.surfaceElevated,
+              border: Border.all(color: context.c.border),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Column(
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.calendar_today_rounded,
-                        size: 14, color: Color(0xFF6B7280)),
+                    Icon(Icons.calendar_today_rounded,
+                        size: 14, color: context.c.textSecondary),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Friday, 13 March 2026 · 11:00 AM – 12:00 PM',
                         style: GoogleFonts.urbanist(
                           fontSize: 12,
-                          color: const Color(0xFF6B7280),
+                          color: context.c.textSecondary,
                         ),
                       ),
                     ),
@@ -752,15 +763,15 @@ class _PastEventCard extends StatelessWidget {
                 const SizedBox(height: 6),
                 Row(
                   children: [
-                    const Icon(Icons.location_on_outlined,
-                        size: 14, color: Color(0xFF6B7280)),
+                    Icon(Icons.location_on_outlined,
+                        size: 14, color: context.c.textSecondary),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         'Lagos Island studio',
                         style: GoogleFonts.urbanist(
                           fontSize: 12,
-                          color: const Color(0xFF6B7280),
+                          color: context.c.textSecondary,
                         ),
                       ),
                     ),
@@ -784,11 +795,11 @@ class _PastEventCard extends StatelessWidget {
     );
   }
 
-  Widget _placeholder() => Container(
+  Widget _placeholder(BuildContext context) => Container(
         width: 80,
         height: 80,
         decoration: BoxDecoration(
-          color: AppColors.primaryLight,
+          color: context.c.primaryLight,
           borderRadius: BorderRadius.circular(10),
         ),
         child: const Icon(Icons.event_rounded, color: AppColors.primary, size: 28),
@@ -834,7 +845,7 @@ class _OrderTrackingTabState extends State<_OrderTrackingTab> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 7),
                       decoration: BoxDecoration(
-                        color: active ? AppColors.primary : AppColors.primaryLight,
+                        color: active ? AppColors.primary : context.c.primaryLight,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -936,7 +947,7 @@ class _OrderCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surface,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
@@ -958,9 +969,9 @@ class _OrderCard extends StatelessWidget {
                     width: 80,
                     height: 80,
                     fit: BoxFit.cover,
-                    errorBuilder: (ctx, e, st) => _imgPlaceholder(),
+                    errorBuilder: (ctx, e, st) => _imgPlaceholder(context),
                   )
-                : _imgPlaceholder(),
+                : _imgPlaceholder(context),
           ),
           const SizedBox(width: 12),
           // Info
@@ -973,7 +984,7 @@ class _OrderCard extends StatelessWidget {
                   style: GoogleFonts.urbanist(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: const Color(0xFF1A1A2E),
+                    color: context.c.textPrimary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -983,7 +994,7 @@ class _OrderCard extends StatelessWidget {
                   '13 Mar 2026',
                   style: GoogleFonts.urbanist(
                     fontSize: 12,
-                    color: const Color(0xFF6B7280),
+                    color: context.c.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -991,7 +1002,7 @@ class _OrderCard extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEDE9FE),
+                    color: context.c.primaryLight,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
@@ -1074,11 +1085,11 @@ class _OrderCard extends StatelessWidget {
     }
   }
 
-  Widget _imgPlaceholder() => Container(
+  Widget _imgPlaceholder(BuildContext context) => Container(
         width: 80,
         height: 80,
         decoration: BoxDecoration(
-          color: AppColors.primaryLight,
+          color: context.c.primaryLight,
           borderRadius: BorderRadius.circular(10),
         ),
         child: const Icon(Icons.shopping_bag_outlined,

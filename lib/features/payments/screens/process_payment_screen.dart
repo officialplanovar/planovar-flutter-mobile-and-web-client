@@ -26,7 +26,8 @@ class ProcessPaymentScreen extends StatelessWidget {
     return buf.toString();
   }
 
-  Widget _invoiceRow(String label, double amt, {bool isTotal = false}) {
+  Widget _invoiceRow(BuildContext context, String label, double amt,
+      {bool isTotal = false}) {
     return Row(
       children: [
         isTotal
@@ -35,14 +36,14 @@ class ProcessPaymentScreen extends StatelessWidget {
                 style: GoogleFonts.urbanist(
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A1A2E),
+                  color: context.c.textPrimary,
                 ),
               )
             : Text(
                 label,
                 style: GoogleFonts.urbanist(
                   fontSize: 13,
-                  color: const Color(0xFF6B7280),
+                  color: context.c.textSecondary,
                 ),
               ),
         const Spacer(),
@@ -52,7 +53,7 @@ class ProcessPaymentScreen extends StatelessWidget {
                 style: GoogleFonts.urbanist(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: const Color(0xFF1A1A2E),
+                  color: context.c.textPrimary,
                 ),
               )
             : Text(
@@ -60,7 +61,7 @@ class ProcessPaymentScreen extends StatelessWidget {
                 style: GoogleFonts.urbanist(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF1A1A2E),
+                  color: context.c.textPrimary,
                 ),
               ),
       ],
@@ -70,21 +71,21 @@ class ProcessPaymentScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F5FF),
+        backgroundColor: context.c.background,
         elevation: 0,
         leading: GestureDetector(
           onTap: () => context.pop(),
           child: Container(
             margin: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: Colors.white,
+            decoration: BoxDecoration(
+              color: context.c.surface,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.arrow_back_ios_new_rounded,
-              color: Color(0xFF1A1A2E),
+              color: context.c.textPrimary,
               size: 18,
             ),
           ),
@@ -94,7 +95,7 @@ class ProcessPaymentScreen extends StatelessWidget {
           style: GoogleFonts.urbanist(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF1A1A2E),
+            color: context.c.textPrimary,
           ),
         ),
         centerTitle: true,
@@ -110,14 +111,14 @@ class ProcessPaymentScreen extends StatelessWidget {
                   'Service Breakdown',
                   style: GoogleFonts.urbanist(
                     fontSize: 13,
-                    color: const Color(0xFF9CA3AF),
+                    color: context.c.textHint,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.c.surface,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -140,7 +141,7 @@ class ProcessPaymentScreen extends StatelessWidget {
                           errorBuilder: (_, __, ___) => Container(
                             width: 60,
                             height: 60,
-                            color: AppColors.primaryLight,
+                            color: context.c.primaryLight,
                             child: const Icon(
                               Icons.cake_outlined,
                               color: AppColors.primary,
@@ -158,7 +159,7 @@ class ProcessPaymentScreen extends StatelessWidget {
                               style: GoogleFonts.urbanist(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
-                                color: const Color(0xFF1A1A2E),
+                                color: context.c.textPrimary,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -175,7 +176,7 @@ class ProcessPaymentScreen extends StatelessWidget {
                                   style: GoogleFonts.urbanist(
                                     fontSize: 12,
                                     fontWeight: FontWeight.w600,
-                                    color: const Color(0xFF6B7280),
+                                    color: context.c.textSecondary,
                                   ),
                                 ),
                               ],
@@ -188,7 +189,7 @@ class ProcessPaymentScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.primaryLight,
+                          color: context.c.primaryLight,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -208,14 +209,14 @@ class ProcessPaymentScreen extends StatelessWidget {
                   'Invoice Summary',
                   style: GoogleFonts.urbanist(
                     fontSize: 13,
-                    color: const Color(0xFF9CA3AF),
+                    color: context.c.textHint,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.c.surface,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -228,15 +229,15 @@ class ProcessPaymentScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      _invoiceRow('Platform Fee', 2300),
+                      _invoiceRow(context, 'Platform Fee', 2300),
                       const SizedBox(height: 6),
-                      _invoiceRow('Man - power', 85000),
+                      _invoiceRow(context, 'Man - power', 85000),
                       const SizedBox(height: 6),
-                      _invoiceRow('Setup & delivery (Lekki)', 15000),
+                      _invoiceRow(context, 'Setup & delivery (Lekki)', 15000),
                       const SizedBox(height: 6),
-                      _invoiceRow('Sub-total', 102300),
+                      _invoiceRow(context, 'Sub-total', 102300),
                       const Divider(height: 24),
-                      _invoiceRow('Total', 102300, isTotal: true),
+                      _invoiceRow(context, 'Total', 102300, isTotal: true),
                     ],
                   ),
                 ),
@@ -295,7 +296,7 @@ class ProcessPaymentScreen extends StatelessWidget {
             right: 0,
             bottom: 0,
             child: Container(
-              color: Colors.white,
+              color: context.c.surface,
               child: SafeArea(
                 top: false,
                 child: Padding(

@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/services/favourites_service.dart';
 import '../../../core/services/listing_service.dart';
 import '../../../core/services/vendor_service.dart';
 import '../../../core/state/overlay_state.dart';
+import '../../../core/utils/formatters.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/listing_model.dart';
 import '../../../shared/models/vendor_model.dart';
@@ -36,6 +38,7 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
   bool _failed = false;
   List<VendorModel> _allVendors = const [];
   List<ListingModel> _allListings = const [];
+  Set<String> _favIds = const {};
 
   bool get _isProductsCategory => widget.categorySlug == 'products';
 
@@ -53,12 +56,25 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
     try {
       if (_isProductsCategory) {
         // "Products" is a cross-category view of every fixed-price listing.
+        // DB-backed browse (not search) — reliable regardless of Typesense.
         _allListings =
-            await _listingService.searchListings(pricingType: 'FIXED');
+            await _listingService.browseListings(pricingType: 'FIXED');
+        // Which of these the user has already saved (best-effort).
+        try {
+          _favIds = await FavouritesService().favouriteIds();
+        } catch (_) {
+          _favIds = const {};
+        }
       } else {
         _allVendors = await _vendorService.getVendors(
           category: widget.categorySlug == 'all' ? null : widget.categorySlug,
         );
+        // Which of these vendors the user has already saved (best-effort).
+        try {
+          _favIds = await _vendorService.favouriteIds();
+        } catch (_) {
+          _favIds = const {};
+        }
       }
       if (mounted) setState(() => _loading = false);
     } catch (_) {
@@ -115,7 +131,7 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
     final vendors = _vendors;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -124,7 +140,7 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
           child: Container(
             margin: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.c.surface,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
@@ -134,9 +150,9 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
                 ),
               ],
             ),
-            child: const Icon(
+            child: Icon(
               Icons.arrow_back_ios_new_rounded,
-              color: Color(0xFF1A1A2E),
+              color: context.c.textPrimary,
               size: 18,
             ),
           ),
@@ -146,7 +162,7 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
           style: GoogleFonts.urbanist(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF1A1A2E),
+            color: context.c.textPrimary,
           ),
         ),
         centerTitle: true,
@@ -163,7 +179,7 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
                   child: Container(
                     height: 48,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.c.surface,
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
@@ -182,7 +198,7 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
                             : 'Search ${widget.categoryName}...',
                         hintStyle: GoogleFonts.urbanist(
                           fontSize: 14,
-                          color: const Color(0xFF9CA3AF),
+                          color: context.c.textHint,
                         ),
                         prefixIcon: const Icon(
                           Icons.search_rounded,
@@ -274,7 +290,7 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
                           'No products found',
                           style: GoogleFonts.urbanist(
                             fontSize: 15,
-                            color: const Color(0xFF9CA3AF),
+                            color: context.c.textHint,
                           ),
                         ),
                       )
@@ -290,7 +306,10 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
                         ),
                         itemCount: listings.length,
                         itemBuilder: (ctx, i) =>
-                            _ProductGridCard(listing: listings[i]),
+                            _ProductGridCard(
+                              listing: listings[i],
+                              initiallyFav: _favIds.contains(listings[i].id),
+                            ),
                       ))
                 : (vendors.isEmpty
                     ? Center(
@@ -298,7 +317,7 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
                           'No vendors found',
                           style: GoogleFonts.urbanist(
                             fontSize: 15,
-                            color: const Color(0xFF9CA3AF),
+                            color: context.c.textHint,
                           ),
                         ),
                       )
@@ -315,6 +334,7 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
                         itemCount: vendors.length,
                         itemBuilder: (ctx, i) => _VendorGridCard(
                           vendor: vendors[i],
+                          initiallyFav: _favIds.contains(vendors[i].id),
                           onTap: () => ctx.push(
                               AppRoutes.vendorProfilePath(vendors[i].id)),
                         ),
@@ -354,18 +374,18 @@ class _FilterChip extends StatelessWidget {
                   colors: [Color(0xFFAB52F5), Color(0xFF7420D0)],
                 )
               : null,
-          color: selected ? null : Colors.white,
+          color: selected ? null : context.c.surface,
           borderRadius: BorderRadius.circular(20),
           border: selected
               ? null
-              : Border.all(color: const Color(0xFFE5E7EB)),
+              : Border.all(color: context.c.border),
         ),
         child: Text(
           label,
           style: GoogleFonts.urbanist(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: selected ? Colors.white : const Color(0xFF6B7280),
+            color: selected ? Colors.white : context.c.textSecondary,
           ),
         ),
       ),
@@ -395,7 +415,7 @@ class _ResultsMessage extends StatelessWidget {
             textAlign: TextAlign.center,
             style: GoogleFonts.urbanist(
               fontSize: 15,
-              color: const Color(0xFF9CA3AF),
+              color: context.c.textHint,
             ),
           ),
         ),
@@ -409,38 +429,39 @@ class _ResultsMessage extends StatelessWidget {
 // ---------------------------------------------------------------------------
 
 class _ProductGridCard extends StatefulWidget {
-  const _ProductGridCard({required this.listing});
+  const _ProductGridCard({required this.listing, this.initiallyFav = false});
 
   final ListingModel listing;
+  final bool initiallyFav;
 
   @override
   State<_ProductGridCard> createState() => _ProductGridCardState();
 }
 
 class _ProductGridCardState extends State<_ProductGridCard> {
-  bool _isFav = false;
+  late bool _isFav = widget.initiallyFav;
+  bool _favBusy = false;
 
   ListingModel get listing => widget.listing;
 
+  Future<void> _toggleFav() async {
+    if (_favBusy) return;
+    final prev = _isFav;
+    setState(() {
+      _isFav = !prev;
+      _favBusy = true;
+    });
+    try {
+      await FavouritesService().toggle(listing.id, prev);
+    } catch (_) {
+      if (mounted) setState(() => _isFav = prev); // revert on failure
+    } finally {
+      if (mounted) setState(() => _favBusy = false);
+    }
+  }
+
   void _handleCta() {
-    showAddToEventSheet(
-      context,
-      listing: listing,
-      onConfirm: (eventIds) {
-        final eventId = eventIds.first;
-        if (listing.isRentable) {
-          context.push(
-            AppRoutes.rentProduct,
-            extra: {'listingId': listing.id, 'eventId': eventId},
-          );
-        } else {
-          context.push(
-            AppRoutes.checkout,
-            extra: {'listingId': listing.id, 'eventId': eventId},
-          );
-        }
-      },
-    );
+    showAddToEventSheet(context, listing: listing);
   }
 
   @override
@@ -449,7 +470,7 @@ class _ProductGridCardState extends State<_ProductGridCard> {
       onTap: () => context.push(AppRoutes.listingDetailPath(listing.id)),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.c.surface,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
@@ -477,7 +498,7 @@ class _ProductGridCardState extends State<_ProductGridCard> {
                             listing.media.first,
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) => Container(
-                              color: AppColors.primaryLight,
+                              color: context.c.primaryLight,
                               child: const Icon(
                                 Icons.image_outlined,
                                 color: AppColors.primary,
@@ -486,7 +507,7 @@ class _ProductGridCardState extends State<_ProductGridCard> {
                             ),
                           )
                         : Container(
-                            color: AppColors.primaryLight,
+                            color: context.c.primaryLight,
                             child: const Icon(
                               Icons.image_outlined,
                               color: AppColors.primary,
@@ -499,7 +520,7 @@ class _ProductGridCardState extends State<_ProductGridCard> {
                   top: 8,
                   right: 8,
                   child: GestureDetector(
-                    onTap: () => setState(() => _isFav = !_isFav),
+                    onTap: _toggleFav,
                     child: Container(
                       width: 30,
                       height: 30,
@@ -538,24 +559,26 @@ class _ProductGridCardState extends State<_ProductGridCard> {
                             style: GoogleFonts.urbanist(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: const Color(0xFF1A1A2E),
+                              color: context.c.textPrimary,
                             ),
                           ),
                         ),
-                        const Icon(
-                          Icons.star_rounded,
-                          color: AppColors.starColor,
-                          size: 13,
-                        ),
-                        const SizedBox(width: 2),
-                        Text(
-                          '4.8',
-                          style: GoogleFonts.urbanist(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                            color: const Color(0xFF1A1A2E),
+                        if (listing.reviewCount > 0) ...[
+                          const Icon(
+                            Icons.star_rounded,
+                            color: AppColors.starColor,
+                            size: 13,
                           ),
-                        ),
+                          const SizedBox(width: 2),
+                          Text(
+                            listing.ratingAvg.toStringAsFixed(1),
+                            style: GoogleFonts.urbanist(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: context.c.textPrimary,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -563,12 +586,12 @@ class _ProductGridCardState extends State<_ProductGridCard> {
                     // Price
                     Text(
                       listing.basePrice != null
-                          ? '\$${listing.basePrice!.toStringAsFixed(0)}'
+                          ? Formatters.currency(listing.basePrice!)
                           : 'Contact for price',
                       style: GoogleFonts.urbanist(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: const Color(0xFF1A1A2E),
+                        color: context.c.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -622,9 +645,9 @@ class _SimpleFilterSheet extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
         child: Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          decoration: BoxDecoration(
+            color: context.c.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           ),
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
           child: Column(
@@ -637,7 +660,7 @@ class _SimpleFilterSheet extends StatelessWidget {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE5E7EB),
+                      color: context.c.border,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -648,7 +671,7 @@ class _SimpleFilterSheet extends StatelessWidget {
                 style: GoogleFonts.urbanist(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
-                  color: const Color(0xFF1A1A2E),
+                  color: context.c.textPrimary,
                 ),
               ),
               const SizedBox(height: 24),
@@ -656,7 +679,7 @@ class _SimpleFilterSheet extends StatelessWidget {
                 'More filter options coming soon.',
                 style: GoogleFonts.urbanist(
                   fontSize: 14,
-                  color: const Color(0xFF9CA3AF),
+                  color: context.c.textHint,
                 ),
               ),
               const SizedBox(height: 24),
@@ -700,11 +723,43 @@ class _SimpleFilterSheet extends StatelessWidget {
 
 // ── Vendor grid card ────────────────────────────────────────────────────────
 
-class _VendorGridCard extends StatelessWidget {
-  const _VendorGridCard({required this.vendor, required this.onTap});
+class _VendorGridCard extends StatefulWidget {
+  const _VendorGridCard({
+    required this.vendor,
+    required this.onTap,
+    this.initiallyFav = false,
+  });
 
   final VendorModel vendor;
   final VoidCallback onTap;
+  final bool initiallyFav;
+
+  @override
+  State<_VendorGridCard> createState() => _VendorGridCardState();
+}
+
+class _VendorGridCardState extends State<_VendorGridCard> {
+  late bool _isFav = widget.initiallyFav;
+  bool _favBusy = false;
+
+  VendorModel get vendor => widget.vendor;
+  VoidCallback get onTap => widget.onTap;
+
+  Future<void> _toggleFav() async {
+    if (_favBusy) return;
+    final prev = _isFav;
+    setState(() {
+      _isFav = !prev;
+      _favBusy = true;
+    });
+    try {
+      await VendorService().toggleFavourite(vendor.id, prev);
+    } catch (_) {
+      if (mounted) setState(() => _isFav = prev); // revert on failure
+    } finally {
+      if (mounted) setState(() => _favBusy = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -715,7 +770,7 @@ class _VendorGridCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: context.c.surface,
           borderRadius: BorderRadius.circular(14),
           boxShadow: [
             BoxShadow(
@@ -740,13 +795,13 @@ class _VendorGridCard extends StatelessWidget {
                             vendor.coverUrl!,
                             fit: BoxFit.cover,
                             errorBuilder: (_, __, ___) => Container(
-                              color: AppColors.primaryLight,
+                              color: context.c.primaryLight,
                               child: const Icon(Icons.storefront_outlined,
                                   color: AppColors.primary, size: 40),
                             ),
                           )
                         : Container(
-                            color: AppColors.primaryLight,
+                            color: context.c.primaryLight,
                             child: const Icon(Icons.storefront_outlined,
                                 color: AppColors.primary, size: 40),
                           ),
@@ -754,13 +809,21 @@ class _VendorGridCard extends StatelessWidget {
                   Positioned(
                     top: 8,
                     right: 8,
-                    child: Container(
-                      width: 30,
-                      height: 30,
-                      decoration: const BoxDecoration(
-                          color: Colors.white, shape: BoxShape.circle),
-                      child: const Icon(Icons.favorite_border_rounded,
-                          color: AppColors.primary, size: 16),
+                    child: GestureDetector(
+                      onTap: _toggleFav,
+                      child: Container(
+                        width: 30,
+                        height: 30,
+                        decoration: const BoxDecoration(
+                            color: Colors.white, shape: BoxShape.circle),
+                        child: Icon(
+                          _isFav
+                              ? Icons.favorite_rounded
+                              : Icons.favorite_border_rounded,
+                          color: AppColors.primary,
+                          size: 16,
+                        ),
+                      ),
                     ),
                   ),
                 ],
@@ -776,7 +839,7 @@ class _VendorGridCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 3),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryLight,
+                            color: context.c.primaryLight,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -799,7 +862,7 @@ class _VendorGridCard extends StatelessWidget {
                           style: GoogleFonts.urbanist(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: const Color(0xFF1A1A2E),
+                            color: context.c.textPrimary,
                           ),
                         ),
                       ],
@@ -812,7 +875,7 @@ class _VendorGridCard extends StatelessWidget {
                       style: GoogleFonts.urbanist(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: const Color(0xFF1A1A2E),
+                        color: context.c.textPrimary,
                       ),
                     ),
                   ],

@@ -65,9 +65,9 @@ class _TransactionCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.c.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.c.border),
       ),
       child: Row(
         children: [
@@ -75,7 +75,7 @@ class _TransactionCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: isPayment ? AppColors.primaryLight : const Color(0xFFE8F5E9),
+              color: isPayment ? context.c.primaryLight : const Color(0xFFE8F5E9),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
@@ -90,13 +90,13 @@ class _TransactionCard extends StatelessWidget {
               children: [
                 Text(
                   isPayment ? 'Payment' : 'Refund',
-                  style: AppTextStyles.label,
+                  style: AppTextStyles.label(context),
                 ),
                 Text(
                   'Booking #${transaction.bookingId.substring(transaction.bookingId.length - 3)}',
-                  style: AppTextStyles.caption,
+                  style: AppTextStyles.caption(context),
                 ),
-                Text(Formatters.date(transaction.createdAt), style: AppTextStyles.caption),
+                Text(Formatters.date(transaction.createdAt), style: AppTextStyles.caption(context)),
               ],
             ),
           ),
@@ -105,8 +105,8 @@ class _TransactionCard extends StatelessWidget {
             children: [
               Text(
                 Formatters.currency(transaction.amount),
-                style: AppTextStyles.label.copyWith(
-                  color: isPayment ? AppColors.textPrimary : AppColors.success,
+                style: AppTextStyles.label(context).copyWith(
+                  color: isPayment ? context.c.textPrimary : AppColors.success,
                   fontWeight: FontWeight.bold,
                 ),
               ),

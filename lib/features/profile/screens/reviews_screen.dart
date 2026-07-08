@@ -57,7 +57,7 @@ class ReviewsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: Column(
         children: [
           _buildHeader(context),
@@ -66,7 +66,7 @@ class ReviewsScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
               child: Column(
                 children: [
-                  _buildRatingSummary(),
+                  _buildRatingSummary(context),
                   const SizedBox(height: 20),
                   ..._mockReviews.map((r) => _ReviewCard(review: r)),
                 ],
@@ -80,7 +80,7 @@ class ReviewsScreen extends StatelessWidget {
 
   Widget _buildHeader(BuildContext context) {
     return Container(
-      color: const Color(0xFFECDEFA),
+      color: context.c.primaryLight,
       child: SafeArea(
         bottom: false,
         child: Padding(
@@ -103,7 +103,7 @@ class ReviewsScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: Color(0xFF1A1A2E)),
+                  child: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: context.c.textPrimary),
                 ),
               ),
               const SizedBox(width: 12),
@@ -115,14 +115,14 @@ class ReviewsScreen extends StatelessWidget {
                     style: GoogleFonts.urbanist(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                   Text(
                     'View all your reviews from past events',
                     style: GoogleFonts.urbanist(
                       fontSize: 13,
-                      color: const Color(0xFF9CA3AF),
+                      color: context.c.textHint,
                     ),
                   ),
                 ],
@@ -134,11 +134,11 @@ class ReviewsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildRatingSummary() {
+  Widget _buildRatingSummary(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.primaryLight,
+        color: context.c.primaryLight,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -148,7 +148,7 @@ class ReviewsScreen extends StatelessWidget {
             style: GoogleFonts.urbanist(
               fontSize: 48,
               fontWeight: FontWeight.bold,
-              color: const Color(0xFF1A1A2E),
+              color: context.c.textPrimary,
             ),
           ),
           const SizedBox(width: 16),
@@ -169,7 +169,7 @@ class ReviewsScreen extends StatelessWidget {
                 '128 verified reviews',
                 style: GoogleFonts.urbanist(
                   fontSize: 13,
-                  color: const Color(0xFF9CA3AF),
+                  color: context.c.textHint,
                 ),
               ),
             ],
@@ -190,9 +190,9 @@ class _ReviewCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.c.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFE5E7EB)),
+        border: Border.all(color: context.c.border),
       ),
       child: Column(
         children: [
@@ -210,7 +210,7 @@ class _ReviewCard extends StatelessWidget {
                         style: GoogleFonts.urbanist(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF1A1A2E),
+                          color: context.c.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -218,7 +218,7 @@ class _ReviewCard extends StatelessWidget {
                         review['date'] as String,
                         style: GoogleFonts.urbanist(
                           fontSize: 12,
-                          color: const Color(0xFF9CA3AF),
+                          color: context.c.textHint,
                         ),
                       ),
                     ],
@@ -236,7 +236,7 @@ class _ReviewCard extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+          Divider(height: 1, thickness: 1, color: context.c.divider),
           Padding(
             padding: const EdgeInsets.all(14),
             child: Row(
@@ -251,7 +251,7 @@ class _ReviewCard extends StatelessWidget {
                     errorBuilder: (_, __, ___) => Container(
                       width: 54,
                       height: 54,
-                      color: AppColors.primaryLight,
+                      color: context.c.primaryLight,
                     ),
                   ),
                 ),
@@ -265,7 +265,7 @@ class _ReviewCard extends StatelessWidget {
                         style: GoogleFonts.urbanist(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: const Color(0xFF1A1A2E),
+                          color: context.c.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -273,7 +273,7 @@ class _ReviewCard extends StatelessWidget {
                         '${review['vendor']} · ${review['price']}',
                         style: GoogleFonts.urbanist(
                           fontSize: 12,
-                          color: const Color(0xFF9CA3AF),
+                          color: context.c.textHint,
                         ),
                       ),
                     ],

@@ -16,7 +16,7 @@ Widget _buildLavenderHeader(
   bool centerTitle = false,
 }) {
   return Container(
-    color: const Color(0xFFECDEFA),
+    color: context.c.primaryLight,
     child: SafeArea(
       bottom: false,
       child: Padding(
@@ -28,7 +28,7 @@ Widget _buildLavenderHeader(
                     children: [
                       GestureDetector(
                         onTap: () => context.pop(),
-                        child: _backButton(),
+                        child: _backButton(context),
                       ),
                     ],
                   ),
@@ -38,7 +38,7 @@ Widget _buildLavenderHeader(
                     style: GoogleFonts.urbanist(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -47,7 +47,7 @@ Widget _buildLavenderHeader(
                     subtitle,
                     style: GoogleFonts.urbanist(
                       fontSize: 13,
-                      color: const Color(0xFF9CA3AF),
+                      color: context.c.textHint,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -58,7 +58,7 @@ Widget _buildLavenderHeader(
                 children: [
                   GestureDetector(
                     onTap: () => context.pop(),
-                    child: _backButton(),
+                    child: _backButton(context),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -70,14 +70,14 @@ Widget _buildLavenderHeader(
                           style: GoogleFonts.urbanist(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: const Color(0xFF1A1A2E),
+                            color: context.c.textPrimary,
                           ),
                         ),
                         Text(
                           subtitle,
                           style: GoogleFonts.urbanist(
                             fontSize: 13,
-                            color: const Color(0xFF9CA3AF),
+                            color: context.c.textHint,
                           ),
                         ),
                       ],
@@ -90,7 +90,7 @@ Widget _buildLavenderHeader(
   );
 }
 
-Widget _backButton() {
+Widget _backButton(BuildContext context) {
   return Container(
     width: 40,
     height: 40,
@@ -105,7 +105,7 @@ Widget _backButton() {
         ),
       ],
     ),
-    child: const Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: Color(0xFF1A1A2E)),
+    child: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: context.c.textPrimary),
   );
 }
 
@@ -119,7 +119,7 @@ class ThemeSettingsScreen extends StatelessWidget {
       builder: (context, current) {
         final cubit = context.read<ThemeCubit>();
         return Scaffold(
-          backgroundColor: const Color(0xFFF8F5FF),
+          backgroundColor: context.c.background,
           body: Column(
             children: [
               _buildLavenderHeader(
@@ -157,7 +157,7 @@ class ThemeSettingsScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.c.surface,
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
@@ -178,7 +178,7 @@ class ThemeSettingsScreen extends StatelessWidget {
                                     style: GoogleFonts.urbanist(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
-                                      color: const Color(0xFF1A1A2E),
+                                      color: context.c.textPrimary,
                                     ),
                                   ),
                                   const SizedBox(height: 2),
@@ -186,7 +186,7 @@ class ThemeSettingsScreen extends StatelessWidget {
                                     'Use your default system preference',
                                     style: GoogleFonts.urbanist(
                                       fontSize: 13,
-                                      color: const Color(0xFF9CA3AF),
+                                      color: context.c.textHint,
                                     ),
                                   ),
                                 ],
@@ -198,7 +198,7 @@ class ThemeSettingsScreen extends StatelessWidget {
                                 if (v) cubit.setSystem();
                               },
                               activeThumbColor: AppColors.primary,
-                              activeTrackColor: AppColors.primaryLight,
+                              activeTrackColor: context.c.primaryLight,
                             ),
                           ],
                         ),
@@ -312,7 +312,7 @@ class _ThemePreviewBox extends StatelessWidget {
                 style: GoogleFonts.urbanist(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF1A1A2E),
+                  color: context.c.textPrimary,
                 ),
               ),
             ],
@@ -346,7 +346,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: Column(
         children: [
           _buildLavenderHeader(
@@ -365,7 +365,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                     style: GoogleFonts.urbanist(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -373,7 +373,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                     'Choose where you want to receive notifications',
                     style: GoogleFonts.urbanist(
                       fontSize: 13,
-                      color: const Color(0xFF9CA3AF),
+                      color: context.c.textHint,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -381,9 +381,9 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   Container(
                     height: 48,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.c.surface,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                      border: Border.all(color: context.c.border),
                     ),
                     child: Row(
                       children: List.generate(_channels.length, (i) {
@@ -394,7 +394,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                             child: Container(
                               margin: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
-                                color: isActive ? AppColors.primaryLight : Colors.transparent,
+                                color: isActive ? context.c.primaryLight : Colors.transparent,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Center(
@@ -403,7 +403,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                                   style: GoogleFonts.urbanist(
                                     fontSize: 12,
                                     fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
-                                    color: isActive ? AppColors.primary : const Color(0xFF9CA3AF),
+                                    color: isActive ? AppColors.primary : context.c.textHint,
                                   ),
                                 ),
                               ),
@@ -417,7 +417,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   // Toggle rows
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.c.surface,
                       borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
@@ -435,35 +435,35 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                           value: _allMessages,
                           onChanged: (v) => setState(() => _allMessages = v),
                         ),
-                        const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+                        Divider(height: 1, thickness: 1, color: context.c.divider),
                         _NotifToggle(
                           title: 'Order/Delivery Timeline',
                           subtitle: 'get notified when there\'s a new delivery status',
                           value: _orderDelivery,
                           onChanged: (v) => setState(() => _orderDelivery = v),
                         ),
-                        const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+                        Divider(height: 1, thickness: 1, color: context.c.divider),
                         _NotifToggle(
                           title: 'Event Timeline',
                           subtitle: 'get notified when there\'s a new event timeline',
                           value: _eventTimeline,
                           onChanged: (v) => setState(() => _eventTimeline = v),
                         ),
-                        const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+                        Divider(height: 1, thickness: 1, color: context.c.divider),
                         _NotifToggle(
                           title: 'Payment alerts',
                           subtitle: 'get notified when a payment is successful',
                           value: _paymentAlerts,
                           onChanged: (v) => setState(() => _paymentAlerts = v),
                         ),
-                        const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+                        Divider(height: 1, thickness: 1, color: context.c.divider),
                         _NotifToggle(
                           title: 'Quote / Invoice alerts',
                           subtitle: 'get notified when you get a quote',
                           value: _quoteInvoice,
                           onChanged: (v) => setState(() => _quoteInvoice = v),
                         ),
-                        const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+                        Divider(height: 1, thickness: 1, color: context.c.divider),
                         _NotifToggle(
                           title: 'Vendor Match',
                           subtitle: 'get alerts for recommended vendors',
@@ -511,7 +511,7 @@ class _NotifToggle extends StatelessWidget {
                   style: GoogleFonts.urbanist(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
-                    color: const Color(0xFF1A1A2E),
+                    color: context.c.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -519,7 +519,7 @@ class _NotifToggle extends StatelessWidget {
                   subtitle,
                   style: GoogleFonts.urbanist(
                     fontSize: 12,
-                    color: const Color(0xFF9CA3AF),
+                    color: context.c.textHint,
                   ),
                 ),
               ],
@@ -529,7 +529,7 @@ class _NotifToggle extends StatelessWidget {
             value: value,
             onChanged: onChanged,
             activeThumbColor: AppColors.primary,
-            activeTrackColor: AppColors.primaryLight,
+            activeTrackColor: context.c.primaryLight,
           ),
         ],
       ),
@@ -544,7 +544,7 @@ class PrivacyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: Column(
         children: [
           _buildLavenderHeader(
@@ -557,7 +557,7 @@ class PrivacyScreen extends StatelessWidget {
               padding: const EdgeInsets.all(20),
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: context.c.surface,
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
@@ -575,7 +575,7 @@ class PrivacyScreen extends StatelessWidget {
                       subtitle: 'Update your login credentials',
                       onTap: () => context.push(AppRoutes.changePassword),
                     ),
-                    const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+                    Divider(height: 1, thickness: 1, color: context.c.divider),
                     _PrivacyRow(
                       title: '2 factor authentication',
                       subtitle: 'add extra layer of security',
@@ -621,7 +621,7 @@ class _PrivacyRow extends StatelessWidget {
                     style: GoogleFonts.urbanist(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
-                      color: const Color(0xFF1A1A2E),
+                      color: context.c.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -629,13 +629,13 @@ class _PrivacyRow extends StatelessWidget {
                     subtitle,
                     style: GoogleFonts.urbanist(
                       fontSize: 13,
-                      color: const Color(0xFF9CA3AF),
+                      color: context.c.textHint,
                     ),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right_rounded, color: Color(0xFF9CA3AF), size: 22),
+            Icon(Icons.chevron_right_rounded, color: context.c.textHint, size: 22),
           ],
         ),
       ),
@@ -677,7 +677,7 @@ class HelpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: Column(
         children: [
           _buildLavenderHeader(
@@ -695,7 +695,7 @@ class HelpScreen extends StatelessWidget {
                   Container(
                     height: 50,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.c.surface,
                       borderRadius: BorderRadius.circular(50),
                       boxShadow: [
                         BoxShadow(
@@ -715,7 +715,7 @@ class HelpScreen extends StatelessWidget {
                               hintText: 'Search for help',
                               hintStyle: GoogleFonts.urbanist(
                                 fontSize: 14,
-                                color: const Color(0xFF9CA3AF),
+                                color: context.c.textHint,
                               ),
                               border: InputBorder.none,
                               isDense: true,
@@ -740,7 +740,7 @@ class HelpScreen extends StatelessWidget {
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: context.c.surface,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
@@ -764,7 +764,7 @@ class HelpScreen extends StatelessWidget {
                                 width: 48,
                                 height: 48,
                                 decoration: BoxDecoration(
-                                  color: AppColors.primaryLight,
+                                  color: context.c.primaryLight,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Icon(
@@ -783,7 +783,7 @@ class HelpScreen extends StatelessWidget {
                                       style: GoogleFonts.urbanist(
                                         fontSize: 15,
                                         fontWeight: FontWeight.bold,
-                                        color: const Color(0xFF1A1A2E),
+                                        color: context.c.textPrimary,
                                       ),
                                     ),
                                     const SizedBox(height: 2),
@@ -791,7 +791,7 @@ class HelpScreen extends StatelessWidget {
                                       item['subtitle'] as String,
                                       style: GoogleFonts.urbanist(
                                         fontSize: 13,
-                                        color: const Color(0xFF9CA3AF),
+                                        color: context.c.textHint,
                                       ),
                                     ),
                                   ],
@@ -848,7 +848,7 @@ class _FaqScreenState extends State<FaqScreen> {
   Widget build(BuildContext context) {
     final faqs = MockData.faqs;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: Column(
         children: [
           _buildLavenderHeader(
@@ -865,7 +865,7 @@ class _FaqScreenState extends State<FaqScreen> {
                   Container(
                     height: 50,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.c.surface,
                       borderRadius: BorderRadius.circular(50),
                       boxShadow: [
                         BoxShadow(
@@ -886,7 +886,7 @@ class _FaqScreenState extends State<FaqScreen> {
                               hintText: 'Search FAQs',
                               hintStyle: GoogleFonts.urbanist(
                                 fontSize: 14,
-                                color: const Color(0xFF9CA3AF),
+                                color: context.c.textHint,
                               ),
                               border: InputBorder.none,
                               isDense: true,
@@ -916,7 +916,7 @@ class _FaqScreenState extends State<FaqScreen> {
                       child: Container(
                         margin: const EdgeInsets.only(bottom: 8),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: context.c.surface,
                           borderRadius: BorderRadius.circular(16),
                           boxShadow: [
                             BoxShadow(
@@ -939,7 +939,7 @@ class _FaqScreenState extends State<FaqScreen> {
                                       style: GoogleFonts.urbanist(
                                         fontSize: 15,
                                         fontWeight: FontWeight.bold,
-                                        color: const Color(0xFF1A1A2E),
+                                        color: context.c.textPrimary,
                                       ),
                                     ),
                                   ),
@@ -947,7 +947,7 @@ class _FaqScreenState extends State<FaqScreen> {
                                     isExpanded
                                         ? Icons.keyboard_arrow_up_rounded
                                         : Icons.keyboard_arrow_down_rounded,
-                                    color: const Color(0xFF9CA3AF),
+                                    color: context.c.textHint,
                                   ),
                                 ],
                               ),
@@ -957,7 +957,7 @@ class _FaqScreenState extends State<FaqScreen> {
                                   faqs[i]['answer']!,
                                   style: GoogleFonts.urbanist(
                                     fontSize: 13,
-                                    color: const Color(0xFF6B7280),
+                                    color: context.c.textSecondary,
                                     height: 1.5,
                                   ),
                                 ),
@@ -1009,7 +1009,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       body: Column(
         children: [
           _buildLavenderHeader(
@@ -1028,9 +1028,9 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                   Container(
                     margin: const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.c.surface,
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                      border: Border.all(color: context.c.border),
                     ),
                     child: Column(
                       children: List.generate(_reasons.length, (i) {
@@ -1040,7 +1040,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                         return Column(
                           children: [
                             if (i > 0)
-                              const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+                              Divider(height: 1, thickness: 1, color: context.c.divider),
                             GestureDetector(
                               onTap: () => setState(() => _selectedReason = reason),
                               behavior: HitTestBehavior.opaque,
@@ -1076,7 +1076,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                                             style: GoogleFonts.urbanist(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
-                                              color: const Color(0xFF1A1A2E),
+                                              color: context.c.textPrimary,
                                             ),
                                           ),
                                         ),
@@ -1086,7 +1086,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                                       const SizedBox(height: 12),
                                       Container(
                                         decoration: BoxDecoration(
-                                          color: const Color(0xFFF3F4F6),
+                                          color: context.c.divider,
                                           borderRadius: BorderRadius.circular(10),
                                         ),
                                         child: TextField(
@@ -1097,7 +1097,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                                             hintText: 'Tell us more...',
                                             hintStyle: GoogleFonts.urbanist(
                                               fontSize: 14,
-                                              color: const Color(0xFF9CA3AF),
+                                              color: context.c.textHint,
                                             ),
                                             border: InputBorder.none,
                                             contentPadding: const EdgeInsets.all(12),
@@ -1166,10 +1166,10 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF3F4F6),
+                      color: context.c.divider,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.close_rounded, size: 18, color: Color(0xFF6B7280)),
+                    child: Icon(Icons.close_rounded, size: 18, color: context.c.textSecondary),
                   ),
                 ),
               ),
@@ -1182,7 +1182,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               const SizedBox(height: 8),
               Text(
                 'by deleting your account you will lose the following',
-                style: GoogleFonts.urbanist(fontSize: 14, color: const Color(0xFF6B7280)),
+                style: GoogleFonts.urbanist(fontSize: 14, color: context.c.textSecondary),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
@@ -1206,7 +1206,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                       line,
                       style: GoogleFonts.urbanist(
                         fontSize: 13,
-                        color: const Color(0xFF1A1A2E),
+                        color: context.c.textPrimary,
                       ),
                     ),
                   )).toList(),

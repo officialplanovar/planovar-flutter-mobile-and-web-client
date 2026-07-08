@@ -1,6 +1,22 @@
 import 'package:equatable/equatable.dart';
 import 'vendor_model.dart';
 
+/// A member of a conversation (used for group chats — assignees, member count).
+class ChatParticipant extends Equatable {
+  final String userId;
+  final String name;
+  final String? avatarUrl;
+
+  const ChatParticipant({
+    required this.userId,
+    required this.name,
+    this.avatarUrl,
+  });
+
+  @override
+  List<Object?> get props => [userId];
+}
+
 class ConversationModel extends Equatable {
   final String id;
   final String vendorId;
@@ -16,6 +32,7 @@ class ConversationModel extends Equatable {
   final bool isGroup;
   final String? groupName;
   final List<VendorModel> groupVendors;
+  final List<ChatParticipant> participants;
   final String? eventId;
 
   const ConversationModel({
@@ -30,6 +47,7 @@ class ConversationModel extends Equatable {
     this.isGroup = false,
     this.groupName,
     this.groupVendors = const [],
+    this.participants = const [],
     this.eventId,
   });
 
@@ -66,6 +84,28 @@ class ConversationModel extends Equatable {
         'eventId': eventId,
         'groupVendors': groupVendors.map((v) => v.toJson()).toList(),
       };
+
+  ConversationModel copyWith({
+    int? unreadCount,
+    String? lastMessage,
+    DateTime? lastMessageAt,
+  }) {
+    return ConversationModel(
+      id: id,
+      vendorId: vendorId,
+      vendor: vendor,
+      lastMessage: lastMessage ?? this.lastMessage,
+      lastMessageAt: lastMessageAt ?? this.lastMessageAt,
+      unreadCount: unreadCount ?? this.unreadCount,
+      pendingQuoteAmount: pendingQuoteAmount,
+      status: status,
+      isGroup: isGroup,
+      groupName: groupName,
+      groupVendors: groupVendors,
+      participants: participants,
+      eventId: eventId,
+    );
+  }
 
   @override
   List<Object?> get props => [id, vendorId, lastMessage, unreadCount, status, isGroup, groupName, eventId];

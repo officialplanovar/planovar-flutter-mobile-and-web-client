@@ -44,7 +44,7 @@ class ConfirmQuoteScreen extends StatelessWidget {
     });
   }
 
-  Widget _chip(IconData icon, String label) {
+  Widget _chip(BuildContext context, IconData icon, String label) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -54,22 +54,22 @@ class ConfirmQuoteScreen extends StatelessWidget {
           label,
           style: GoogleFonts.urbanist(
             fontSize: 12,
-            color: const Color(0xFF6B7280),
+            color: context.c.textSecondary,
           ),
         ),
       ],
     );
   }
 
-  Widget _detailRow(IconData icon, String label, String value) {
+  Widget _detailRow(BuildContext context, IconData icon, String label, String value) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           width: 36,
           height: 36,
-          decoration: const BoxDecoration(
-            color: AppColors.primaryLight,
+          decoration: BoxDecoration(
+            color: context.c.primaryLight,
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: AppColors.primary, size: 18),
@@ -83,7 +83,7 @@ class ConfirmQuoteScreen extends StatelessWidget {
                 label,
                 style: GoogleFonts.urbanist(
                   fontSize: 12,
-                  color: const Color(0xFF9CA3AF),
+                  color: context.c.textHint,
                 ),
               ),
               const SizedBox(height: 2),
@@ -92,7 +92,7 @@ class ConfirmQuoteScreen extends StatelessWidget {
                 style: GoogleFonts.urbanist(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: const Color(0xFF1A1A2E),
+                  color: context.c.textPrimary,
                 ),
               ),
             ],
@@ -117,9 +117,9 @@ class ConfirmQuoteScreen extends StatelessWidget {
         '${event.date.day} ${_months[event.date.month - 1]}, ${event.date.year}';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5FF),
+      backgroundColor: context.c.background,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8F5FF),
+        backgroundColor: context.c.background,
         elevation: 0,
         leading: GestureDetector(
           onTap: () => context.pop(),
@@ -129,9 +129,9 @@ class ConfirmQuoteScreen extends StatelessWidget {
               color: Colors.white,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.arrow_back_ios_new_rounded,
-              color: Color(0xFF1A1A2E),
+              color: context.c.textPrimary,
               size: 18,
             ),
           ),
@@ -141,7 +141,7 @@ class ConfirmQuoteScreen extends StatelessWidget {
           style: GoogleFonts.urbanist(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: const Color(0xFF1A1A2E),
+            color: context.c.textPrimary,
           ),
         ),
         centerTitle: true,
@@ -157,14 +157,14 @@ class ConfirmQuoteScreen extends StatelessWidget {
                   'Event Details',
                   style: GoogleFonts.urbanist(
                     fontSize: 13,
-                    color: const Color(0xFF9CA3AF),
+                    color: context.c.textHint,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.c.surface,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -183,7 +183,7 @@ class ConfirmQuoteScreen extends StatelessWidget {
                         style: GoogleFonts.urbanist(
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
-                          color: const Color(0xFF1A1A2E),
+                          color: context.c.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -191,10 +191,10 @@ class ConfirmQuoteScreen extends StatelessWidget {
                         spacing: 12,
                         runSpacing: 8,
                         children: [
-                          _chip(Icons.calendar_today_rounded, '14 Mar 2026'),
-                          _chip(Icons.access_time_outlined, '3 hours'),
-                          _chip(Icons.location_on_outlined, event.location ?? 'TBD'),
-                          _chip(Icons.group_outlined, '${event.guestCount ?? 0} guests'),
+                          _chip(context, Icons.calendar_today_rounded, '14 Mar 2026'),
+                          _chip(context, Icons.access_time_outlined, '3 hours'),
+                          _chip(context, Icons.location_on_outlined, event.location ?? 'TBD'),
+                          _chip(context, Icons.group_outlined, '${event.guestCount ?? 0} guests'),
                         ],
                       ),
                     ],
@@ -205,14 +205,14 @@ class ConfirmQuoteScreen extends StatelessWidget {
                   'Service Details',
                   style: GoogleFonts.urbanist(
                     fontSize: 13,
-                    color: const Color(0xFF9CA3AF),
+                    color: context.c.textHint,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: context.c.surface,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
@@ -226,24 +226,28 @@ class ConfirmQuoteScreen extends StatelessWidget {
                   child: Column(
                     children: [
                       _detailRow(
+                        context,
                         Icons.work_outline_rounded,
                         'Service',
                         listing.title,
                       ),
                       const Divider(height: 24),
                       _detailRow(
+                        context,
                         Icons.calendar_today_outlined,
                         'Date and Time',
                         dateLabel,
                       ),
                       const Divider(height: 24),
                       _detailRow(
+                        context,
                         Icons.access_time_outlined,
                         'Duration',
                         '${event.durationHours ?? 2} Hours',
                       ),
                       const Divider(height: 24),
                       _detailRow(
+                        context,
                         Icons.more_horiz_rounded,
                         'Additional Information',
                         notes?.isNotEmpty == true
@@ -262,7 +266,7 @@ class ConfirmQuoteScreen extends StatelessWidget {
             right: 0,
             bottom: 0,
             child: Container(
-              color: Colors.white,
+              color: context.c.surface,
               child: SafeArea(
                 top: false,
                 child: Padding(

@@ -106,7 +106,7 @@ class AppButton extends StatelessWidget {
         break;
       case ButtonVariant.ghost:
         bgColor = Colors.transparent;
-        fgColor = disabled ? AppColors.textSecondary : AppColors.primary;
+        fgColor = disabled ? context.c.textSecondary : AppColors.primary;
         border = null;
         break;
     }
@@ -192,16 +192,16 @@ class AppIconButton extends StatelessWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: backgroundColor ?? AppColors.divider,
+          color: backgroundColor ?? context.c.divider,
           shape: BoxShape.circle,
           border: bordered
-              ? Border.all(color: AppColors.border, width: 1)
+              ? Border.all(color: context.c.border, width: 1)
               : null,
         ),
         child: Center(
           child: IconTheme(
             data: IconThemeData(
-              color: iconColor ?? AppColors.textPrimary,
+              color: iconColor ?? context.c.textPrimary,
               size: size * 0.45,
             ),
             child: icon,

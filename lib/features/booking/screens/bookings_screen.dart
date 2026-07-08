@@ -61,7 +61,7 @@ class _BookingsScreenState extends State<BookingsScreen> with SingleTickerProvid
           controller: _tabController,
           tabs: const [Tab(text: 'Active'), Tab(text: 'Past')],
           labelColor: AppColors.primary,
-          unselectedLabelColor: AppColors.textSecondary,
+          unselectedLabelColor: context.c.textSecondary,
           indicatorColor: AppColors.primary,
         ),
       ),
@@ -107,9 +107,9 @@ class _BookingList extends StatelessWidget {
             margin: const EdgeInsets.only(bottom: 12),
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: context.c.surface,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: context.c.border),
             ),
             child: Row(
               children: [
@@ -126,23 +126,23 @@ class _BookingList extends StatelessWidget {
                     children: [
                       Text(
                         booking.vendor?.businessName ?? 'Vendor',
-                        style: AppTextStyles.label,
+                        style: AppTextStyles.label(context),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 2),
                       Text(
                         booking.listing?.title ?? '',
-                        style: AppTextStyles.caption,
+                        style: AppTextStyles.caption(context),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          const Icon(Icons.calendar_today_outlined, size: 12, color: AppColors.textSecondary),
+                          Icon(Icons.calendar_today_outlined, size: 12, color: context.c.textSecondary),
                           const SizedBox(width: 4),
-                          Text(Formatters.date(booking.eventDate), style: AppTextStyles.caption),
+                          Text(Formatters.date(booking.eventDate), style: AppTextStyles.caption(context)),
                         ],
                       ),
                     ],
@@ -153,7 +153,7 @@ class _BookingList extends StatelessWidget {
                   children: [
                     StatusChip(status: booking.status),
                     const SizedBox(height: 4),
-                    const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+                    Icon(Icons.chevron_right_rounded, color: context.c.textSecondary),
                   ],
                 ),
               ],
