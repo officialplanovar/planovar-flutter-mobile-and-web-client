@@ -56,10 +56,17 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
   }
 
   void _verify() {
-    if (_otp.length == 6) {
+    if (_otp.length != 6) return;
+    if (_isRegister) {
       context.read<AuthBloc>().add(
             AuthOtpVerifyRequested(email: widget.email, otp: _otp),
           );
+    } else {
+      // Password reset: the OTP is a `forget-password` code, not an
+      // email-verification one — it's validated by the reset-password call
+      // itself. Carry it forward rather than consuming it via verify-email.
+      context.push(AppRoutes.resetPassword,
+          extra: {'email': widget.email, 'otp': _otp});
     }
   }
 
@@ -68,12 +75,8 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthOtpVerified) {
-          if (_isRegister) {
-            context.go(AppRoutes.phone);
-          } else {
-            context.push(AppRoutes.resetPassword,
-                extra: {'email': widget.email});
-          }
+          // Only the register flow verifies here; reset navigates in _verify().
+          if (_isRegister) context.go(AppRoutes.phone);
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

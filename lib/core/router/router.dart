@@ -122,7 +122,10 @@ GoRouter createRouter() {
         path: AppRoutes.resetPassword,
         builder: (_, state) {
           final extra = state.extra as Map<String, dynamic>? ?? {};
-          return ResetPasswordScreen(email: extra['email'] as String? ?? '');
+          return ResetPasswordScreen(
+            email: extra['email'] as String? ?? '',
+            otp: extra['otp'] as String? ?? '',
+          );
         },
       ),
 
