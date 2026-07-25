@@ -33,7 +33,7 @@ class AuthRemoteDataSource {
     final res = await _dio.post('/api/auth/sign-in/email',
         data: {'email': email, 'password': password});
     ensureOk(res);
-    await _captureToken(res);
+    await _captureTokenOrThrow(res);
     return _asMap(res.data);
   }
 
@@ -56,7 +56,7 @@ class AuthRemoteDataSource {
     final res = await _dio
         .post('/api/auth/email-otp/verify-email', data: {'email': email, 'otp': otp});
     ensureOk(res);
-    await _captureToken(res);
+    await _captureTokenOrThrow(res);
     return _asMap(res.data);
   }
 
@@ -132,11 +132,31 @@ class AuthRemoteDataSource {
 
   // ── helpers ──────────────────────────────────────────────────────────────
 
-  Future<void> _captureToken(Response res) async {
+  /// Saves the bearer token from the `set-auth-token` header if present.
+  /// Returns true when a token was captured. Best-effort (never throws) — used
+  /// on sign-up, where the session is established later at OTP verification.
+  Future<bool> _captureToken(Response res) async {
     final token = res.headers.value('set-auth-token');
     if (token != null && token.isNotEmpty) {
       await _api.tokenStore.save(token);
+      return true;
     }
+    return false;
+  }
+
+  /// Like [_captureToken] but REQUIRES a token — the app authenticates purely by
+  /// bearer token, so a sign-in/verify that yields no token leaves every
+  /// subsequent request unauthenticated ("Unauthorised" everywhere). This most
+  /// often means the `set-auth-token` response header wasn't readable (a web
+  /// CORS `Access-Control-Expose-Headers` / trusted-origin misconfiguration).
+  /// Failing loudly here beats a silent "logged-in but tokenless" session.
+  Future<void> _captureTokenOrThrow(Response res) async {
+    if (await _captureToken(res)) return;
+    await _api.tokenStore.clear();
+    throw Exception(
+      "Signed in, but we couldn't establish a secure session. "
+      'Please try again, and if it persists contact support.',
+    );
   }
 
   Map<String, dynamic> _asMap(dynamic data) =>
