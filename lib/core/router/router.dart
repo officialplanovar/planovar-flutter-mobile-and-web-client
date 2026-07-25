@@ -59,6 +59,7 @@ import '../../features/events/screens/create_event_step2_screen.dart';
 import '../../features/events/screens/create_event_step3_screen.dart';
 import '../../features/events/screens/create_event_step4_screen.dart';
 import 'app_routes.dart';
+import '../../core/responsive/responsive.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 
@@ -540,8 +541,60 @@ class _AppShell extends StatelessWidget {
     );
   }
 
+  /// Side navigation rail for wide/desktop layouts, replacing the bottom bar.
+  Widget _buildSideRail(BuildContext context) {
+    return NavigationRail(
+      selectedIndex: shell.currentIndex,
+      onDestinationSelected: (i) =>
+          shell.goBranch(i, initialLocation: i == shell.currentIndex),
+      labelType: NavigationRailLabelType.all,
+      backgroundColor: context.c.surface,
+      groupAlignment: -0.85,
+      indicatorColor:
+          AppColors.primary.withValues(alpha: context.isDark ? 0.22 : 0.12),
+      selectedIconTheme: const IconThemeData(color: AppColors.primary),
+      unselectedIconTheme: IconThemeData(color: context.c.textSecondary),
+      selectedLabelTextStyle: AppTextStyles.caption(context)
+          .copyWith(color: AppColors.primary, fontWeight: FontWeight.w600),
+      unselectedLabelTextStyle: AppTextStyles.caption(context)
+          .copyWith(color: context.c.textSecondary),
+      leading: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Image.asset(
+          'assets/images/splash_logo.png',
+          width: 34,
+          height: 34,
+          errorBuilder: (_, __, ___) =>
+              const Icon(Icons.celebration_rounded, color: AppColors.primary),
+        ),
+      ),
+      destinations: _tabs
+          .map((t) => NavigationRailDestination(
+                icon: Icon(t.icon),
+                selectedIcon: Icon(t.activeIcon),
+                label: Text(t.label),
+              ))
+          .toList(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Wide/desktop: a side rail + the content area, so navigation and content
+    // use the horizontal space instead of a phone-style bottom bar.
+    if (context.useSideNav) {
+      return Scaffold(
+        body: SafeArea(
+          child: Row(
+            children: [
+              _buildSideRail(context),
+              VerticalDivider(width: 1, thickness: 1, color: context.c.border),
+              Expanded(child: shell),
+            ],
+          ),
+        ),
+      );
+    }
     return Scaffold(
       body: Stack(
         alignment: Alignment.bottomCenter,

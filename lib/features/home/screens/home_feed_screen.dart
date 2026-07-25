@@ -15,6 +15,7 @@ import '../../../shared/models/category_model.dart';
 import '../../../shared/models/vendor_model.dart';
 import '../../../shared/models/listing_model.dart';
 import '../../../shared/widgets/add_to_event_sheet.dart';
+import '../../../core/responsive/responsive.dart';
 
 String _fmtPrice(num n) {
   final s = n.toInt().toString();
@@ -110,7 +111,10 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
       body: RefreshIndicator(
         onRefresh: _loadFeed,
         color: AppColors.primary,
-        child: CustomScrollView(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: Breakpoints.maxContent),
+            child: CustomScrollView(
           slivers: [
             // ── Header ────────────────────────────────────────────────────
             SliverToBoxAdapter(
@@ -397,6 +401,8 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
               ),
             ),
           ],
+            ),
+          ),
         ),
       ),
     );
