@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/mock/mock_data.dart';
+import '../../../core/responsive/responsive.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/services/event_service.dart';
 import '../../../core/state/overlay_state.dart';
@@ -400,7 +401,12 @@ class _EventsTab extends StatelessWidget {
               ],
             )
           : ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
+              padding: EdgeInsets.fromLTRB(
+                16 + ((context.screenWidth - 760) / 2).clamp(0.0, 400.0),
+                16,
+                16 + ((context.screenWidth - 760) / 2).clamp(0.0, 400.0),
+                120,
+              ),
               itemCount: filtered.length,
               itemBuilder: (ctx, i) => subTabIndex == 0
                   ? _EventCard(event: filtered[i], fmtDate: fmtDate)
