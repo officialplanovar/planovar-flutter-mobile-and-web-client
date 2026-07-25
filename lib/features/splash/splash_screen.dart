@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../core/router/app_routes.dart';
 import '../../core/theme/app_colors.dart';
+import '../../shared/models/user_model.dart';
 import '../auth/data/auth_repository.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -29,33 +30,67 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _navigate() async {
-    // Validate the persisted session (token) instead of trusting a flag that
-    // earlier was only set on the login screen, never on register→verify.
+    // Load the real user (role + onboarding state) rather than a bare flag, so
+    // we can enforce role separation and resume onboarding at the right step.
     final results = await Future.wait<dynamic>([
-      _isAuthenticated(),
+      _loadUser(),
       Future.delayed(const Duration(milliseconds: 2000)),
     ]);
     if (!mounted) return;
-    final loggedIn = results[0] as bool;
+    final user = results[0] as UserModel?;
     final prefs = await SharedPreferences.getInstance();
     final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
-    await prefs.setBool('isLoggedIn', loggedIn);
-    if (loggedIn) {
-      context.go(AppRoutes.homeFeed);
-    } else if (seenOnboarding) {
+    await prefs.setBool('isLoggedIn', user != null);
+
+    if (user == null) {
+      context.go(seenOnboarding ? AppRoutes.login : AppRoutes.onboarding);
+      return;
+    }
+    // This is the client app — a vendor account belongs in the Vendor app.
+    if (user.role == 'VENDOR') {
+      await AuthRepository().signOut();
+      await prefs.setBool('isLoggedIn', false);
+      if (!mounted) return;
+      await _showWrongAppDialog(
+        'This account is registered as a vendor. Please use the Planovar '
+        'Vendor app to sign in.',
+      );
+      if (!mounted) return;
       context.go(AppRoutes.login);
+      return;
+    }
+    // Client: keep them in onboarding until it's complete (e.g. a fresh Google
+    // sign-in has no phone/location/preferences yet).
+    if (user.clientProfile?.onboardingComplete == true) {
+      context.go(AppRoutes.homeFeed);
     } else {
-      context.go(AppRoutes.onboarding);
+      context.go(AppRoutes.phone);
     }
   }
 
-  Future<bool> _isAuthenticated() async {
+  Future<UserModel?> _loadUser() async {
     try {
-      await AuthRepository().getMe();
-      return true;
+      return await AuthRepository().getMe();
     } catch (_) {
-      return false;
+      return null;
     }
+  }
+
+  Future<void> _showWrongAppDialog(String message) async {
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Wrong app'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override

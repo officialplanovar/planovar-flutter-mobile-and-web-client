@@ -51,7 +51,7 @@ class AuthRemoteDataSource {
     // token: the web app origin, or the app's deep link on native.
     final appTarget = kIsWeb ? Uri.base.origin : 'planovar://auth';
     final startUrl =
-        '${AppConstants.apiBaseUrl}/oauth/start?redirect=${Uri.encodeComponent(appTarget)}';
+        '${AppConstants.apiBaseUrl}/oauth/start?intent=client&redirect=${Uri.encodeComponent(appTarget)}';
     await launchUrl(
       Uri.parse(startUrl),
       mode: LaunchMode.platformDefault,
