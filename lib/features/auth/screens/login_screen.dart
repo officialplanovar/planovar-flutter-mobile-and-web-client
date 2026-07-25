@@ -88,7 +88,10 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             SafeArea(
-              child: SingleChildScrollView(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 480),
+                  child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Form(
                   key: _formKey,
@@ -142,7 +145,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 6),
                       Center(
                         child: Text(
-                          'Sign to continue your Journey on Planovar',
+                          'Sign in to continue your Journey on Planovar',
                           textAlign: TextAlign.center,
                           style: GoogleFonts.urbanist(
                             fontSize: 14,
@@ -299,6 +302,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                 ),
+              ),
+              ),
               ),
             ),
           ],
