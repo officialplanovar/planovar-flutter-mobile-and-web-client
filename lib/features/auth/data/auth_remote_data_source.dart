@@ -1,6 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/api/api_utils.dart';
+import '../../../core/constants/app_constants.dart';
 
 /// Thin wrapper over the Better Auth endpoints (/api/auth/*) plus the
 /// profile/preference endpoints the client onboarding uses.
@@ -37,8 +40,32 @@ class AuthRemoteDataSource {
     return _asMap(res.data);
   }
 
+  /// Starts the Google OAuth flow. Asks Better Auth for the provider consent
+  /// URL, then hands off to the browser. On web this is a same-tab redirect;
+  /// Better Auth returns to [callbackURL] after the Google round-trip.
+  Future<void> signInWithGoogle() async {
+    final callbackURL = kIsWeb ? Uri.base.origin : AppConstants.apiBaseUrl;
+    final res = await _dio.post('/api/auth/sign-in/social', data: {
+      'provider': 'google',
+      'callbackURL': callbackURL,
+    });
+    ensureOk(res);
+    final url = _asMap(res.data)['url'] as String?;
+    if (url == null || url.isEmpty) {
+      throw Exception('Could not start Google sign-in. Please try again.');
+    }
+    await launchUrl(
+      Uri.parse(url),
+      mode: LaunchMode.platformDefault,
+      webOnlyWindowName: '_self',
+    );
+  }
+
   Future<Map<String, dynamic>?> getSession() async {
     final res = await _dio.get('/api/auth/get-session');
+    // Bearer plugin returns a fresh token on any authenticated response —
+    // capture it so an OAuth/cookie session upgrades to a stored bearer token.
+    await _captureToken(res);
     if (res.statusCode == 200 && res.data is Map) return _asMap(res.data);
     return null;
   }

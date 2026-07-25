@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../data/auth_repository.dart';
 import '../../../shared/widgets/auth_illustration.dart';
 import '../../../shared/widgets/auth_step_bar.dart';
 import '../../../shared/widgets/glossy_button.dart';
@@ -44,6 +46,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
             email: _emailCtrl.text.trim(),
             password: '',
           ));
+    }
+  }
+
+  Future<void> _googleSignIn() async {
+    try {
+      await AuthRepository().signInWithGoogle();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: AppColors.error,
+        ),
+      );
     }
   }
 
@@ -230,16 +246,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         const SizedBox(height: 16),
                         OutlinedButton(
-                          onPressed: () {},
+                          onPressed: _googleSignIn,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              AuthIllustration(
-                                pngPath: 'assets/icons/google_logo.png',
-                                fallbackIcon: Icons.g_mobiledata_rounded,
-                                bgColor: Colors.transparent,
-                                iconColor: const Color(0xFF4285F4),
-                                size: 24,
+                              SvgPicture.asset(
+                                'assets/icons/google_logo.svg',
+                                width: 20,
+                                height: 20,
                               ),
                               const SizedBox(width: 10),
                               Text(

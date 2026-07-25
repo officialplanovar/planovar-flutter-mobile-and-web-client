@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../data/auth_repository.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -35,6 +37,20 @@ class _LoginScreenState extends State<LoginScreen> {
             email: _emailCtrl.text.trim(),
             password: _passwordCtrl.text,
           ));
+    }
+  }
+
+  Future<void> _googleSignIn() async {
+    try {
+      await AuthRepository().signInWithGoogle();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: AppColors.error,
+        ),
+      );
     }
   }
 
@@ -243,19 +259,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       const SizedBox(height: 16),
                       OutlinedButton(
-                        onPressed: () {},
+                        onPressed: _googleSignIn,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Image.asset(
-                              'assets/icons/google_logo.png',
-                              width: 22,
-                              height: 22,
-                              errorBuilder: (_, __, ___) => const Icon(
-                                Icons.g_mobiledata_rounded,
-                                size: 22,
-                                color: Color(0xFF4285F4),
-                              ),
+                            SvgPicture.asset(
+                              'assets/icons/google_logo.svg',
+                              width: 20,
+                              height: 20,
                             ),
                             const SizedBox(width: 10),
                             Text(
