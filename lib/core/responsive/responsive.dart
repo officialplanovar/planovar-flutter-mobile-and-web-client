@@ -32,6 +32,15 @@ int responsiveColumns(double width,
   return n.clamp(1, max);
 }
 
+/// Horizontal page padding that centers form/content columns on wide screens
+/// (adds symmetric insets so content never exceeds [maxWidth]), while keeping
+/// [base] padding on phones. Handy for full-screen auth/onboarding pages.
+EdgeInsets pagePadding(BuildContext context,
+    {double base = 24, double maxWidth = 480}) {
+  final inset = ((context.screenWidth - maxWidth) / 2).clamp(0.0, 1000.0);
+  return EdgeInsets.symmetric(horizontal: base + inset);
+}
+
 /// Centers page content and caps its width on large screens, so nothing
 /// stretches edge-to-edge. Horizontal [padding] is applied inside the cap.
 class MaxWidth extends StatelessWidget {

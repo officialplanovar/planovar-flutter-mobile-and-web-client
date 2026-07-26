@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/responsive/responsive.dart';
 import '../../../core/theme/app_colors.dart';
 import '../data/auth_repository.dart';
 import '../../../shared/widgets/auth_illustration.dart';
@@ -86,7 +87,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               const AuthStepBar(step: 1),
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: pagePadding(context),
                   child: Form(
                     key: _formKey,
                     child: Column(

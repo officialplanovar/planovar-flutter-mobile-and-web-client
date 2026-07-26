@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/responsive/responsive.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/auth_illustration.dart';
 import '../../../shared/widgets/auth_step_bar.dart';
@@ -96,7 +97,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                   : const AuthStepBar(step: 3, total: 4),
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: pagePadding(context),
                   child: Column(
                     children: [
                       const SizedBox(height: 28),
