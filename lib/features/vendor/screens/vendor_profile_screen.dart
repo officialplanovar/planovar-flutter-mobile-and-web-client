@@ -175,7 +175,10 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
 
     return Scaffold(
       backgroundColor: context.c.background,
-      body: NestedScrollView(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 960),
+          child: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) => [
           // ── Cover image sliver ─────────────────────────────────────────────
           SliverAppBar(
@@ -446,6 +449,8 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
                 eventName: widget.eventName),
             _ReviewsTab(vendor: _vendor),
           ],
+        ),
+      ),
         ),
       ),
     );
