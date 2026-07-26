@@ -101,6 +101,7 @@ class BookingService {
       requirements: b['requirements'] as String?,
       quoteAmount: _toD(b['quoteAmount']),
       finalAmount: _toD(b['finalAmount']),
+      fulfilmentType: (b['fulfilmentType'] as String?)?.toUpperCase(),
     );
   }
 }
