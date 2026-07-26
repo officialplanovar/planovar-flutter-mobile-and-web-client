@@ -193,6 +193,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
+              const SizedBox(height: 14),
+              OutlinedButton.icon(
+                onPressed: () async {
+                  await context.push(AppRoutes.editProfile);
+                  if (context.mounted) {
+                    context.read<AuthBloc>().add(const AuthCheckRequested());
+                  }
+                },
+                icon: const Icon(Icons.edit_rounded, size: 15),
+                label: const Text('Edit Profile'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  side: const BorderSide(color: AppColors.primary),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  textStyle: GoogleFonts.urbanist(
+                      fontSize: 13, fontWeight: FontWeight.w700),
+                ),
+              ),
             ],
           ),
         ),
