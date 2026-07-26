@@ -20,4 +20,9 @@ class UploadService {
   /// Uploads an event cover image and returns its URL.
   Future<String> uploadEventCover(Uint8List bytes, String filename) =>
       _upload('/upload/event/cover', bytes, filename);
+
+  /// Uploads a user avatar and returns its URL (does not set it on the user —
+  /// pass the URL to PATCH /users/me).
+  Future<String> uploadAvatar(Uint8List bytes, String filename) =>
+      _upload('/upload/avatar', bytes, filename);
 }
