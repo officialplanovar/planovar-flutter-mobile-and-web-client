@@ -76,9 +76,10 @@ class AuthRepository {
   }
 
   Future<UserModel> getMe() async {
-    final session = await _remote.getSession();
-    if (session == null) throw Exception('No active session');
-    return UserModel.fromJson(_extractUser(session));
+    // /users/me carries role + clientProfile (onboardingComplete) needed for
+    // the splash gate; get-session (Better Auth) omits those relations.
+    final me = await _remote.getMe();
+    return UserModel.fromJson(_extractUser(me));
   }
 
   Future<UserModel> updateProfile({

@@ -38,7 +38,16 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
           'preferredCountryId': _selectedCountry!.id,
         if (_selectedCity != null) 'preferredCityId': _selectedCity!.id,
       });
-    } catch (_) {}
+    } catch (e) {
+      // Surface the failure — a swallowed error here left users unable to
+      // complete onboarding (location never persisted).
+      debugPrint('[onboarding] location save failed: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not save location: $e')),
+        );
+      }
+    }
     if (mounted) context.go(AppRoutes.createPassword);
   }
 
