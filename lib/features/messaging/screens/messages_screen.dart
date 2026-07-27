@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../core/responsive/responsive.dart';
 import '../../../core/services/messaging_service.dart';
 import '../../../core/services/chat_socket.dart';
 import '../../../core/mock/mock_notification_service.dart';
@@ -306,6 +307,12 @@ class _MessagesScreenState extends State<MessagesScreen> {
                         ),
                       )
                     : ListView.separated(
+                        // Cap the row width on wide/desktop screens so
+                        // conversations don't stretch edge-to-edge.
+                        padding: EdgeInsets.symmetric(
+                          horizontal:
+                              ((context.screenWidth - 760) / 2).clamp(0.0, 400.0),
+                        ),
                         itemCount: _filtered.length,
                         separatorBuilder: (_, __) =>
                             const Divider(height: 1, indent: 16),

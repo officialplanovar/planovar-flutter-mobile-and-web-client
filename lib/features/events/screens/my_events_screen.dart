@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/mock/mock_data.dart';
+import '../../../core/responsive/responsive.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/services/booking_service.dart';
 import '../../../core/services/event_service.dart';
 import '../../../core/state/overlay_state.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/models/booking_model.dart';
 import '../../../shared/models/event_model.dart';
 import '../../../shared/models/listing_model.dart';
 import '../../../shared/widgets/glossy_button.dart';
@@ -400,7 +402,12 @@ class _EventsTab extends StatelessWidget {
               ],
             )
           : ListView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
+              padding: EdgeInsets.fromLTRB(
+                16 + ((context.screenWidth - 760) / 2).clamp(0.0, 400.0),
+                16,
+                16 + ((context.screenWidth - 760) / 2).clamp(0.0, 400.0),
+                120,
+              ),
               itemCount: filtered.length,
               itemBuilder: (ctx, i) => subTabIndex == 0
                   ? _EventCard(event: filtered[i], fmtDate: fmtDate)
@@ -817,11 +824,75 @@ class _OrderTrackingTab extends StatefulWidget {
 
 class _OrderTrackingTabState extends State<_OrderTrackingTab> {
   int _orderSubTab = 0;
+  final _bookingService = BookingService();
+  List<BookingModel> _bookings = const [];
+  bool _loading = true;
 
   static const _subTabs = ['Purchase', 'Rentals', 'Completed', 'Cancelled'];
 
-  static const _purchaseStatuses = ['Order placed', 'Order Confirmed', 'Out for Delivery', 'In Production'];
-  static const _rentalStatuses = ['Returned', 'Picked up', 'Requested', 'Returned'];
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final b = await _bookingService.getBookings();
+      if (mounted) {
+        setState(() {
+          _bookings = b;
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  /// Product/rental bookings (services are tracked in chat) for the active tab.
+  List<BookingModel> get _filtered {
+    final tracked = _bookings.where((b) =>
+        (b.fulfilmentType == 'PURCHASE' || b.fulfilmentType == 'RENTAL') &&
+        b.listing != null);
+    switch (_orderSubTab) {
+      case 0: // Purchase — active
+        return tracked
+            .where((b) =>
+                b.fulfilmentType == 'PURCHASE' &&
+                b.status != 'completed' &&
+                b.status != 'cancelled')
+            .toList();
+      case 1: // Rentals — active
+        return tracked
+            .where((b) =>
+                b.fulfilmentType == 'RENTAL' &&
+                b.status != 'completed' &&
+                b.status != 'cancelled')
+            .toList();
+      case 2: // Completed
+        return tracked.where((b) => b.status == 'completed').toList();
+      case 3: // Cancelled
+        return tracked.where((b) => b.status == 'cancelled').toList();
+      default:
+        return tracked.toList();
+    }
+  }
+
+  String _statusLabel(BookingModel b) {
+    switch (b.status) {
+      case 'completed':
+        return b.fulfilmentType == 'RENTAL' ? 'Returned' : 'Delivered';
+      case 'confirmed':
+        return 'Order Confirmed';
+      case 'active':
+        return b.fulfilmentType == 'RENTAL' ? 'Picked up' : 'Out for Delivery';
+      case 'cancelled':
+        return 'Cancelled';
+      default:
+        return 'Order placed';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -865,53 +936,50 @@ class _OrderTrackingTabState extends State<_OrderTrackingTab> {
         ),
         // ── Content ───────────────────────────────────────────────────
         Expanded(
-          child: ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
-            itemCount: _getListings().length,
-            itemBuilder: (ctx, i) {
-              final listing = _getListings()[i];
-              final status = _getStatus(i);
-              return _OrderCard(
-                listing: listing,
-                status: status,
-                subTab: _orderSubTab,
-                onTap: () => _onCardTap(ctx, listing.id, status),
-              );
-            },
-          ),
+          child: _loading
+              ? const Center(child: CircularProgressIndicator())
+              : _filtered.isEmpty
+                  ? _buildEmpty(context)
+                  : RefreshIndicator(
+                      onRefresh: _load,
+                      child: ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 120),
+                        itemCount: _filtered.length,
+                        itemBuilder: (ctx, i) {
+                          final booking = _filtered[i];
+                          final status = _statusLabel(booking);
+                          return _OrderCard(
+                            listing: booking.listing!,
+                            status: status,
+                            subTab: _orderSubTab,
+                            onTap: () =>
+                                _onCardTap(ctx, booking.listingId, status),
+                          );
+                        },
+                      ),
+                    ),
         ),
       ],
     );
   }
 
-  List<ListingModel> _getListings() {
-    switch (_orderSubTab) {
-      case 0:
-        return MockData.listings.take(4).toList();
-      case 1:
-        return MockData.listings.skip(1).take(3).toList();
-      case 2:
-        return MockData.listings.take(3).toList();
-      case 3:
-        return MockData.listings.take(3).toList();
-      default:
-        return MockData.listings.take(4).toList();
-    }
-  }
-
-  String _getStatus(int i) {
-    switch (_orderSubTab) {
-      case 0:
-        return _purchaseStatuses[i % _purchaseStatuses.length];
-      case 1:
-        return _rentalStatuses[i % _rentalStatuses.length];
-      case 2:
-        return 'Completed';
-      case 3:
-        return 'Cancelled';
-      default:
-        return 'Order placed';
-    }
+  Widget _buildEmpty(BuildContext context) {
+    return ListView(
+      children: [
+        const SizedBox(height: 80),
+        Icon(Icons.receipt_long_rounded,
+            size: 56, color: context.c.textHint),
+        const SizedBox(height: 12),
+        Text(
+          'No orders here yet',
+          textAlign: TextAlign.center,
+          style: GoogleFonts.urbanist(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: context.c.textSecondary),
+        ),
+      ],
+    );
   }
 
   void _onCardTap(BuildContext ctx, String listingId, String status) {

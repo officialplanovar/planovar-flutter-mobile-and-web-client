@@ -1,11 +1,11 @@
 {
-    "name": "planovar_client",
-    "short_name": "planovar_client",
+    "name": "Planovar",
+    "short_name": "Planovar",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#FFFFFF",
+    "theme_color": "#9139E6",
+    "description": "Plan better, celebrate bigger. Discover and book trusted event vendors.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

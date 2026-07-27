@@ -298,8 +298,9 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
                         padding:
                             const EdgeInsets.fromLTRB(16, 8, 16, 100),
                         gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
+                            const SliverGridDelegateWithMaxCrossAxisExtent(
+                          // ~2 columns on a phone, more as the screen widens.
+                          maxCrossAxisExtent: 260,
                           mainAxisSpacing: 12,
                           crossAxisSpacing: 10,
                           childAspectRatio: 0.72,
@@ -325,8 +326,8 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
                         padding:
                             const EdgeInsets.fromLTRB(16, 8, 16, 100),
                         gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
+                            const SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: 300,
                           mainAxisSpacing: 12,
                           crossAxisSpacing: 10,
                           childAspectRatio: 0.988,

@@ -53,7 +53,9 @@ class _GlossyButtonState extends State<GlossyButton>
   Widget build(BuildContext context) {
     final enabled = widget.onPressed != null && !widget.isLoading;
 
-    return GestureDetector(
+    return MouseRegion(
+      cursor: enabled ? SystemMouseCursors.click : SystemMouseCursors.basic,
+      child: GestureDetector(
       onTapDown: enabled ? (_) => _press.forward() : null,
       onTapUp: enabled
           ? (_) {
@@ -166,6 +168,6 @@ class _GlossyButtonState extends State<GlossyButton>
           ),
         ),
       ),
-    );
+    ));
   }
 }

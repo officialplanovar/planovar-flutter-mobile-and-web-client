@@ -15,6 +15,7 @@ import '../../../shared/models/category_model.dart';
 import '../../../shared/models/vendor_model.dart';
 import '../../../shared/models/listing_model.dart';
 import '../../../shared/widgets/add_to_event_sheet.dart';
+import '../../../core/responsive/responsive.dart';
 
 String _fmtPrice(num n) {
   final s = n.toInt().toString();
@@ -110,7 +111,10 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
       body: RefreshIndicator(
         onRefresh: _loadFeed,
         color: AppColors.primary,
-        child: CustomScrollView(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: Breakpoints.maxContent),
+            child: CustomScrollView(
           slivers: [
             // ── Header ────────────────────────────────────────────────────
             SliverToBoxAdapter(
@@ -295,11 +299,13 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                     onViewAll: () => context.go(AppRoutes.explore),
                   ),
                   const SizedBox(height: 12),
-                  GridView.count(
+                  GridView.extent(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     padding: EdgeInsets.zero,
-                    crossAxisCount: 4,
+                    // Cap cell width so categories stay compact and columns
+                    // grow on wide screens (instead of 4 huge cells).
+                    maxCrossAxisExtent: 108,
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 8,
                     childAspectRatio: 0.82,
@@ -354,11 +360,11 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                     onViewAll: () => context.go(AppRoutes.explore),
                   ),
                   const SizedBox(height: 12),
-                  GridView.count(
+                  GridView.extent(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     padding: EdgeInsets.zero,
-                    crossAxisCount: 2,
+                    maxCrossAxisExtent: 260,
                     mainAxisSpacing: 14,
                     crossAxisSpacing: 8,
                     childAspectRatio: 0.7,
@@ -379,11 +385,11 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                     onViewAll: () => context.go(AppRoutes.explore),
                   ),
                   const SizedBox(height: 12),
-                  GridView.count(
+                  GridView.extent(
                     physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     padding: EdgeInsets.zero,
-                    crossAxisCount: 2,
+                    maxCrossAxisExtent: 220,
                     mainAxisSpacing: 14,
                     crossAxisSpacing: 14,
                     childAspectRatio: 0.58,
@@ -397,6 +403,8 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
               ),
             ),
           ],
+            ),
+          ),
         ),
       ),
     );

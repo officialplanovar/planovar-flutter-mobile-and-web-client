@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/services/reference_data_service.dart';
+import '../../../core/responsive/responsive.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/country_model.dart';
@@ -38,7 +39,16 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
           'preferredCountryId': _selectedCountry!.id,
         if (_selectedCity != null) 'preferredCityId': _selectedCity!.id,
       });
-    } catch (_) {}
+    } catch (e) {
+      // Surface the failure — a swallowed error here left users unable to
+      // complete onboarding (location never persisted).
+      debugPrint('[onboarding] location save failed: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not save location: $e')),
+        );
+      }
+    }
     if (mounted) context.go(AppRoutes.createPassword);
   }
 
@@ -81,7 +91,7 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
                   const AuthStepBar(step: 4),
                   Expanded(
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      padding: pagePadding(context),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -206,7 +216,8 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 0, 24, 28),
+                    padding: pagePadding(context)
+                        .add(const EdgeInsets.only(bottom: 28)),
                     child: GlossyButton(
                       label: _saving ? 'Saving…' : 'Proceed',
                       onPressed: _saving ? null : _saveAndProceed,

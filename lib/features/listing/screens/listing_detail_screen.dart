@@ -192,7 +192,10 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
     return Scaffold(
       backgroundColor: context.c.surface,
       extendBodyBehindAppBar: true,
-      body: Stack(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 960),
+          child: Stack(
         children: [
           CustomScrollView(
             slivers: [
@@ -1025,6 +1028,8 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
             ),
           ),
         ],
+      ),
+        ),
       ),
     );
   }

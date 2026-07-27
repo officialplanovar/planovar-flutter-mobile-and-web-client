@@ -178,7 +178,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
     return Scaffold(
       backgroundColor: context.c.background,
-      body: Column(
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 960),
+          child: Column(
         children: [
           // ── Cover + Header ─────────────────────────────────────────────
           _buildCoverHeader(context, event),
@@ -198,6 +201,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             ),
           ),
         ],
+      ),
+        ),
       ),
     );
   }

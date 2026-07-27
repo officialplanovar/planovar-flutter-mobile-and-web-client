@@ -15,6 +15,8 @@ class BookingModel extends Equatable {
   final String? requirements;
   final double? quoteAmount;
   final double? finalAmount;
+  /// PURCHASE | RENTAL | SERVICE — drives the order-tracking tabs.
+  final String? fulfilmentType;
 
   const BookingModel({
     required this.id,
@@ -29,6 +31,7 @@ class BookingModel extends Equatable {
     this.requirements,
     this.quoteAmount,
     this.finalAmount,
+    this.fulfilmentType,
   });
 
   factory BookingModel.fromJson(Map<String, dynamic> json) {
@@ -45,6 +48,7 @@ class BookingModel extends Equatable {
       requirements: json['requirements'] as String?,
       quoteAmount: json['quoteAmount'] != null ? (json['quoteAmount'] as num).toDouble() : null,
       finalAmount: json['finalAmount'] != null ? (json['finalAmount'] as num).toDouble() : null,
+      fulfilmentType: (json['fulfilmentType'] as String?)?.toUpperCase(),
     );
   }
 
@@ -64,5 +68,6 @@ class BookingModel extends Equatable {
       };
 
   @override
-  List<Object?> get props => [id, clientId, vendorId, listingId, status, eventDate];
+  List<Object?> get props =>
+      [id, clientId, vendorId, listingId, status, eventDate, fulfilmentType];
 }

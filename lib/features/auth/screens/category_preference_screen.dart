@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/services/reference_data_service.dart';
+import '../../../core/responsive/responsive.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/api/api_client.dart';
@@ -64,7 +65,8 @@ class _CategoryPreferenceScreenState extends State<CategoryPreferenceScreen> {
                   const AuthStepBar(step: 6),
                   Expanded(
                     child: SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(24, 28, 24, 0),
+                      padding: pagePadding(context)
+                          .add(const EdgeInsets.only(top: 28)),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -176,7 +178,8 @@ class _CategoryPreferenceScreenState extends State<CategoryPreferenceScreen> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
+                    padding: pagePadding(context)
+                        .add(const EdgeInsets.only(top: 8, bottom: 28)),
                     child: GlossyButton(
                       label: 'Proceed',
                       onPressed: (_selected.isNotEmpty && !_saving)

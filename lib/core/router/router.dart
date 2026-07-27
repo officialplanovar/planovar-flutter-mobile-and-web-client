@@ -39,6 +39,7 @@ import '../../features/notifications/screens/notifications_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../../features/profile/screens/favourites_screen.dart';
 import '../../features/profile/screens/reviews_screen.dart';
+import '../../features/profile/screens/edit_profile_screen.dart';
 import '../../features/profile/screens/settings_screens.dart' show
     ThemeSettingsScreen, NotificationSettingsScreen, PrivacyScreen,
     HelpScreen, FaqScreen, DeleteAccountScreen;
@@ -59,6 +60,7 @@ import '../../features/events/screens/create_event_step2_screen.dart';
 import '../../features/events/screens/create_event_step3_screen.dart';
 import '../../features/events/screens/create_event_step4_screen.dart';
 import 'app_routes.dart';
+import '../../core/responsive/responsive.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 
@@ -122,7 +124,10 @@ GoRouter createRouter() {
         path: AppRoutes.resetPassword,
         builder: (_, state) {
           final extra = state.extra as Map<String, dynamic>? ?? {};
-          return ResetPasswordScreen(email: extra['email'] as String? ?? '');
+          return ResetPasswordScreen(
+            email: extra['email'] as String? ?? '',
+            otp: extra['otp'] as String? ?? '',
+          );
         },
       ),
 
@@ -430,6 +435,7 @@ GoRouter createRouter() {
       // Profile sub-pages
       GoRoute(path: AppRoutes.favourites, builder: (_, __) => const FavouritesScreen()),
       GoRoute(path: AppRoutes.reviews, builder: (_, __) => const ReviewsScreen()),
+      GoRoute(path: AppRoutes.editProfile, builder: (_, __) => const EditProfileScreen()),
       GoRoute(path: AppRoutes.themeSettings, builder: (_, __) => const ThemeSettingsScreen()),
       GoRoute(path: AppRoutes.notificationSettings, builder: (_, __) => const NotificationSettingsScreen()),
       GoRoute(path: AppRoutes.privacy, builder: (_, __) => const PrivacyScreen()),
@@ -537,8 +543,60 @@ class _AppShell extends StatelessWidget {
     );
   }
 
+  /// Side navigation rail for wide/desktop layouts, replacing the bottom bar.
+  Widget _buildSideRail(BuildContext context) {
+    return NavigationRail(
+      selectedIndex: shell.currentIndex,
+      onDestinationSelected: (i) =>
+          shell.goBranch(i, initialLocation: i == shell.currentIndex),
+      labelType: NavigationRailLabelType.all,
+      backgroundColor: context.c.surface,
+      groupAlignment: -0.85,
+      indicatorColor:
+          AppColors.primary.withValues(alpha: context.isDark ? 0.22 : 0.12),
+      selectedIconTheme: const IconThemeData(color: AppColors.primary),
+      unselectedIconTheme: IconThemeData(color: context.c.textSecondary),
+      selectedLabelTextStyle: AppTextStyles.caption(context)
+          .copyWith(color: AppColors.primary, fontWeight: FontWeight.w600),
+      unselectedLabelTextStyle: AppTextStyles.caption(context)
+          .copyWith(color: context.c.textSecondary),
+      leading: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        child: Image.asset(
+          'assets/images/splash_logo.png',
+          width: 34,
+          height: 34,
+          errorBuilder: (_, __, ___) =>
+              const Icon(Icons.celebration_rounded, color: AppColors.primary),
+        ),
+      ),
+      destinations: _tabs
+          .map((t) => NavigationRailDestination(
+                icon: Icon(t.icon),
+                selectedIcon: Icon(t.activeIcon),
+                label: Text(t.label),
+              ))
+          .toList(),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Wide/desktop: a side rail + the content area, so navigation and content
+    // use the horizontal space instead of a phone-style bottom bar.
+    if (context.useSideNav) {
+      return Scaffold(
+        body: SafeArea(
+          child: Row(
+            children: [
+              _buildSideRail(context),
+              VerticalDivider(width: 1, thickness: 1, color: context.c.border),
+              Expanded(child: shell),
+            ],
+          ),
+        ),
+      );
+    }
     return Scaffold(
       body: Stack(
         alignment: Alignment.bottomCenter,

@@ -1,6 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/api/api_client.dart';
 import '../../../core/api/api_utils.dart';
+import '../../../core/constants/app_constants.dart';
 
 /// Thin wrapper over the Better Auth endpoints (/api/auth/*) plus the
 /// profile/preference endpoints the client onboarding uses.
@@ -33,12 +36,34 @@ class AuthRemoteDataSource {
     final res = await _dio.post('/api/auth/sign-in/email',
         data: {'email': email, 'password': password});
     ensureOk(res);
-    await _captureToken(res);
+    await _captureTokenOrThrow(res);
     return _asMap(res.data);
+  }
+
+  /// Starts the Google OAuth flow. Asks Better Auth for the provider consent
+  /// URL, then hands off to the browser. On web this is a same-tab redirect;
+  /// Better Auth returns to [callbackURL] after the Google round-trip.
+  Future<void> signInWithGoogle() async {
+    // Initiate via a top-level navigation to the API's /oauth/start (NOT an
+    // XHR) so Better Auth's OAuth state cookie is set first-party — otherwise
+    // the callback fails with state_mismatch. /oauth/start redirects to Google,
+    // and after consent the token relay returns us to `redirect` with a bearer
+    // token: the web app origin, or the app's deep link on native.
+    final appTarget = kIsWeb ? Uri.base.origin : 'planovar://auth';
+    final startUrl =
+        '${AppConstants.apiBaseUrl}/oauth/start?intent=client&redirect=${Uri.encodeComponent(appTarget)}';
+    await launchUrl(
+      Uri.parse(startUrl),
+      mode: LaunchMode.platformDefault,
+      webOnlyWindowName: '_self',
+    );
   }
 
   Future<Map<String, dynamic>?> getSession() async {
     final res = await _dio.get('/api/auth/get-session');
+    // Bearer plugin returns a fresh token on any authenticated response —
+    // capture it so an OAuth/cookie session upgrades to a stored bearer token.
+    await _captureToken(res);
     if (res.statusCode == 200 && res.data is Map) return _asMap(res.data);
     return null;
   }
@@ -56,7 +81,7 @@ class AuthRemoteDataSource {
     final res = await _dio
         .post('/api/auth/email-otp/verify-email', data: {'email': email, 'otp': otp});
     ensureOk(res);
-    await _captureToken(res);
+    await _captureTokenOrThrow(res);
     return _asMap(res.data);
   }
 
@@ -132,11 +157,31 @@ class AuthRemoteDataSource {
 
   // ── helpers ──────────────────────────────────────────────────────────────
 
-  Future<void> _captureToken(Response res) async {
+  /// Saves the bearer token from the `set-auth-token` header if present.
+  /// Returns true when a token was captured. Best-effort (never throws) — used
+  /// on sign-up, where the session is established later at OTP verification.
+  Future<bool> _captureToken(Response res) async {
     final token = res.headers.value('set-auth-token');
     if (token != null && token.isNotEmpty) {
       await _api.tokenStore.save(token);
+      return true;
     }
+    return false;
+  }
+
+  /// Like [_captureToken] but REQUIRES a token — the app authenticates purely by
+  /// bearer token, so a sign-in/verify that yields no token leaves every
+  /// subsequent request unauthenticated ("Unauthorised" everywhere). This most
+  /// often means the `set-auth-token` response header wasn't readable (a web
+  /// CORS `Access-Control-Expose-Headers` / trusted-origin misconfiguration).
+  /// Failing loudly here beats a silent "logged-in but tokenless" session.
+  Future<void> _captureTokenOrThrow(Response res) async {
+    if (await _captureToken(res)) return;
+    await _api.tokenStore.clear();
+    throw Exception(
+      "Signed in, but we couldn't establish a secure session. "
+      'Please try again, and if it persists contact support.',
+    );
   }
 
   Map<String, dynamic> _asMap(dynamic data) =>
