@@ -10,6 +10,8 @@ import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/auth_illustration.dart';
 import '../../../shared/widgets/auth_step_bar.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../../../core/api/api_client.dart';
+import '../data/auth_remote_data_source.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
@@ -48,6 +50,29 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
         setState(() => _secondsRemaining--);
       }
     });
+  }
+
+  /// Actually re-send the OTP (email-verification for register, else the
+  /// password-reset code), then restart the cooldown.
+  Future<void> _resend() async {
+    _startTimer();
+    try {
+      await AuthRemoteDataSource(ApiClient()).sendOtp(
+        email: widget.email,
+        type: _isRegister ? 'email-verification' : 'forget-password',
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('A new code has been sent')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not resend code: $e')),
+        );
+      }
+    }
   }
 
   @override
@@ -205,7 +230,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                               ),
                             )
                           : GestureDetector(
-                              onTap: _startTimer,
+                              onTap: _resend,
                               child: Text(
                                 'Resend OTP',
                                 style: GoogleFonts.urbanist(
