@@ -561,13 +561,13 @@ class _AppShell extends StatelessWidget {
       unselectedLabelTextStyle: AppTextStyles.caption(context)
           .copyWith(color: context.c.textSecondary),
       leading: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: 18),
         child: Image.asset(
           'assets/images/splash_logo.png',
-          width: 34,
-          height: 34,
-          errorBuilder: (_, __, ___) =>
-              const Icon(Icons.celebration_rounded, color: AppColors.primary),
+          width: 52,
+          height: 52,
+          errorBuilder: (_, __, ___) => const Icon(Icons.celebration_rounded,
+              color: AppColors.primary, size: 40),
         ),
       ),
       destinations: _tabs
