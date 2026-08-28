@@ -98,7 +98,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     return Scaffold(
       backgroundColor: context.c.surface,
       body: SafeArea(
-        child: Column(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 520),
+            child: Column(
           children: [
             // ── Paged image cards ──────────────────────────────────────────
             Expanded(
@@ -167,6 +170,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               ),
             ),
           ],
+            ),
+          ),
         ),
       ),
     );

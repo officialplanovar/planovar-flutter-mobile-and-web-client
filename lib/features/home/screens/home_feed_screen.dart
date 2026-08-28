@@ -484,10 +484,12 @@ class _CategoryIcon extends StatelessWidget {
             width: 54,
             height: 54,
             decoration: BoxDecoration(
-              color: context.c.surfaceElevated,
+              color: context.c.primaryLight,
               shape: BoxShape.circle,
+              border: Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.25)),
             ),
-            child: Icon(icon, size: 26, color: const Color(0xFF374151)),
+            child: Icon(icon, size: 26, color: AppColors.primary),
           ),
           const SizedBox(height: 6),
           Text(
@@ -498,7 +500,7 @@ class _CategoryIcon extends StatelessWidget {
             style: GoogleFonts.urbanist(
               fontSize: 11,
               fontWeight: FontWeight.w500,
-              color: const Color(0xFF374151),
+              color: context.c.textPrimary,
             ),
           ),
         ],
