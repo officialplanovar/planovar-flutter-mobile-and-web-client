@@ -41,7 +41,7 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
   bool get _hasCapital => _passwordCtrl.text.contains(RegExp(r'[A-Z]'));
   bool get _hasNumber => _passwordCtrl.text.contains(RegExp(r'[0-9]'));
   bool get _hasSpecial =>
-      _passwordCtrl.text.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>]'));
+      _passwordCtrl.text.contains(RegExp(r'[^A-Za-z0-9]'));
   bool get _hasLength => _passwordCtrl.text.length >= 8;
   bool get _passwordsMatch =>
       _passwordCtrl.text == _confirmCtrl.text && _confirmCtrl.text.isNotEmpty;

@@ -111,7 +111,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   bool _hasCapital() => RegExp(r'[A-Z]').hasMatch(_password);
   bool _hasNumber() => RegExp(r'[0-9]').hasMatch(_password);
-  bool _hasSpecial() => RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(_password);
+  bool _hasSpecial() => RegExp(r'[^A-Za-z0-9]').hasMatch(_password);
 
   @override
   Widget build(BuildContext context) {
