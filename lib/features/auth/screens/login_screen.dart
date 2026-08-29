@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/glossy_button.dart';
 import '../data/auth_repository.dart';
 import '../bloc/auth_bloc.dart';
@@ -57,6 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     debugPrint('[LoginScreen] build');
+    final t = AppLocalizations.of(context);
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthAuthenticated) {
@@ -139,7 +141,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           TextSpan(
                             children: [
                               TextSpan(
-                                text: 'Welcome Back',
+                                text: t.welcomeBack,
                                 style: GoogleFonts.urbanist(
                                   fontSize: 26,
                                   fontWeight: FontWeight.w800,
@@ -161,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 6),
                       Center(
                         child: Text(
-                          'Sign in to continue your Journey on Planovar',
+                          t.signInToContinue,
                           textAlign: TextAlign.center,
                           style: GoogleFonts.urbanist(
                             fontSize: 14,
@@ -171,12 +173,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 32),
-                      _FieldLabel('Email Address'),
+                      _FieldLabel(t.emailAddress),
                       TextFormField(
                         controller: _emailCtrl,
                         keyboardType: TextInputType.emailAddress,
-                        decoration: const InputDecoration(
-                          hintText: 'Enter your Email address',
+                        decoration: InputDecoration(
+                          hintText: t.emailHint,
                         ),
                         validator: (v) {
                           if (v == null || v.isEmpty) return 'Email is required';
@@ -185,12 +187,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                       const SizedBox(height: 20),
-                      _FieldLabel('Password'),
+                      _FieldLabel(t.password),
                       TextFormField(
                         controller: _passwordCtrl,
                         obscureText: _obscurePassword,
                         decoration: InputDecoration(
-                          hintText: 'Enter Password',
+                          hintText: t.passwordHint,
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword
@@ -211,7 +213,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       BlocBuilder<AuthBloc, AuthState>(
                         builder: (context, state) {
                           return GlossyButton(
-                            label: 'Sign In',
+                            label: t.signIn,
                             onPressed: state is AuthLoading ? null : _submit,
                             isLoading: state is AuthLoading,
                           );
@@ -229,7 +231,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   size: 15, color: AppColors.primary),
                               const SizedBox(width: 5),
                               Text(
-                                'Forgot Password',
+                                t.forgotPassword,
                                 style: GoogleFonts.urbanist(
                                   fontSize: 14,
                                   color: AppColors.primary,
@@ -248,7 +250,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 14),
                             child: Text(
-                              'or',
+                              t.orLabel,
                               style: GoogleFonts.urbanist(
                                   fontSize: 13,
                                   color: context.c.textHint),
@@ -270,7 +272,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             const SizedBox(width: 10),
                             Text(
-                              'Sign In with Google',
+                              t.signInWithGoogle,
                               style: GoogleFonts.urbanist(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
@@ -290,14 +292,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: Center(
                           child: Text.rich(
                             TextSpan(
-                              text: "Don't Have an account? ",
+                              text: ' ',
                               style: GoogleFonts.urbanist(
                                 fontSize: 14,
                                 color: context.c.textSecondary,
                               ),
                               children: [
                                 TextSpan(
-                                  text: 'Sign up',
+                                  text: t.signUp,
                                   style: GoogleFonts.urbanist(
                                     fontSize: 14,
                                     color: AppColors.primary,

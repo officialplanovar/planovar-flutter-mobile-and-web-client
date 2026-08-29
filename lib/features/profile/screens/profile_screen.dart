@@ -310,6 +310,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           Divider(height: 1, thickness: 1, color: context.c.divider),
           _ProfileRow(
+            icon: Icons.language_rounded,
+            label: 'Language',
+            subtitle: 'Choose your preferred language',
+            onTap: () => context.push(AppRoutes.language),
+          ),
+          Divider(height: 1, thickness: 1, color: context.c.divider),
+          _ProfileRow(
             icon: Icons.notifications_rounded,
             label: 'Notifications',
             subtitle: 'Manage alerts & preferences',

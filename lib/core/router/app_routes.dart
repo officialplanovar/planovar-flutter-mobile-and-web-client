@@ -67,6 +67,7 @@ class AppRoutes {
   static const favourites = '/favourites';
   static const reviews = '/reviews';
   static const editProfile = '/profile/edit';
+  static const language = '/settings/language';
   static const themeSettings = '/settings/theme';
   static const notificationSettings = '/settings/notifications';
   static const privacy = '/settings/privacy';

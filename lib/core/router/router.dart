@@ -40,6 +40,7 @@ import '../../features/profile/screens/profile_screen.dart';
 import '../../features/profile/screens/favourites_screen.dart';
 import '../../features/profile/screens/reviews_screen.dart';
 import '../../features/profile/screens/edit_profile_screen.dart';
+import '../../features/profile/screens/language_screen.dart';
 import '../../features/profile/screens/settings_screens.dart' show
     ThemeSettingsScreen, NotificationSettingsScreen, PrivacyScreen,
     HelpScreen, FaqScreen, DeleteAccountScreen;
@@ -436,6 +437,7 @@ GoRouter createRouter() {
       GoRoute(path: AppRoutes.favourites, builder: (_, __) => const FavouritesScreen()),
       GoRoute(path: AppRoutes.reviews, builder: (_, __) => const ReviewsScreen()),
       GoRoute(path: AppRoutes.editProfile, builder: (_, __) => const EditProfileScreen()),
+      GoRoute(path: AppRoutes.language, builder: (_, __) => const LanguageScreen()),
       GoRoute(path: AppRoutes.themeSettings, builder: (_, __) => const ThemeSettingsScreen()),
       GoRoute(path: AppRoutes.notificationSettings, builder: (_, __) => const NotificationSettingsScreen()),
       GoRoute(path: AppRoutes.privacy, builder: (_, __) => const PrivacyScreen()),
