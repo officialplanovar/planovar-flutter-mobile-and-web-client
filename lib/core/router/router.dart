@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../l10n/app_localizations.dart';
 import '../state/overlay_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/splash/splash_screen.dart';
@@ -464,6 +465,25 @@ class _AppShell extends StatelessWidget {
     (icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded, label: 'Profile'),
   ];
 
+  /// Localized nav label for tab [i]; falls back to the English label.
+  static String _navLabel(BuildContext context, int i) {
+    final t = AppLocalizations.of(context);
+    switch (i) {
+      case 0:
+        return t.navHome;
+      case 1:
+        return t.navExplore;
+      case 2:
+        return t.navEvents;
+      case 3:
+        return t.navMessages;
+      case 4:
+        return t.navProfile;
+      default:
+        return _tabs[i].label;
+    }
+  }
+
   Widget _buildNavBar(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     return ClipRect(
@@ -521,7 +541,7 @@ class _AppShell extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            tab.label,
+                            _navLabel(context, i),
                             style: AppTextStyles.caption(context).copyWith(
                               color: isActive
                                   ? AppColors.primary
@@ -573,10 +593,12 @@ class _AppShell extends StatelessWidget {
         ),
       ),
       destinations: _tabs
-          .map((t) => NavigationRailDestination(
-                icon: Icon(t.icon),
-                selectedIcon: Icon(t.activeIcon),
-                label: Text(t.label),
+          .asMap()
+          .entries
+          .map((e) => NavigationRailDestination(
+                icon: Icon(e.value.icon),
+                selectedIcon: Icon(e.value.activeIcon),
+                label: Text(_navLabel(context, e.key)),
               ))
           .toList(),
     );
