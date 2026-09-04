@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../l10n/app_localizations.dart';
 import '../state/overlay_state.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/splash/splash_screen.dart';
@@ -40,6 +41,7 @@ import '../../features/profile/screens/profile_screen.dart';
 import '../../features/profile/screens/favourites_screen.dart';
 import '../../features/profile/screens/reviews_screen.dart';
 import '../../features/profile/screens/edit_profile_screen.dart';
+import '../../features/profile/screens/language_screen.dart';
 import '../../features/profile/screens/settings_screens.dart' show
     ThemeSettingsScreen, NotificationSettingsScreen, PrivacyScreen,
     HelpScreen, FaqScreen, DeleteAccountScreen;
@@ -436,6 +438,7 @@ GoRouter createRouter() {
       GoRoute(path: AppRoutes.favourites, builder: (_, __) => const FavouritesScreen()),
       GoRoute(path: AppRoutes.reviews, builder: (_, __) => const ReviewsScreen()),
       GoRoute(path: AppRoutes.editProfile, builder: (_, __) => const EditProfileScreen()),
+      GoRoute(path: AppRoutes.language, builder: (_, __) => const LanguageScreen()),
       GoRoute(path: AppRoutes.themeSettings, builder: (_, __) => const ThemeSettingsScreen()),
       GoRoute(path: AppRoutes.notificationSettings, builder: (_, __) => const NotificationSettingsScreen()),
       GoRoute(path: AppRoutes.privacy, builder: (_, __) => const PrivacyScreen()),
@@ -461,6 +464,25 @@ class _AppShell extends StatelessWidget {
     (icon: Icons.chat_bubble_outline_rounded, activeIcon: Icons.chat_bubble_rounded, label: 'Messages'),
     (icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded, label: 'Profile'),
   ];
+
+  /// Localized nav label for tab [i]; falls back to the English label.
+  static String _navLabel(BuildContext context, int i) {
+    final t = AppLocalizations.of(context);
+    switch (i) {
+      case 0:
+        return t.navHome;
+      case 1:
+        return t.navExplore;
+      case 2:
+        return t.navEvents;
+      case 3:
+        return t.navMessages;
+      case 4:
+        return t.navProfile;
+      default:
+        return _tabs[i].label;
+    }
+  }
 
   Widget _buildNavBar(BuildContext context) {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
@@ -519,7 +541,7 @@ class _AppShell extends StatelessWidget {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            tab.label,
+                            _navLabel(context, i),
                             style: AppTextStyles.caption(context).copyWith(
                               color: isActive
                                   ? AppColors.primary
@@ -561,20 +583,22 @@ class _AppShell extends StatelessWidget {
       unselectedLabelTextStyle: AppTextStyles.caption(context)
           .copyWith(color: context.c.textSecondary),
       leading: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: 18),
         child: Image.asset(
           'assets/images/splash_logo.png',
-          width: 34,
-          height: 34,
-          errorBuilder: (_, __, ___) =>
-              const Icon(Icons.celebration_rounded, color: AppColors.primary),
+          width: 52,
+          height: 52,
+          errorBuilder: (_, __, ___) => const Icon(Icons.celebration_rounded,
+              color: AppColors.primary, size: 40),
         ),
       ),
       destinations: _tabs
-          .map((t) => NavigationRailDestination(
-                icon: Icon(t.icon),
-                selectedIcon: Icon(t.activeIcon),
-                label: Text(t.label),
+          .asMap()
+          .entries
+          .map((e) => NavigationRailDestination(
+                icon: Icon(e.value.icon),
+                selectedIcon: Icon(e.value.activeIcon),
+                label: Text(_navLabel(context, e.key)),
               ))
           .toList(),
     );

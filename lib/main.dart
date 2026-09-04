@@ -2,10 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/api/token_store.dart';
+import 'core/locale/locale_cubit.dart';
 import 'core/router/app_routes.dart';
 import 'core/router/router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_cubit.dart';
+import 'l10n/app_localizations.dart';
 import 'core/utils/deep_link_auth.dart';
 import 'core/utils/oauth_redirect.dart';
 import 'features/auth/bloc/auth_bloc.dart';
@@ -28,18 +30,23 @@ void main() async {
   }
   final themeCubit = ThemeCubit();
   await themeCubit.load();
-  runApp(PlanovarApp(themeCubit: themeCubit));
+  final localeCubit = LocaleCubit();
+  await localeCubit.load();
+  runApp(PlanovarApp(themeCubit: themeCubit, localeCubit: localeCubit));
 }
 
 class PlanovarApp extends StatelessWidget {
-  const PlanovarApp({super.key, required this.themeCubit});
+  const PlanovarApp(
+      {super.key, required this.themeCubit, required this.localeCubit});
   final ThemeCubit themeCubit;
+  final LocaleCubit localeCubit;
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: themeCubit),
+        BlocProvider.value(value: localeCubit),
         BlocProvider(create: (_) => AuthBloc()),
       ],
       child: const _RouterApp(),
@@ -75,13 +82,20 @@ class _RouterAppState extends State<_RouterApp> {
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeCubit, ThemeMode>(
       builder: (context, themeMode) {
-        return MaterialApp.router(
-          title: 'Planovar',
-          theme: AppTheme.light(),
-          darkTheme: AppTheme.dark(),
-          themeMode: themeMode,
-          routerConfig: _router,
-          debugShowCheckedModeBanner: false,
+        return BlocBuilder<LocaleCubit, Locale>(
+          builder: (context, locale) {
+            return MaterialApp.router(
+              title: 'Planovar',
+              theme: AppTheme.light(),
+              darkTheme: AppTheme.dark(),
+              themeMode: themeMode,
+              locale: locale,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: AppLocalizations.supportedLocales,
+              routerConfig: _router,
+              debugShowCheckedModeBanner: false,
+            );
+          },
         );
       },
     );

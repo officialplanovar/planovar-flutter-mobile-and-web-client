@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/auth_illustration.dart';
 import '../../../shared/widgets/auth_step_bar.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../../../shared/data/dial_codes.dart';
 import '../data/auth_repository.dart';
 
 class PhoneScreen extends StatefulWidget {
@@ -39,13 +40,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
     }
   }
 
-  static const _dialCodes = [
-    (code: '+234', flag: '🇳🇬', label: 'Nigeria'),
-    (code: '+233', flag: '🇬🇭', label: 'Ghana'),
-    (code: '+254', flag: '🇰🇪', label: 'Kenya'),
-    (code: '+44', flag: '🇬🇧', label: 'UK'),
-    (code: '+1', flag: '🇺🇸', label: 'USA'),
-  ];
+  static const _dialCodes = kDialCodes;
 
   String _dialCode = '+234';
   String _flagEmoji = '🇳🇬';

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/mock/mock_data.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glossy_button.dart';
 
@@ -111,7 +111,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   bool _hasCapital() => RegExp(r'[A-Z]').hasMatch(_password);
   bool _hasNumber() => RegExp(r'[0-9]').hasMatch(_password);
-  bool _hasSpecial() => RegExp(r'[!@#\$%^&*(),.?":{}|<>]').hasMatch(_password);
+  bool _hasSpecial() => RegExp(r'[^A-Za-z0-9]').hasMatch(_password);
 
   @override
   Widget build(BuildContext context) {
@@ -406,348 +406,89 @@ class _TwoFactorToggle extends StatelessWidget {
     );
   }
 }
+// ─── Support Chat (Crisp) ───────────────────────────────────────────────────
+// Live support via Crisp, opened in the browser / a new tab (the client has no
+// in-app WebView dependency). Website ID is a build-time dart-define:
+//   --dart-define=CRISP_WEBSITE_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+// Until it's set, this falls back to emailing support.
 
-// ─── Support Chat Screen ──────────────────────────────────────────────────────
-class _SMsg {
-  final bool isMe;
-  final String text;
-  _SMsg({required this.isMe, required this.text});
-}
+const String _kCrispWebsiteId =
+    String.fromEnvironment('CRISP_WEBSITE_ID', defaultValue: '');
+const String _kSupportEmail = 'support@planovar.ng';
 
-class SupportChatScreen extends StatefulWidget {
+class SupportChatScreen extends StatelessWidget {
   const SupportChatScreen({super.key});
 
-  @override
-  State<SupportChatScreen> createState() => _SupportChatScreenState();
-}
+  String get _chatUrl =>
+      'https://go.crisp.chat/chat/embed/?website_id=$_kCrispWebsiteId';
 
-class _SupportChatScreenState extends State<SupportChatScreen> {
-  final _msgCtrl = TextEditingController();
-  final _scrollCtrl = ScrollController();
-  final List<_SMsg> _messages = [
-    _SMsg(
-      isMe: false,
-      text: 'Hello thank you for contacting customer care, how may we help you',
-    ),
-    _SMsg(
-      isMe: true,
-      text:
-          'Hello all, I can\'t find the event I created can you help me search from your end as i had a pending convo',
-    ),
-  ];
-
-  @override
-  void dispose() {
-    _msgCtrl.dispose();
-    _scrollCtrl.dispose();
-    super.dispose();
-  }
-
-  void _sendMessage() {
-    final text = _msgCtrl.text.trim();
-    if (text.isEmpty) return;
-    setState(() {
-      _messages.add(_SMsg(isMe: true, text: text));
-      _msgCtrl.clear();
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollCtrl.hasClients) {
-        _scrollCtrl.animateTo(
-          _scrollCtrl.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    });
+  Future<void> _open() async {
+    final url = _kCrispWebsiteId.isEmpty
+        ? Uri.parse('mailto:$_kSupportEmail')
+        : Uri.parse(_chatUrl);
+    await launchUrl(url,
+        mode: LaunchMode.externalApplication, webOnlyWindowName: '_blank');
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = MockData.currentUser;
+    final configured = _kCrispWebsiteId.isNotEmpty;
     return Scaffold(
-      backgroundColor: context.c.background,
-      body: Column(
-        children: [
-          // ── Header ──────────────────────────────────────────────────────────
-          Container(
-            color: context.c.primaryLight,
-            child: SafeArea(
-              bottom: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                child: Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () => context.pop(),
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.07),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Icon(Icons.arrow_back_ios_new_rounded,
-                            size: 18, color: context.c.textPrimary),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    // Agent avatar
-                    ClipOval(
-                      child: Image.network(
-                        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100',
-                        width: 44,
-                        height: 44,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
-                          width: 44,
-                          height: 44,
-                          color: context.c.primaryLight,
-                          child: const Icon(Icons.person_rounded, color: AppColors.primary),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Johnson',
-                          style: GoogleFonts.urbanist(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: context.c.textPrimary,
-                          ),
-                        ),
-                        Text(
-                          'Customer support',
-                          style: GoogleFonts.urbanist(
-                            fontSize: 13,
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // ── Chat area ────────────────────────────────────────────────────────
-          Expanded(
-            child: ListView(
-              controller: _scrollCtrl,
-              padding: const EdgeInsets.all(16),
-              children: [
-                // Date separator
-                Row(
-                  children: [
-                    Expanded(child: Divider(color: context.c.border)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Text(
-                        'Today',
-                        style: GoogleFonts.urbanist(
-                          fontSize: 12,
-                          color: context.c.textHint,
-                        ),
-                      ),
-                    ),
-                    Expanded(child: Divider(color: context.c.border)),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                ..._messages.map((msg) => _buildMessageBubble(context, msg, user.image)),
-              ],
-            ),
-          ),
-
-          // ── Input bar ────────────────────────────────────────────────────────
-          Container(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-            decoration: BoxDecoration(
-              color: context.c.surface,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 8,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: SafeArea(
-              top: false,
-              child: Row(
-                children: [
-                  // Attachment icon
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: context.c.primaryLight,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(Icons.attach_file_rounded,
-                        color: AppColors.primary, size: 22),
-                  ),
-                  const SizedBox(width: 8),
-                  // Text field
-                  Expanded(
-                    child: Container(
-                      height: 48,
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      decoration: BoxDecoration(
-                        color: context.c.divider,
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _msgCtrl,
-                              style: GoogleFonts.urbanist(fontSize: 14),
-                              decoration: InputDecoration(
-                                hintText: 'Type a message',
-                                hintStyle: GoogleFonts.urbanist(
-                                  fontSize: 14,
-                                  color: context.c.textHint,
-                                ),
-                                border: InputBorder.none,
-                                isDense: true,
-                              ),
-                            ),
-                          ),
-                          Icon(Icons.mic_rounded, color: context.c.textHint, size: 20),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Send button
-                  GestureDetector(
-                    onTap: _sendMessage,
-                    child: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: const BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.send_rounded, color: Colors.white, size: 22),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMessageBubble(BuildContext context, _SMsg msg, String? userImage) {
-    if (msg.isMe) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Flexible(
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFFAB52F5), Color(0xFF7420D0)],
-                  ),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(16),
-                    topRight: Radius.circular(16),
-                    bottomLeft: Radius.circular(16),
-                    bottomRight: Radius.circular(4),
-                  ),
-                ),
-                child: Text(
-                  msg.text,
-                  style: GoogleFonts.urbanist(fontSize: 14, color: Colors.white),
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            ClipOval(
-              child: Image.network(
-                userImage ?? '',
-                width: 28,
-                height: 28,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  width: 28,
-                  height: 28,
-                  color: context.c.primaryLight,
-                  child: const Icon(Icons.person_rounded, color: AppColors.primary, size: 16),
-                ),
-              ),
-            ),
-          ],
+      backgroundColor: context.c.surface,
+      appBar: AppBar(
+        backgroundColor: context.c.surface,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new_rounded,
+              color: context.c.textPrimary, size: 20),
+          onPressed: () => context.pop(),
         ),
-      );
-    }
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          ClipOval(
-            child: Image.network(
-              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100',
-              width: 28,
-              height: 28,
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => Container(
-                width: 28,
-                height: 28,
-                color: context.c.primaryLight,
-                child: const Icon(Icons.person_rounded, color: AppColors.primary, size: 16),
+        title: Text('Support',
+            style: GoogleFonts.urbanist(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+                color: context.c.textPrimary)),
+        centerTitle: true,
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                  configured
+                      ? Icons.chat_bubble_outline_rounded
+                      : Icons.support_agent_rounded,
+                  size: 56,
+                  color: AppColors.primary),
+              const SizedBox(height: 16),
+              Text(configured ? 'Chat with our team' : 'Support is being set up',
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.urbanist(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: context.c.textPrimary)),
+              const SizedBox(height: 8),
+              Text(
+                  configured
+                      ? 'Open our live chat to talk to a support agent.'
+                      : "Our live chat isn't connected yet — email us and we'll "
+                          "get right back to you.",
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.urbanist(
+                      fontSize: 14,
+                      color: context.c.textSecondary,
+                      height: 1.5)),
+              const SizedBox(height: 28),
+              GlossyButton(
+                label: configured ? 'Open live chat' : 'Email support',
+                onPressed: _open,
               ),
-            ),
+            ],
           ),
-          const SizedBox(width: 8),
-          Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: context.c.surface,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(4),
-                  topRight: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 4,
-                    offset: const Offset(0, 1),
-                  ),
-                ],
-              ),
-              child: Text(
-                msg.text,
-                style: GoogleFonts.urbanist(
-                  fontSize: 14,
-                  color: context.c.textPrimary,
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

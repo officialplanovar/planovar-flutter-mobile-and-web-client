@@ -98,7 +98,21 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<AuthBloc, AuthState>(
+    return PopScope(
+      // Registration: block back so it can't silently skip verification and
+      // drop the user into a half-signed-up state. Reset flow can go back.
+      canPop: !_isRegister,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                  'Enter the code we sent to verify your email, or tap Resend.'),
+            ),
+          );
+        }
+      },
+      child: BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthOtpVerified) {
           // Only the register flow verifies here; reset navigates in _verify().
@@ -261,6 +275,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

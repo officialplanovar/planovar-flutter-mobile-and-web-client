@@ -173,44 +173,10 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
                                 color: context.c.textSecondary),
                             decoration: const InputDecoration(),
                           ),
-                          const SizedBox(height: 24),
-                          Row(
-                            children: [
-                              const Expanded(child: Divider()),
-                              Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 14),
-                                child: Text(
-                                  'or',
-                                  style: GoogleFonts.urbanist(
-                                      fontSize: 13,
-                                      color: context.c.textHint),
-                                ),
-                              ),
-                              const Expanded(child: Divider()),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          OutlinedButton(
-                            onPressed: () {},
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.my_location_rounded,
-                                    size: 18, color: AppColors.primary),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Use my current location',
-                                  style: GoogleFonts.urbanist(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 32),
+                          // "Use my current location" was a no-op button;
+                          // removed until geolocation + reverse-geocoding is
+                          // implemented. Users pick country/city above.
+                          const SizedBox(height: 12),
                         ],
                       ),
                     ),

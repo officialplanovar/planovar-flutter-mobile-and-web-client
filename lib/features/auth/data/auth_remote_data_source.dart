@@ -81,7 +81,11 @@ class AuthRemoteDataSource {
     final res = await _dio
         .post('/api/auth/email-otp/verify-email', data: {'email': email, 'otp': otp});
     ensureOk(res);
-    await _captureTokenOrThrow(res);
+    // verify-email only confirms the address; the session + bearer token were
+    // already established at sign-up (autoSignIn). Capture best-effort — don't
+    // demand a token here, or a verify with no fresh token wrongly errors with
+    // "couldn't establish a secure session".
+    await _captureToken(res);
     return _asMap(res.data);
   }
 
