@@ -7,6 +7,7 @@ import '../../../core/services/booking_service.dart';
 import '../../../core/services/event_service.dart';
 import '../../../core/state/overlay_state.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/formatters.dart';
 import '../../../shared/models/booking_model.dart';
 import '../../../shared/models/event_model.dart';
 import '../../../shared/models/listing_model.dart';
@@ -727,7 +728,9 @@ class _PastEventCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '${event.location ?? 'Venue'} · ₦280,000',
+                      event.budgetRange.isNotEmpty
+                          ? '${event.location ?? 'Venue'} · ${event.budgetRange}'
+                          : (event.location ?? 'Venue'),
                       style: GoogleFonts.urbanist(
                         fontSize: 12,
                         color: context.c.textSecondary,
@@ -758,7 +761,7 @@ class _PastEventCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Friday, 13 March 2026 · 11:00 AM – 12:00 PM',
+                        fmtDate(event.date),
                         style: GoogleFonts.urbanist(
                           fontSize: 12,
                           color: context.c.textSecondary,
@@ -775,7 +778,7 @@ class _PastEventCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Lagos Island studio',
+                        event.location ?? 'Location not set',
                         style: GoogleFonts.urbanist(
                           fontSize: 12,
                           color: context.c.textSecondary,
@@ -948,12 +951,19 @@ class _OrderTrackingTabState extends State<_OrderTrackingTab> {
                         itemBuilder: (ctx, i) {
                           final booking = _filtered[i];
                           final status = _statusLabel(booking);
+                          final amount = booking.finalAmount ??
+                              booking.quoteAmount ??
+                              booking.listing!.basePrice;
                           return _OrderCard(
                             listing: booking.listing!,
                             status: status,
                             subTab: _orderSubTab,
-                            onTap: () =>
-                                _onCardTap(ctx, booking.listingId, status),
+                            dateText: Formatters.date(booking.eventDate),
+                            priceText: amount != null
+                                ? Formatters.currency(amount)
+                                : 'Quote',
+                            onTap: () => _onCardTap(
+                                ctx, booking.id, booking.listingId, status),
                           );
                         },
                       ),
@@ -982,12 +992,17 @@ class _OrderTrackingTabState extends State<_OrderTrackingTab> {
     );
   }
 
-  void _onCardTap(BuildContext ctx, String listingId, String status) {
+  void _onCardTap(
+      BuildContext ctx, String bookingId, String listingId, String status) {
     if (_orderSubTab == 1) {
-      ctx.push(AppRoutes.rentalDetail, extra: {'listingId': listingId});
+      ctx.push(AppRoutes.rentalDetail,
+          extra: {'bookingId': bookingId, 'listingId': listingId});
     } else {
-      ctx.push(AppRoutes.orderDetail,
-          extra: {'listingId': listingId, 'status': status});
+      ctx.push(AppRoutes.orderDetail, extra: {
+        'bookingId': bookingId,
+        'listingId': listingId,
+        'status': status,
+      });
     }
   }
 }
@@ -998,12 +1013,16 @@ class _OrderCard extends StatelessWidget {
   final ListingModel listing;
   final String status;
   final int subTab;
+  final String dateText;
+  final String priceText;
   final VoidCallback onTap;
 
   const _OrderCard({
     required this.listing,
     required this.status,
     required this.subTab,
+    required this.dateText,
+    required this.priceText,
     required this.onTap,
   });
 
@@ -1059,7 +1078,7 @@ class _OrderCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  '13 Mar 2026',
+                  dateText,
                   style: GoogleFonts.urbanist(
                     fontSize: 12,
                     color: context.c.textSecondary,
@@ -1074,9 +1093,7 @@ class _OrderCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    listing.basePrice != null
-                        ? '₦${listing.basePrice!.toStringAsFixed(0)}'
-                        : 'Quote',
+                    priceText,
                     style: GoogleFonts.urbanist(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,

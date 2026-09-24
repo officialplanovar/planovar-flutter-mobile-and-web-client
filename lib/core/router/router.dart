@@ -262,6 +262,7 @@ GoRouter createRouter() {
         builder: (_, state) {
           final extra = state.extra as Map<String, dynamic>? ?? {};
           return OrderDetailScreen(
+            bookingId: extra['bookingId'] as String? ?? '',
             listingId: extra['listingId'] as String? ?? '',
             status: extra['status'] as String? ?? 'pending',
           );
@@ -274,6 +275,7 @@ GoRouter createRouter() {
         builder: (_, state) {
           final extra = state.extra as Map<String, dynamic>? ?? {};
           return RentalDetailScreen(
+            bookingId: extra['bookingId'] as String? ?? '',
             listingId: extra['listingId'] as String? ?? '',
           );
         },
