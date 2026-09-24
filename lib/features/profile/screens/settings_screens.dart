@@ -345,6 +345,43 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   final _channelKeys = ['none', 'inapp', 'email', 'both'];
 
   @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final p = await AuthRepository().getNotificationPrefs();
+      if (!mounted) return;
+      setState(() {
+        _channel = p['channel'] as String? ?? _channel;
+        _allMessages = p['allMessages'] as bool? ?? _allMessages;
+        _orderDelivery = p['orderDelivery'] as bool? ?? _orderDelivery;
+        _eventTimeline = p['eventTimeline'] as bool? ?? _eventTimeline;
+        _paymentAlerts = p['paymentAlerts'] as bool? ?? _paymentAlerts;
+        _quoteInvoice = p['quoteInvoice'] as bool? ?? _quoteInvoice;
+        _vendorMatch = p['vendorMatch'] as bool? ?? _vendorMatch;
+      });
+    } catch (_) {
+      // Keep defaults if prefs can't be loaded.
+    }
+  }
+
+  /// Persist current prefs (fire-and-forget; UI already updated optimistically).
+  void _save() {
+    AuthRepository().updateNotificationPrefs({
+      'channel': _channel,
+      'allMessages': _allMessages,
+      'orderDelivery': _orderDelivery,
+      'eventTimeline': _eventTimeline,
+      'paymentAlerts': _paymentAlerts,
+      'quoteInvoice': _quoteInvoice,
+      'vendorMatch': _vendorMatch,
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final channels = [t.channelNone, t.channelInApp, t.channelEmail, t.channelBoth];
@@ -393,7 +430,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                         final isActive = _channel == _channelKeys[i];
                         return Expanded(
                           child: GestureDetector(
-                            onTap: () => setState(() => _channel = _channelKeys[i]),
+                            onTap: () { setState(() => _channel = _channelKeys[i]); _save(); },
                             child: Container(
                               margin: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
@@ -436,42 +473,42 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                           title: t.notifAllMessages,
                           subtitle: t.notifAllMessagesSub,
                           value: _allMessages,
-                          onChanged: (v) => setState(() => _allMessages = v),
+                          onChanged: (v) { setState(() => _allMessages = v); _save(); },
                         ),
                         Divider(height: 1, thickness: 1, color: context.c.divider),
                         _NotifToggle(
                           title: t.notifOrderDelivery,
                           subtitle: t.notifOrderDeliverySub,
                           value: _orderDelivery,
-                          onChanged: (v) => setState(() => _orderDelivery = v),
+                          onChanged: (v) { setState(() => _orderDelivery = v); _save(); },
                         ),
                         Divider(height: 1, thickness: 1, color: context.c.divider),
                         _NotifToggle(
                           title: t.notifEventTimeline,
                           subtitle: t.notifEventTimelineSub,
                           value: _eventTimeline,
-                          onChanged: (v) => setState(() => _eventTimeline = v),
+                          onChanged: (v) { setState(() => _eventTimeline = v); _save(); },
                         ),
                         Divider(height: 1, thickness: 1, color: context.c.divider),
                         _NotifToggle(
                           title: t.notifPayment,
                           subtitle: t.notifPaymentSub,
                           value: _paymentAlerts,
-                          onChanged: (v) => setState(() => _paymentAlerts = v),
+                          onChanged: (v) { setState(() => _paymentAlerts = v); _save(); },
                         ),
                         Divider(height: 1, thickness: 1, color: context.c.divider),
                         _NotifToggle(
                           title: t.notifQuote,
                           subtitle: t.notifQuoteSub,
                           value: _quoteInvoice,
-                          onChanged: (v) => setState(() => _quoteInvoice = v),
+                          onChanged: (v) { setState(() => _quoteInvoice = v); _save(); },
                         ),
                         Divider(height: 1, thickness: 1, color: context.c.divider),
                         _NotifToggle(
                           title: t.notifVendorMatch,
                           subtitle: t.notifVendorMatchSub,
                           value: _vendorMatch,
-                          onChanged: (v) => setState(() => _vendorMatch = v),
+                          onChanged: (v) { setState(() => _vendorMatch = v); _save(); },
                         ),
                       ],
                     ),
