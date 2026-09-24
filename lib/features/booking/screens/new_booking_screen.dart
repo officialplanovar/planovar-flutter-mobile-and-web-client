@@ -8,6 +8,7 @@ import '../../../core/theme/app_text_styles.dart';
 import '../../../shared/models/listing_model.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../../../l10n/app_localizations.dart';
 
 class NewBookingScreen extends StatefulWidget {
   final String listingId;
@@ -64,13 +65,13 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
   Future<void> _submit() async {
     if (_eventDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select an event date')),
+        SnackBar(content: Text(AppLocalizations.of(context).selectEventDateError)),
       );
       return;
     }
     if (_locationCtrl.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter the event location')),
+        SnackBar(content: Text(AppLocalizations.of(context).enterEventLocationError)),
       );
       return;
     }
@@ -87,8 +88,8 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Booking request submitted!'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context).bookingRequestSubmitted),
             backgroundColor: AppColors.success,
           ),
         );
@@ -107,9 +108,10 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Request a Quote'),
+        title: Text(t.requestAQuote),
         leading: BackButton(onPressed: () => context.pop()),
       ),
       body: _loadingListing
@@ -138,7 +140,7 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
                     ),
                     const SizedBox(height: 24),
                   ],
-                  Text('Event Details', style: AppTextStyles.heading4(context)),
+                  Text(t.eventDetailsHeading, style: AppTextStyles.heading4(context)),
                   const SizedBox(height: 16),
                   // Date picker
                   GestureDetector(
@@ -155,7 +157,7 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
                           Icon(Icons.calendar_today_outlined, color: context.c.textSecondary),
                           const SizedBox(width: 10),
                           Text(
-                            _eventDate != null ? Formatters.date(_eventDate!) : 'Select event date',
+                            _eventDate != null ? Formatters.date(_eventDate!) : t.selectEventDate,
                             style: AppTextStyles.body2(context).copyWith(
                               color: _eventDate != null ? context.c.textPrimary : context.c.textHint,
                             ),
@@ -167,26 +169,26 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
                   const SizedBox(height: 16),
                   TextField(
                     controller: _locationCtrl,
-                    decoration: const InputDecoration(
-                      labelText: 'Event Location',
-                      hintText: 'e.g. Eko Hotel, Victoria Island, Lagos',
-                      prefixIcon: Icon(Icons.location_on_outlined),
+                    decoration: InputDecoration(
+                      labelText: t.eventLocation,
+                      hintText: t.eventLocationHint,
+                      prefixIcon: const Icon(Icons.location_on_outlined),
                     ),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: _requirementsCtrl,
                     maxLines: 5,
-                    decoration: const InputDecoration(
-                      labelText: 'Requirements',
-                      hintText: 'Describe your event, guest count, special requests...',
+                    decoration: InputDecoration(
+                      labelText: t.requirements,
+                      hintText: t.requirementsHint,
                       alignLabelWithHint: true,
                     ),
                   ),
                   // Package selector
                   if (_listing != null && _listing!.packages.isNotEmpty) ...[
                     const SizedBox(height: 24),
-                    Text('Select Package', style: AppTextStyles.heading4(context)),
+                    Text(t.selectPackage, style: AppTextStyles.heading4(context)),
                     const SizedBox(height: 12),
                     ..._listing!.packages.map((pkg) {
                       final isSelected = _selectedPackage?.id == pkg.id;
@@ -232,7 +234,7 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
                   ],
                   const SizedBox(height: 32),
                   GlossyButton(
-                    label: 'Submit Request',
+                    label: t.submitRequest,
                     onPressed: _loading ? null : _submit,
                     isLoading: _loading,
                   ),

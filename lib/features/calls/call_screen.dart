@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:livekit_client/livekit_client.dart';
 import '../../core/services/call_service.dart';
 import '../../core/theme/app_colors.dart';
+import '../../l10n/app_localizations.dart';
 
 /// 1:1 voice call (LiveKit). Connects to the conversation's room; shows
 /// ringing → connected, with mute and end controls.
@@ -99,9 +100,10 @@ class _CallScreenState extends State<CallScreen> {
   }
 
   String get _status {
+    final t = AppLocalizations.of(context);
     if (_error != null) return _error!;
-    if (_connecting) return 'Connecting…';
-    if (!_remoteJoined) return 'Ringing…';
+    if (_connecting) return t.connecting;
+    if (!_remoteJoined) return t.ringing;
     final m = _elapsed.inMinutes.toString().padLeft(2, '0');
     final s = (_elapsed.inSeconds % 60).toString().padLeft(2, '0');
     return '$m:$s';

@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/responsive/responsive.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/auth_repository.dart';
 import '../../../shared/widgets/auth_illustration.dart';
 import '../../../shared/widgets/auth_step_bar.dart';
@@ -37,7 +38,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _submit() {
     if (!_agreed) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please agree to the Terms & Privacy Policy')),
+        SnackBar(content: Text(AppLocalizations.of(context).agreeTermsError)),
       );
       return;
     }
@@ -66,6 +67,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthOtpSent) {
@@ -108,7 +110,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             TextSpan(
                               children: [
                                 TextSpan(
-                                  text: 'Hello ',
+                                  text: t.registerHello,
                                   style: GoogleFonts.urbanist(
                                     fontSize: 28,
                                     fontWeight: FontWeight.w800,
@@ -126,7 +128,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         const SizedBox(height: 6),
                         Center(
                           child: Text(
-                            'Welcome to Planova! Let\'s Get Started',
+                            t.registerWelcome,
                             textAlign: TextAlign.center,
                             style: GoogleFonts.urbanist(
                               fontSize: 14,
@@ -136,27 +138,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                         const SizedBox(height: 32),
-                        _FieldLabel('Full Name'),
+                        _FieldLabel(t.fullName),
                         TextFormField(
                           controller: _nameCtrl,
                           textCapitalization: TextCapitalization.words,
-                          decoration: const InputDecoration(
-                            hintText: 'Enter your Full Name',
+                          decoration: InputDecoration(
+                            hintText: t.fullNameHint,
                           ),
                           validator: (v) =>
-                              (v == null || v.isEmpty) ? 'Full name is required' : null,
+                              (v == null || v.isEmpty) ? t.fullNameRequired : null,
                         ),
                         const SizedBox(height: 20),
-                        _FieldLabel('Email Address'),
+                        _FieldLabel(t.emailAddress),
                         TextFormField(
                           controller: _emailCtrl,
                           keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            hintText: 'Enter your Email address',
+                          decoration: InputDecoration(
+                            hintText: t.emailHint,
                           ),
                           validator: (v) {
-                            if (v == null || v.isEmpty) return 'Email is required';
-                            if (!v.contains('@')) return 'Enter a valid email';
+                            if (v == null || v.isEmpty) return t.emailRequired;
+                            if (!v.contains('@')) return t.emailInvalid;
                             return null;
                           },
                         ),
@@ -164,7 +166,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         BlocBuilder<AuthBloc, AuthState>(
                           builder: (context, state) {
                             return GlossyButton(
-                              label: 'Proceed',
+                              label: t.proceed,
                               onPressed: state is AuthLoading ? null : _submit,
                               isLoading: state is AuthLoading,
                             );
@@ -196,8 +198,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     setState(() => _agreed = !_agreed),
                                 child: Text.rich(
                                   TextSpan(
-                                    text:
-                                        'By checking the box you agree to our ',
+                                    text: t.agreeTermsPrefix,
                                     style: GoogleFonts.urbanist(
                                       fontSize: 13,
                                       color: context.c.textSecondary,
@@ -205,16 +206,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     ),
                                     children: [
                                       TextSpan(
-                                        text: 'Terms & Conditions',
+                                        text: t.termsConditions,
                                         style: GoogleFonts.urbanist(
                                           fontSize: 13,
                                           color: AppColors.primary,
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
-                                      const TextSpan(text: ' and '),
+                                      TextSpan(text: t.andConnector),
                                       TextSpan(
-                                        text: 'Privacy Policy',
+                                        text: t.privacyPolicy,
                                         style: GoogleFonts.urbanist(
                                           fontSize: 13,
                                           color: AppColors.primary,
@@ -236,7 +237,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 14),
                               child: Text(
-                                'or',
+                                t.orLabel,
                                 style: GoogleFonts.urbanist(
                                     fontSize: 13,
                                     color: context.c.textHint),
@@ -258,7 +259,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                               const SizedBox(width: 10),
                               Text(
-                                'Sign up with Google',
+                                t.signUpWithGoogle,
                                 style: GoogleFonts.urbanist(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
@@ -274,14 +275,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             onTap: () => context.pop(),
                             child: Text.rich(
                               TextSpan(
-                                text: 'Already Have an account? ',
+                                text: t.alreadyHaveAccount,
                                 style: GoogleFonts.urbanist(
                                   fontSize: 14,
                                   color: context.c.textSecondary,
                                 ),
                                 children: [
                                   TextSpan(
-                                    text: 'Sign in',
+                                    text: t.signInLink,
                                     style: GoogleFonts.urbanist(
                                       fontSize: 14,
                                       color: AppColors.primary,

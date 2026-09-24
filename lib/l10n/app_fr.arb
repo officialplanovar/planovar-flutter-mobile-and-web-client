@@ -26,5 +26,888 @@
   "signInWithGoogle": "Se connecter avec Google",
   "orLabel": "ou",
   "noAccountQuestion": "Vous n'avez pas de compte ?",
-  "signUp": "S'inscrire"
+  "signUp": "S'inscrire",
+  "emailRequired": "L'e-mail est requis",
+  "emailInvalid": "Saisissez un e-mail valide",
+  "passwordRequired": "Le mot de passe est requis",
+  "agreeTermsError": "Veuillez accepter les Conditions et la Politique de confidentialité",
+  "registerHello": "Bonjour ",
+  "registerWelcome": "Bienvenue sur Planova ! Commençons",
+  "fullName": "Nom complet",
+  "fullNameHint": "Saisissez votre nom complet",
+  "fullNameRequired": "Le nom complet est requis",
+  "proceed": "Continuer",
+  "agreeTermsPrefix": "En cochant la case, vous acceptez nos ",
+  "termsConditions": "Conditions générales",
+  "andConnector": " et ",
+  "privacyPolicy": "Politique de confidentialité",
+  "signUpWithGoogle": "S'inscrire avec Google",
+  "alreadyHaveAccount": "Vous avez déjà un compte ? ",
+  "signInLink": "Se connecter",
+  "getStarted": "Commencer",
+  "onboard1TitleBlack": "Fatigué de courir après d'interminables",
+  "onboard1TitlePurple": "recommandations ?",
+  "onboard1Body": "Organiser un événement ne devrait pas ressembler à un second emploi. Fini la dispersion : découvrez des prestataires de qualité en quelques secondes.",
+  "onboard2TitleBlack": "Les meilleurs talents, au bout de vos",
+  "onboard2TitlePurple": "doigts.",
+  "onboard2Body": "Accédez à notre réseau soigneusement sélectionné de traiteurs, décorateurs et photographes de premier plan. Une qualité vérifiée, à chaque fois.",
+  "onboard3TitleBlack": "Rejoignez la communauté des pros de",
+  "onboard3TitlePurple": "l'organisation.",
+  "onboard3Body": "Ne manquez pas les tarifs exclusifs des prestataires. Rejoignez plus de 50 000 utilisateurs qui vivent des moments inoubliables.",
+  "otpNewCodeSent": "Un nouveau code a été envoyé",
+  "otpResendError": "Impossible de renvoyer le code : {error}",
+  "@otpResendError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "otpVerifyPrompt": "Saisissez le code que nous avons envoyé pour vérifier votre e-mail, ou appuyez sur Renvoyer.",
+  "verifyYourEmail": "Vérifiez votre e-mail",
+  "confirmOtp": "Confirmer le code",
+  "otpSentToEmail": "Nous avons envoyé un code à 6 chiffres à votre e-mail",
+  "otpEnterSentTo": "Saisissez le code envoyé à ",
+  "resendInSeconds": "Renvoyer dans {seconds} s",
+  "@resendInSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "resendOtp": "Renvoyer le code",
+  "addPhoneTitle": "Ajoutez votre numéro de téléphone",
+  "addPhoneSubtitle": "Cela nous aide à personnaliser un peu plus votre expérience",
+  "enterPhoneNumber": "Saisissez le numéro de téléphone",
+  "saving": "Enregistrement…",
+  "skipForNow": "Passer pour l'instant",
+  "createStrongPassword": "Créez un mot de passe fort",
+  "newPassword": "Nouveau mot de passe",
+  "confirmPassword": "Confirmer le mot de passe",
+  "passwordsDoNotMatch": "Les mots de passe ne correspondent pas",
+  "criteriaCapital": "Doit contenir une lettre majuscule",
+  "criteriaNumber": "Doit contenir un chiffre, par ex. 1, 2, 4, etc.",
+  "criteriaSpecial": "Doit contenir un caractère spécial, par ex. @, $, %, etc.",
+  "forgotPasswordTitle": "Mot de passe oublié ?",
+  "forgotPasswordSubtitle": "Saisissez l'e-mail utilisé lors de l'inscription, nous\nenverrons un code OTP à 6 chiffres pour vérification",
+  "passwordResetSuccess": "Mot de passe réinitialisé avec succès. Veuillez vous connecter.",
+  "resetYourPassword": "Réinitialisez votre mot de passe",
+  "resetPassword": "Réinitialiser le mot de passe",
+  "categoryPrefTitle": "Dites-nous quels événements\nvous souhaitez",
+  "categoryPrefSubtitle": "Nous personnaliserons vos recommandations et vos résultats de recherche.",
+  "locationSaveError": "Impossible d'enregistrer la localisation : {error}",
+  "@locationSaveError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "selectPreferredLocation": "Sélectionnez votre localisation préférée",
+  "country": "Pays",
+  "selectCountry": "Sélectionnez un pays",
+  "city": "Ville",
+  "selectYourCity": "Sélectionnez votre ville",
+  "thereFallback": "vous",
+  "homeWelcomeBack": "Bon retour",
+  "searchVendorOrLocation": "Rechercher un prestataire ou un lieu",
+  "browseCategories": "Parcourir les catégories",
+  "yourUpcomingEvents": "Vos événements à venir",
+  "recommendedVendors": "Prestataires recommandés pour vous",
+  "recommendedProducts": "Produits recommandés pour vous",
+  "noUpcomingEvents": "Aucun événement à venir",
+  "viewAll": "Tout voir",
+  "eventCardTitle": "Événement {name}",
+  "@eventCardTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vendorLabel": "Prestataire",
+  "getQuote": "Obtenir un devis",
+  "rentForEvent": "Louer pour votre événement",
+  "addToEventPlus": "Ajouter à l'événement +",
+  "services": "Services",
+  "products": "Produits",
+  "findYourVibe": "Trouvez votre ambiance",
+  "searchCategoriesHint": "Rechercher des catégories...",
+  "browseServicesByCategory": "Parcourir les services par catégorie",
+  "noCategoriesFound": "Aucune catégorie trouvée",
+  "filterReset": "Réinitialiser",
+  "filters": "Filtres",
+  "priceRange": "Fourchette de prix",
+  "rating": "Note",
+  "locationTitle": "Localisation",
+  "enterCityOrArea": "Saisissez une ville ou une zone",
+  "applyFilters": "Appliquer les filtres",
+  "applyFiltersCount": "Appliquer les filtres ({count})",
+  "@applyFiltersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchProductsHint": "Rechercher des produits...",
+  "searchCategoryHint": "Rechercher {name}...",
+  "@searchCategoryHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filterAll": "Tous",
+  "availableForSale": "Disponible à la vente",
+  "availableForRent": "Disponible à la location",
+  "somethingWentWrongRetry": "Une erreur s'est produite. Appuyez pour réessayer.",
+  "noProductsFound": "Aucun produit trouvé",
+  "noVendorsFound": "Aucun prestataire trouvé",
+  "contactForPrice": "Contacter pour le prix",
+  "moreFiltersComingSoon": "D'autres options de filtre arrivent bientôt.",
+  "close": "Fermer",
+  "myEventsAmp": "Mes événements et ",
+  "ordersTitle": "commandes",
+  "segMyEvents": "Mes événements",
+  "orderTracking": "Suivi des commandes",
+  "upcoming": "À venir",
+  "past": "Passés",
+  "cancelledLabel": "Annulé",
+  "completedLabel": "Terminé",
+  "noPastEvents": "Aucun événement passé",
+  "noCancelledEvents": "Aucun événement annulé",
+  "eventChip": "Événement",
+  "noVendorsSourcedYet": "Aucun prestataire trouvé pour le moment",
+  "vendorsSourced": "{count, plural, =1{1 prestataire trouvé} other{{count} prestataires trouvés}}",
+  "@vendorsSourced": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "viewDetails": "Voir les détails",
+  "singleLabel": "Unique",
+  "venueLabel": "Lieu",
+  "locationNotSet": "Localisation non définie",
+  "tabPurchase": "Achat",
+  "tabRentals": "Locations",
+  "noOrdersYet": "Aucune commande pour le moment",
+  "quoteLabel": "Devis",
+  "addVendorTitle": "Ajouter un prestataire ?",
+  "addVendorBody": "Ajouter {vendor} à « {event} » ?",
+  "@addVendorBody": {
+    "placeholders": {
+      "vendor": {
+        "type": "String"
+      },
+      "event": {
+        "type": "String"
+      }
+    }
+  },
+  "thisEvent": "cet événement",
+  "addAction": "Ajouter",
+  "vendorAddedToEvent": "{vendor} a été ajouté à votre événement",
+  "@vendorAddedToEvent": {
+    "placeholders": {
+      "vendor": {
+        "type": "String"
+      }
+    }
+  },
+  "eventNotFound": "Événement introuvable",
+  "eventNotFoundBody": "Événement introuvable",
+  "guestsCount": "{count, plural, =1{1 invité} other{{count} invités}}",
+  "@guestsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "planningProgress": "Progression de la planification",
+  "budgetRangeLabel": "Budget : {min} – {max}",
+  "@budgetRangeLabel": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "browseRecommendedHint": "Parcourez l'onglet Recommandés pour ajouter des prestataires à cet événement.",
+  "viewGroupChat": "💬 Voir la discussion de groupe",
+  "createGroupChatBtn": "💬 Créer une discussion de groupe",
+  "addNewVendor": "+ Ajouter un nouveau prestataire",
+  "cancelEventBtn": "⚠ Annuler l'événement",
+  "cancelEventTitle": "Annuler l'événement ?",
+  "cancelEventBody": "Cela annule « {name} ». Cette action est irréversible.",
+  "@cancelEventBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "keep": "Conserver",
+  "cancelEventAction": "Annuler l'événement",
+  "eventCancelled": "Événement annulé",
+  "vendorsAvailableForEvent": "Prestataires disponibles pour votre événement",
+  "searchVendorsHint": "Rechercher des prestataires...",
+  "noVendorsAvailableYet": "Aucun prestataire disponible pour le moment",
+  "noVendorsInCategories": "Aucun prestataire dans les catégories sélectionnées",
+  "tabVendors": "Prestataires",
+  "tabRecommended": "Recommandés",
+  "tabTimeline": "Chronologie",
+  "tabItems": "Articles",
+  "statusComplete": "Terminé",
+  "statusPending": "En attente",
+  "tlEventCreated": "Événement créé",
+  "tlSourceVendors": "Trouvez vos prestataires",
+  "tlEventConfirmed": "Événement confirmé",
+  "tlEventDay": "Jour de l'événement ({date})",
+  "@tlEventDay": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "tlEventCompleted": "Événement terminé",
+  "eventTimeline": "Chronologie de l'événement",
+  "nothingAddedYet": "Rien n'a encore été ajouté à cet événement.\nOuvrez un produit ou un service et appuyez sur « Ajouter à l'événement » pour le voir ici.",
+  "addedToThisEvent": "Ajouté à cet événement",
+  "rentNow": "Louer maintenant",
+  "orderNow": "Commander maintenant",
+  "requestQuote": "Demander un devis",
+  "quoteInquiryMessage": "Bonjour ! Je souhaiterais un devis pour « {title} » pour mon événement « {event} » le {date}.",
+  "@quoteInquiryMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "event": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "inquirySent": "Demande envoyée — le prestataire vous enverra un devis",
+  "createGroupChatTitle": "Créer une discussion de groupe ?",
+  "createGroupChatBody": "Tous les prestataires associés à cet événement rejoindront automatiquement la discussion — y compris ceux que vous ajouterez plus tard. Les devis et factures restent privés dans vos discussions directes.",
+  "createAction": "Créer",
+  "removeFromEventTitle": "Retirer de l'événement ?",
+  "removeFromEventBody": "Retirer « {title} » de {event} ?",
+  "@removeFromEventBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "event": {
+        "type": "String"
+      }
+    }
+  },
+  "removeAction": "Retirer",
+  "listingRemoved": "{title} a été retiré",
+  "@listingRemoved": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "createAnPrefix": "Créer un ",
+  "step1Subtitle": "Étape une, choisissez le type d'événement",
+  "eventType": "Type d'événement",
+  "typeWedding": "Mariage",
+  "typeBirthday": "Anniversaire",
+  "typeCorporate": "Entreprise",
+  "typeGraduation": "Remise de diplôme",
+  "otherLabel": "Autre",
+  "pleaseSpecify": "Veuillez préciser",
+  "eventPrefix": "Événement ",
+  "detailsHighlight": "Détails",
+  "step2Subtitle": "Étape deux, saisissez les détails de votre événement",
+  "eventTitle": "Titre de l'événement",
+  "eventTitleHint": "ex. Ma réception de mariage",
+  "eventDate": "Date de l'événement",
+  "selectDate": "Sélectionner une date",
+  "guestCount": "Nombre d'invités",
+  "timeFrom": "Heure de début",
+  "startTime": "Heure de début",
+  "timeTo": "Heure de fin",
+  "endTime": "Heure de fin",
+  "venue": "Lieu",
+  "venueHint": "Saisissez l'adresse du lieu",
+  "budgetMinLabel": "Budget min (₦)",
+  "budgetMaxLabel": "Budget max (₦)",
+  "eventThumbnail": "Vignette de l'événement",
+  "uploadThumbnail": "Téléverser une vignette",
+  "categoriesHighlight": "Catégories",
+  "step3Subtitle": "Étape trois, sélectionnez vos préférences",
+  "whatServicesNeeded": "De quels services avez-vous besoin pour votre événement ?",
+  "step4Subtitle": "Étape quatre, sélectionnez vos prestataires",
+  "eventCreatedAdded": "Événement créé — ajouté à celui-ci 🎉",
+  "eventCreated": "Événement créé 🎉",
+  "recommendedVendorsForEvent": "Prestataires recommandés pour votre événement",
+  "sourcedOfTotal": "{sourced} sur {total} prestataires",
+  "@sourcedOfTotal": {
+    "placeholders": {
+      "sourced": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "searchForItems": "Rechercher des articles",
+  "addedCheck": "Ajouté ✓",
+  "reviewSourcedVendors": "Vérifier les prestataires trouvés",
+  "createEventWithoutSourcing": "Créer l'événement sans prestataires",
+  "allVendorsSourced": "Tous les {count} prestataires trouvés pour toutes les catégories",
+  "@allVendorsSourced": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "createEvent": "Créer l'événement",
+  "tabProductsToBuy": "Produits à acheter",
+  "tabServicesToBook": "Services à réserver",
+  "tabEquipmentRentals": "Location d'équipement",
+  "verified": "Vérifié",
+  "serviceRadiusInfo": "{location} · rayon de service de 20 km",
+  "@serviceRadiusInfo": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "businessHoursInfo": "Lun–Sam · 9h–18h",
+  "respondsWithin": "Répond en ~30 min",
+  "selectOptionPreference": "Sélectionnez une option selon votre préférence",
+  "nothingHereYet": "Rien ici pour le moment.",
+  "serviceDetails": "Détails du service",
+  "description": "Description",
+  "cancellationPolicy": "Politique d'annulation :",
+  "moderateValue": "Modérée",
+  "minServiceDuration": "Durée minimale du service :",
+  "fourHours": "4 heures",
+  "addToEvent": "Ajouter à l'événement",
+  "quoteSent": "Devis envoyé",
+  "removeVendor": "Retirer le prestataire",
+  "swapVendor": "Remplacer le prestataire",
+  "tapStarsToRate": "Appuyez sur les étoiles pour noter votre expérience",
+  "ratedStars": "Noté {rating} étoiles",
+  "@ratedStars": {
+    "placeholders": {
+      "rating": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewSubmitted": "Avis envoyé — merci ! ⭐",
+  "reviewTitle": "Avis",
+  "reviewSubtitle": "Dites-nous comment s'est passée votre réservation",
+  "leaveFeedback": "Laissez un avis détaillé",
+  "feedbackHint": "Dites-nous comment s'est passée votre expérience",
+  "sending": "Envoi…",
+  "sendReview": "Envoyer l'avis",
+  "cancelOrder": "Annuler la commande",
+  "notice": "Avis",
+  "cancelOrderNotice": "L'annulation de cette commande avertira le prestataire et notre équipe d'assistance. Des frais d'annulation peuvent s'appliquer selon la politique du prestataire. Les remboursements sont généralement traités sous 3 à 5 jours ouvrés.",
+  "reasonForCancellation": "Motif de l'annulation",
+  "cancelReasonPlans": "Changement de plans",
+  "cancelReasonBetter": "J'ai trouvé une meilleure alternative",
+  "cancelReasonNoResponse": "Le prestataire ne répond pas",
+  "cancelReasonMistake": "Commandé par erreur",
+  "cancelReasonOther": "Autre motif",
+  "describeIssue": "Décrivez le problème",
+  "provideAdditionalDetails": "Fournissez des détails supplémentaires...",
+  "messageVendorInstead": "Contacter le prestataire à la place",
+  "youLabel": "Vous",
+  "memberLabel": "Membre",
+  "noMessagesYet": "Aucun message pour le moment — dites bonjour 👋",
+  "membersCount": "{count, plural, =1{1 membre} other{{count} membres}}",
+  "@membersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addTodoTooltip": "Ajouter une tâche",
+  "paymentUpdate": "Mise à jour du paiement",
+  "confirmedBanner": "Confirmé",
+  "messageTheGroup": "Envoyer un message au groupe…",
+  "raiseDispute": "Ouvrir un litige",
+  "disputeNotice": "L'ouverture d'un litige avertira notre équipe d'assistance qui enquêtera sur le problème. Veuillez fournir autant de détails que possible. Les litiges sont généralement résolus sous 3 à 5 jours ouvrés.",
+  "disputeCategory": "Catégorie du litige",
+  "disputeReasonNotDescribed": "Article non conforme à la description",
+  "disputeReasonNoShow": "Le prestataire ne s'est pas présenté / n'a pas fourni le service",
+  "disputeReasonOvercharged": "Surfacturé / montant incorrect",
+  "disputeReasonDamaged": "Article endommagé / manquant",
+  "disputeReasonOther": "Autre problème",
+  "describeWhatHappened": "Décrivez en détail ce qui s'est passé...",
+  "attachEvidence": "Joindre des preuves (facultatif)",
+  "uploadImage": "Téléverser une image",
+  "submitDispute": "Soumettre le litige",
+  "requestRefund": "Demander un remboursement",
+  "refundNotice": "La demande de remboursement avertira notre équipe d'assistance qui enquêtera sur le problème. Veuillez fournir autant de détails que possible. Les demandes de remboursement sont généralement résolues sous 3 à 5 jours ouvrés.",
+  "refundCategory": "Catégorie du remboursement",
+  "refundReasonNotReceived": "Article non reçu",
+  "refundReasonDamaged": "Article reçu endommagé",
+  "bankDetails": "Coordonnées bancaires",
+  "selectBank": "Sélectionner une banque",
+  "enterAccountNumber": "Saisissez le numéro de compte",
+  "orderDetails": "Détails de la commande",
+  "orderCouldNotLoad": "Cette commande n'a pas pu être chargée.",
+  "orderFallback": "Commande",
+  "total": "Total",
+  "statusHeading": "Statut",
+  "requirements": "Exigences",
+  "statusDelivered": "Livré",
+  "statusOrderConfirmed": "Commande confirmée",
+  "statusOutForDelivery": "En cours de livraison",
+  "statusOrderPlaced": "Commande passée",
+  "requestRefundWarn": "⚠ Demander un remboursement",
+  "cancelOrderWarn": "⚠ Annuler la commande",
+  "rentalDetails": "Détails de la location",
+  "rentalCouldNotLoad": "Cette location n'a pas pu être chargée.",
+  "rentalFallback": "Location",
+  "perDayRate": "Tarif journalier",
+  "refundableDeposit": "Caution remboursable",
+  "statusReturned": "Retourné",
+  "statusPickedUp": "Récupéré",
+  "statusRequested": "Demandé",
+  "tabDetails": "Détails",
+  "serviceType": "Type de service",
+  "addOns": "Options",
+  "guestSize": "Nombre d'invités",
+  "dateAndTime": "Date et heure",
+  "duration": "Durée",
+  "additionalInformation": "Informations complémentaires",
+  "quoteSentByVendor": "Devis envoyé par le prestataire",
+  "bookingCompleted": "Réservation terminée",
+  "awaitingQuote": "En attente du devis du prestataire",
+  "viewQuote": "Voir le devis",
+  "viewConversationHistory": "Voir l'historique de la conversation",
+  "tlQuoteAccepted": "Devis accepté",
+  "tlPaymentConfirmed": "Paiement confirmé",
+  "tlEventDayShort": "Jour de l'événement",
+  "bookingTimeline": "Chronologie de la réservation",
+  "quickActions": "Actions rapides",
+  "leaveReviewBtn": "⭐ Laisser un avis",
+  "messageVendor": "💬 Contacter le prestataire",
+  "callVendor": "📞 Appeler le prestataire",
+  "downloadReceipt": "📋 Télécharger le reçu de réservation",
+  "raiseDisputeBtn": "⚠ Ouvrir un litige",
+  "myBookings": "Mes réservations",
+  "tabActive": "Actives",
+  "noBookingsHere": "Aucune réservation ici",
+  "noBookingsSubtitle": "Lorsque vous réservez un prestataire, cela apparaîtra ici.",
+  "selectEventDateError": "Veuillez sélectionner une date d'événement",
+  "enterEventLocationError": "Veuillez saisir le lieu de l'événement",
+  "bookingRequestSubmitted": "Demande de réservation envoyée !",
+  "requestAQuote": "Demander un devis",
+  "eventDetailsHeading": "Détails de l'événement",
+  "selectEventDate": "Sélectionner la date de l'événement",
+  "eventLocation": "Lieu de l'événement",
+  "eventLocationHint": "ex. Eko Hotel, Victoria Island, Lagos",
+  "requirementsHint": "Décrivez votre événement, le nombre d'invités, les demandes spéciales...",
+  "selectPackage": "Sélectionner une formule",
+  "submitRequest": "Envoyer la demande",
+  "bookingNotFound": "Réservation introuvable",
+  "bookingDetails": "Détails de la réservation",
+  "progress": "Progression",
+  "statusActive": "Active",
+  "dateLabel": "Date",
+  "cancelBookingTitle": "Annuler la réservation ?",
+  "cancelBookingBody": "Êtes-vous sûr de vouloir annuler cette réservation ?",
+  "noLabel": "Non",
+  "yesCancel": "Oui, annuler",
+  "cancelBooking": "Annuler la réservation",
+  "paymentArrangedNotice": "Le paiement est organisé directement entre vous et le prestataire. Les transactions se déroulent en dehors de Planovar et sont aux risques des deux parties.",
+  "quoteNotFound": "Devis introuvable",
+  "quoteFrom": "Devis de {vendor}",
+  "@quoteFrom": {
+    "placeholders": {
+      "vendor": {
+        "type": "String"
+      }
+    }
+  },
+  "expiredOn": "Expiré le {date}",
+  "@expiredOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "validUntil": "Valable jusqu'au {date}",
+  "@validUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "notesFromVendor": "Notes du prestataire",
+  "acceptAndBook": "Accepter et réserver",
+  "acceptQuoteTitle": "Accepter le devis ?",
+  "acceptQuoteBody": "Êtes-vous sûr de vouloir accepter ce devis pour {amount} ?",
+  "@acceptQuoteBody": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "quoteAcceptedInvoice": "Devis accepté — une facture a été ajoutée à votre discussion.",
+  "couldNotAcceptQuote": "Impossible d'accepter le devis : {error}",
+  "@couldNotAcceptQuote": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "decline": "Refuser",
+  "notificationsTitle": "Notifications",
+  "markAllRead": "Tout marquer comme lu",
+  "noNotifications": "Aucune notification",
+  "listingNotFound": "Annonce introuvable",
+  "reviewsCountParen": "({count}) avis",
+  "@reviewsCountParen": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "readLess": "Voir moins",
+  "readMore": "Voir plus",
+  "quantity": "Quantité",
+  "sizes": "Tailles",
+  "colorLabel": "Couleur",
+  "policyTitle": "Politique d'annulation {policy}",
+  "@policyTitle": {
+    "placeholders": {
+      "policy": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceDuration": "Durée du service :",
+  "vendorDetails": "Détails du prestataire",
+  "messageVendorPlain": "Contacter le prestataire",
+  "rentForYourEvent": "Louer pour votre événement",
+  "addToEventPlusIcon": "+ Ajouter à l'événement",
+  "fromPrice": "À partir de ₦ {price}",
+  "@fromPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "quoteOnRequest": "Devis sur demande",
+  "policyFlexible1": "Remboursement intégral en cas d'annulation jusqu'à 24 heures avant l'événement.",
+  "policyFlexible2": "Des frais de traitement modiques peuvent s'appliquer.",
+  "policyStrict1": "Aucun remboursement une fois la réservation confirmée.",
+  "policyModerate1": "Remboursement à 100 % en cas d'annulation 7 jours ou plus avant l'événement.",
+  "policyModerate2": "Remboursement à 50 % en cas d'annulation 3 à 6 jours avant l'événement.",
+  "policyModerate3": "Aucun remboursement dans les 48 heures précédant l'événement.",
+  "vendorNotFound": "Prestataire introuvable",
+  "linkCopied": "Lien copié dans le presse-papiers",
+  "tabAbout": "À propos",
+  "tabReviews": "Avis",
+  "noDescriptionAvailable": "Aucune description disponible.",
+  "noProductsAvailable": "Aucun produit disponible",
+  "noServicesAvailable": "Aucun service disponible",
+  "verifiedReviewsCount": "{count, plural, =1{1 avis vérifié} other{{count} avis vérifiés}}",
+  "@verifiedReviewsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noReviewsYet": "Aucun avis pour le moment",
+  "stayConnected": "Restez en contact avec vos prestataires",
+  "searchConversations": "Rechercher des conversations",
+  "noConversationsYet": "Aucune conversation pour le moment",
+  "groupChat": "Discussion de groupe",
+  "groupVendorsCount": "Groupe · {count, plural, =1{1 prestataire} other{{count} prestataires}}",
+  "@groupVendorsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "quoteSentAmount": "Devis envoyé - ₦{amount} · ",
+  "@quoteSentAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "tapToReview": "Appuyez pour consulter",
+  "daysAgo": "il y a {days} j",
+  "@daysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "quoteAcceptedInvoiceCreated": "Devis accepté — facture créée 🎉",
+  "quoteDeclined": "Devis refusé",
+  "quoteVersionValid": "Version {version} · valable jusqu'au {date}",
+  "@quoteVersionValid": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "lineItems": "Lignes du devis",
+  "paymentTerms": "Conditions de paiement",
+  "noteFromVendor": "Note du prestataire",
+  "leaveAReview": "Laisser un avis",
+  "shareYourExperience": "Partagez votre expérience…",
+  "addShortComment": "Ajoutez un court commentaire",
+  "reviewSubmittedStar": "Avis envoyé ⭐",
+  "submitting": "Envoi…",
+  "submitReviewBtn": "Envoyer l'avis",
+  "couldNotOpenPayment": "Impossible d'ouvrir la page de paiement",
+  "finishPayment": "Finaliser le paiement",
+  "finishPaymentBody": "Appuyez sur « J'ai payé » une fois le paiement de ₦{charge} effectué (frais de transaction de ₦{fee} inclus) sur Paystack.",
+  "@finishPaymentBody": {
+    "placeholders": {
+      "charge": {
+        "type": "String"
+      },
+      "fee": {
+        "type": "String"
+      }
+    }
+  },
+  "notYet": "Pas encore",
+  "ivePaid": "J'ai payé",
+  "paymentReceived": "Paiement reçu 🎉",
+  "paymentStillProcessing": "Le paiement est en cours de traitement — nous le mettrons à jour sous peu",
+  "today": "Aujourd'hui",
+  "chatFallback": "Discussion",
+  "sayHello": "Dites bonjour 👋",
+  "quoteAcceptedBanner": "Devis accepté",
+  "quoteExpired": "Devis expiré",
+  "declinedBanner": "Refusé",
+  "depositRefundedAmount": "Caution remboursée · ₦{amount}",
+  "@depositRefundedAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "depositRefunded": "Caution remboursée",
+  "paymentReceivedAmount": "Paiement reçu · ₦{amount}",
+  "@paymentReceivedAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentReceivedBanner": "Paiement reçu",
+  "orderUpdate": "Mise à jour de la commande",
+  "reviewSubmittedRating": "Avis envoyé · {rating}★",
+  "@reviewSubmittedRating": {
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentConfirmedFallback": "Paiement confirmé",
+  "paymentProcessingFallback": "Paiement en cours…",
+  "bookingCancelledFallback": "Cette réservation a été annulée.",
+  "disputeRaisedFallback": "Un litige a été ouvert.",
+  "howDidItGo": "Comment cela s'est-il passé ?",
+  "refundRequestedFallback": "Demande de remboursement envoyée.",
+  "paymentConfirmedTitle": "Paiement confirmé",
+  "paymentProcessingTitle": "Paiement en cours",
+  "bookingCancelledTitle": "Réservation annulée",
+  "disputeRaisedTitle": "Litige ouvert",
+  "disputeReviewNote": "Notre équipe examinera ce litige sous 24 heures.",
+  "howWasExperience": "Comment s'est passée votre expérience ?",
+  "leaveReviewPlain": "Laisser un avis",
+  "refundRequestedTitle": "Remboursement demandé",
+  "refundProcessNote": "Le remboursement sera traité sous 5 à 7 jours ouvrés.",
+  "typeAMessage": "Écrivez un message",
+  "myAccount": "Mon compte",
+  "settingsSection": "Paramètres",
+  "signOut": "Se déconnecter",
+  "yourProfile": "Votre profil",
+  "editProfile": "Modifier le profil",
+  "savedLabel": "Enregistrés",
+  "savedVendors": "Prestataires enregistrés",
+  "yourWishlist": "Votre liste de souhaits",
+  "myReviews": "Mes avis",
+  "myReviewsSubtitle": "Consultez vos évaluations globales par les prestataires",
+  "theme": "Thème",
+  "themeSubtitle": "Choisissez votre affichage préféré",
+  "languageSubtitle": "Choisissez votre langue préférée",
+  "notificationsSubtitle": "Gérer les alertes et préférences",
+  "privacySecurity": "Confidentialité et sécurité",
+  "privacySubtitle": "Paramètres de sécurité du compte",
+  "helpSupport": "Aide et assistance",
+  "helpSubtitle": "Consultez notre centre d'aide pour vos questions",
+  "deleteAccount": "Supprimer votre compte",
+  "deleteAccountSubtitle": "Supprimer définitivement votre compte",
+  "signOutConfirm": "Êtes-vous sûr de vouloir vous déconnecter",
+  "couldNotUploadPhoto": "Impossible de téléverser la photo : {error}",
+  "@couldNotUploadPhoto": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "profileUpdated": "Profil mis à jour",
+  "couldNotUpdateProfile": "Impossible de mettre à jour le profil : {error}",
+  "@couldNotUpdateProfile": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "firstName": "Prénom",
+  "enterFirstName": "Saisissez le prénom",
+  "lastName": "Nom",
+  "enterLastName": "Saisissez le nom",
+  "phoneNumber": "Numéro de téléphone",
+  "saveChanges": "Enregistrer les modifications",
+  "reviewsScreenSubtitle": "Consultez tous vos avis d'événements passés",
+  "noSavedVendors": "Aucun prestataire enregistré",
+  "noSavedVendorsSub": "Appuyez sur le cœur d'un prestataire pour l'enregistrer ici.",
+  "noSavedProducts": "Aucun produit enregistré",
+  "noSavedProductsSub": "Appuyez sur le cœur d'un produit pour l'enregistrer ici.",
+  "yourFavourites": "Vos favoris",
+  "favouritesSubtitle": "Consultez tous vos prestataires et produits enregistrés",
+  "changePassword": "Changer le mot de passe",
+  "changePasswordSubtitle": "Créez un nouveau mot de passe fort",
+  "enterNewPassword": "Saisissez le nouveau mot de passe",
+  "confirmNewPassword": "Confirmez le nouveau mot de passe",
+  "hasCapital": "Contient une lettre majuscule",
+  "hasNumber": "Contient un chiffre",
+  "hasSpecial": "Contient un caractère spécial",
+  "savePassword": "Enregistrer le mot de passe",
+  "twoFactorAuth": "Authentification à deux facteurs",
+  "twoFactorSubtitle": "ajoutez une couche de sécurité supplémentaire",
+  "twoFactorEmailDesc": "Un code d'authentification sera envoyé à votre e-mail pour vérification",
+  "twoFactorPhoneDesc": "Un code d'authentification sera envoyé à votre téléphone pour vérification",
+  "savePreferences": "Enregistrer les préférences",
+  "support": "Assistance",
+  "chatWithTeam": "Discutez avec notre équipe",
+  "supportBeingSetup": "L'assistance est en cours de configuration",
+  "openLiveChatDesc": "Ouvrez notre chat en direct pour parler à un agent d'assistance.",
+  "supportEmailDesc": "Notre chat en direct n'est pas encore connecté — envoyez-nous un e-mail et nous vous répondrons rapidement.",
+  "openLiveChat": "Ouvrir le chat en direct",
+  "emailSupport": "Envoyer un e-mail à l'assistance",
+  "themeScreenSubtitle": "Sélectionnez votre apparence de thème préférée",
+  "lightLabel": "Clair",
+  "darkLabel": "Sombre",
+  "systemLabel": "Système",
+  "systemSubtitle": "Utiliser la préférence par défaut de votre système",
+  "notifSettingsSubtitle": "Gérez quand vous recevrez des notifications",
+  "allNotifications": "Toutes les notifications",
+  "notifChannelDesc": "Choisissez où vous souhaitez recevoir les notifications",
+  "channelNone": "Aucun",
+  "channelInApp": "Dans l'app",
+  "channelEmail": "E-mail",
+  "channelBoth": "Les deux",
+  "notifAllMessages": "Tous les messages",
+  "notifAllMessagesSub": "quelqu'un répond à votre message",
+  "notifOrderDelivery": "Suivi commande/livraison",
+  "notifOrderDeliverySub": "soyez averti d'un nouveau statut de livraison",
+  "notifEventTimeline": "Chronologie de l'événement",
+  "notifEventTimelineSub": "soyez averti d'une nouvelle chronologie d'événement",
+  "notifPayment": "Alertes de paiement",
+  "notifPaymentSub": "soyez averti lorsqu'un paiement aboutit",
+  "notifQuote": "Alertes devis / facture",
+  "notifQuoteSub": "soyez averti lorsque vous recevez un devis",
+  "notifVendorMatch": "Correspondance prestataire",
+  "notifVendorMatchSub": "recevez des alertes pour les prestataires recommandés",
+  "privacyScreenSubtitle": "gérez votre mot de passe et l'authentification à deux facteurs",
+  "changeYourPassword": "Changer votre mot de passe",
+  "changePasswordRowSub": "Mettez à jour vos identifiants de connexion",
+  "twoFactorRow": "Authentification à deux facteurs",
+  "twoFactorRowSub": "ajoutez une couche de sécurité supplémentaire",
+  "helpAndSupport": "Aide et assistance",
+  "helpScreenSubtitle": "Obtenez de l'aide en temps réel pour toutes vos questions",
+  "searchForHelp": "Rechercher de l'aide",
+  "emailSupportTitle": "Assistance par e-mail",
+  "liveChat": "Chat en direct",
+  "liveChatSub": "discutez avec notre équipe d'assistance disponible du lun. au ven. de 8h à 17h",
+  "phoneSupport": "Assistance téléphonique",
+  "faqTitle": "FAQ",
+  "faqSub": "Obtenez des réponses à vos questions urgentes",
+  "faqScreenTitle": "Foire aux questions",
+  "faqScreenSubtitle": "Des réponses à vos questions urgentes",
+  "searchFaqs": "Rechercher dans la FAQ",
+  "faqQ1": "Comment réserver un prestataire ?",
+  "faqA1": "Parcourez les prestataires, appuyez sur celui qui vous plaît, consultez ses annonces et appuyez sur « Demander un devis » ou « Réserver ». Renseignez les détails de votre événement et validez. Le prestataire répondra sous 24 heures.",
+  "faqQ2": "Comment fonctionne le processus de paiement ?",
+  "faqA2": "Une fois que le prestataire accepte votre réservation et que vous acceptez son devis, vous payez un acompte de 50 % pour confirmer la réservation. Le solde restant est dû 7 jours avant votre événement.",
+  "faqQ3": "Puis-je annuler une réservation ?",
+  "faqA3": "Oui, vous pouvez annuler une réservation avant sa confirmation, sans frais. Après confirmation, notre politique d'annulation s'applique — veuillez consulter les conditions d'annulation du prestataire dans son profil.",
+  "faqQ4": "Que faire si je ne suis pas satisfait d'un prestataire ?",
+  "faqA4": "Contactez notre équipe d'assistance dans les 48 heures suivant votre événement. Nous ferons la médiation avec le prestataire et œuvrerons à une résolution, y compris des remboursements partiels le cas échéant.",
+  "faqQ5": "Les prestataires sont-ils vérifiés ?",
+  "faqA5": "Les prestataires avec un badge vérifié ont fait examiner leurs références professionnelles et leur portfolio par notre équipe. Nous utilisons également les avis clients pour maintenir des normes de qualité.",
+  "faqQ6": "Comment laisser un avis ?",
+  "faqA6": "Une fois votre événement marqué comme terminé, vous recevrez une invitation à laisser un avis. Vous pouvez aussi aller dans Réservations → Passées → la réservation terminée → Laisser un avis.",
+  "sadToSeeYouGo": "Nous sommes tristes de vous voir partir",
+  "letUsKnow": "Dites-nous ce qui n'a pas fonctionné",
+  "deleteReason1": "Je n'utilise plus la plateforme/le service",
+  "deleteReason2": "J'ai trouvé une meilleure alternative",
+  "deleteReason3": "Préoccupations liées à la confidentialité",
+  "deleteReason4": "Trop d'e-mails/notifications",
+  "deleteReason5": "Difficulté à naviguer sur la plateforme",
+  "deleteReason6": "Raisons personnelles",
+  "deleteReason7": "Autre non listé ci-dessus",
+  "tellUsMore": "Dites-nous en plus...",
+  "deleteAccountBtn": "Supprimer le compte",
+  "areYouSure": "Êtes-vous sûr ?",
+  "deleteAccountWarning": "en supprimant votre compte, vous perdrez ce qui suit",
+  "deleteLoss1": "• L'accès à vos événements actifs",
+  "deleteLoss2": "• L'accès à vos données de compte et identifiants",
+  "deleteLoss3": "• Les informations de connexion",
+  "deleteLoss4": "• Tous les contacts de prestataires par message et appel",
+  "connecting": "Connexion…",
+  "ringing": "Sonnerie…",
+  "wrongAppTitle": "Mauvaise application",
+  "wrongAppMessage": "Ce compte est enregistré en tant que vendeur. Veuillez utiliser l'application Planovar Vendor pour vous connecter.",
+  "ok": "OK"
 }

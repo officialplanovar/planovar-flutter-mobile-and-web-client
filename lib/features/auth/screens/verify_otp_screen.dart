@@ -7,6 +7,7 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/responsive/responsive.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/auth_illustration.dart';
 import '../../../shared/widgets/auth_step_bar.dart';
 import '../../../shared/widgets/glossy_button.dart';
@@ -63,13 +64,13 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
       );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('A new code has been sent')),
+          SnackBar(content: Text(AppLocalizations.of(context).otpNewCodeSent)),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not resend code: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context).otpResendError('$e'))),
         );
       }
     }
@@ -98,6 +99,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return PopScope(
       // Registration: block back so it can't silently skip verification and
       // drop the user into a half-signed-up state. Reset flow can go back.
@@ -105,9 +107,8 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
       onPopInvokedWithResult: (didPop, _) {
         if (!didPop && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                  'Enter the code we sent to verify your email, or tap Resend.'),
+            SnackBar(
+              content: Text(t.otpVerifyPrompt),
             ),
           );
         }
@@ -149,7 +150,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                       ),
                       const SizedBox(height: 24),
                       Text(
-                        _isRegister ? 'Verify your Email' : 'Confirm OTP',
+                        _isRegister ? t.verifyYourEmail : t.confirmOtp,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.urbanist(
                           fontSize: 26,
@@ -160,7 +161,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                       const SizedBox(height: 8),
                       _isRegister
                           ? Text(
-                              "We've sent a 6 digit OTP to your email",
+                              t.otpSentToEmail,
                               textAlign: TextAlign.center,
                               style: GoogleFonts.urbanist(
                                 fontSize: 14,
@@ -170,7 +171,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                             )
                           : Text.rich(
                               TextSpan(
-                                text: 'Enter the OTP Sent to ',
+                                text: t.otpEnterSentTo,
                                 style: GoogleFonts.urbanist(
                                   fontSize: 14,
                                   color: context.c.textHint,
@@ -237,7 +238,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                       const SizedBox(height: 24),
                       _secondsRemaining > 0
                           ? Text(
-                              'Resend in ${_secondsRemaining}s',
+                              t.resendInSeconds(_secondsRemaining),
                               style: GoogleFonts.urbanist(
                                 fontSize: 14,
                                 color: context.c.textHint,
@@ -246,7 +247,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                           : GestureDetector(
                               onTap: _resend,
                               child: Text(
-                                'Resend OTP',
+                                t.resendOtp,
                                 style: GoogleFonts.urbanist(
                                   fontSize: 14,
                                   color: AppColors.primary,
@@ -258,7 +259,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                       BlocBuilder<AuthBloc, AuthState>(
                         builder: (context, state) {
                           return GlossyButton(
-                            label: 'Proceed',
+                            label: t.proceed,
                             onPressed:
                                 (_otp.length == 6 && state is! AuthLoading)
                                     ? _verify

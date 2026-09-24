@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../shared/models/booking_model.dart';
 import '../../../shared/models/listing_model.dart';
+import '../../../l10n/app_localizations.dart';
 
 class OrderDetailScreen extends StatefulWidget {
   final String bookingId;
@@ -68,10 +69,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     if (_loading) {
       return Scaffold(
         backgroundColor: context.c.background,
-        appBar: AppBar(title: const Text('Order Details')),
+        appBar: AppBar(title: Text(t.orderDetails)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -80,12 +82,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     if (booking == null && listing == null) {
       return Scaffold(
         backgroundColor: context.c.background,
-        appBar: AppBar(title: const Text('Order Details')),
+        appBar: AppBar(title: Text(t.orderDetails)),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Text(
-              'This order could not be loaded.',
+              t.orderCouldNotLoad,
               textAlign: TextAlign.center,
               style: GoogleFonts.urbanist(
                 fontSize: 15,
@@ -142,7 +144,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 ),
                 Expanded(
                   child: Text(
-                    'Order Details',
+                    t.orderDetails,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.urbanist(
                       fontSize: 18,
@@ -186,11 +188,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     BookingModel? booking,
     ListingModel? listing,
   ) {
-    final title = listing?.title ?? booking?.listing?.title ?? 'Order';
+    final t = AppLocalizations.of(context);
+    final title = listing?.title ?? booking?.listing?.title ?? t.orderFallback;
     final media = listing?.media ?? const <String>[];
     final vendorName = booking?.vendor?.businessName ??
         listing?.vendor?.businessName ??
-        'Vendor';
+        t.vendorLabel;
     final eventDate = booking?.eventDate;
     final amount = booking?.finalAmount ?? booking?.quoteAmount;
 
@@ -289,7 +292,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             Row(
               children: [
                 Text(
-                  'Total',
+                  t.total,
                   style: GoogleFonts.urbanist(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -316,6 +319,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   /// Current-status indicator driven purely by the real booking status —
   /// no fabricated dates or amounts.
   Widget _buildStatusCard(BuildContext context, String status) {
+    final t = AppLocalizations.of(context);
     final (label, bg, fg) = _statusStyle(status);
     return Container(
       padding: const EdgeInsets.all(16),
@@ -333,7 +337,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       child: Row(
         children: [
           Text(
-            'Status',
+            t.statusHeading,
             style: GoogleFonts.urbanist(
               fontSize: 14,
               fontWeight: FontWeight.w600,
@@ -362,6 +366,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   Widget _buildRequirementsCard(BuildContext context, String requirements) {
+    final t = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -380,7 +385,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Requirements',
+            t.requirements,
             style: GoogleFonts.urbanist(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -402,26 +407,27 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   (String, Color, Color) _statusStyle(String status) {
+    final t = AppLocalizations.of(context);
     switch (status) {
       case 'completed':
-        return ('Delivered', const Color(0xFFD1FAE5), const Color(0xFF065F46));
+        return (t.statusDelivered, const Color(0xFFD1FAE5), const Color(0xFF065F46));
       case 'confirmed':
         return (
-          'Order Confirmed',
+          t.statusOrderConfirmed,
           const Color(0xFFD1FAE5),
           const Color(0xFF065F46)
         );
       case 'active':
         return (
-          'Out for Delivery',
+          t.statusOutForDelivery,
           const Color(0xFFEDE9FE),
           AppColors.primary
         );
       case 'cancelled':
-        return ('Cancelled', const Color(0xFFFFE4E6), const Color(0xFFEF4444));
+        return (t.cancelledLabel, const Color(0xFFFFE4E6), const Color(0xFFEF4444));
       default:
         return (
-          'Order placed',
+          t.statusOrderPlaced,
           const Color(0xFFFEF3C7),
           const Color(0xFFB45309)
         );
@@ -430,17 +436,18 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
   Widget _buildBottomButton(
       BuildContext context, bool isCompleted, bool isCancelled) {
+    final t = AppLocalizations.of(context);
     if (isCancelled) {
       return const SizedBox.shrink();
     }
     if (isCompleted) {
       return _RedOutlineButton(
-        label: '⚠ Request Refund',
+        label: t.requestRefundWarn,
         onPressed: () => context.push(AppRoutes.requestRefund),
       );
     }
     return _RedOutlineButton(
-      label: '⚠ Cancel Order',
+      label: t.cancelOrderWarn,
       onPressed: () => context.push(AppRoutes.cancelOrder),
     );
   }

@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/auth_illustration.dart';
 import '../../../shared/widgets/auth_step_bar.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../shared/data/dial_codes.dart';
 import '../data/auth_repository.dart';
 
@@ -53,6 +54,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: context.c.surface,
       body: SafeArea(
@@ -77,7 +79,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
                     const SizedBox(height: 24),
                     Center(
                       child: Text(
-                        'Add your phone number',
+                        t.addPhoneTitle,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.urbanist(
                           fontSize: 26,
@@ -89,7 +91,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
                     const SizedBox(height: 8),
                     Center(
                       child: Text(
-                        'This helps us personalize your experience a little more',
+                        t.addPhoneSubtitle,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.urbanist(
                           fontSize: 14,
@@ -147,7 +149,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
                                     controller: _phoneCtrl,
                                     keyboardType: TextInputType.phone,
                                     decoration: InputDecoration(
-                                      hintText: 'Enter Phone Number',
+                                      hintText: t.enterPhoneNumber,
                                       hintStyle: GoogleFonts.urbanist(
                                         fontSize: 14,
                                         color: context.c.textHint,
@@ -179,7 +181,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
                     ),
                     const SizedBox(height: 36),
                     GlossyButton(
-                      label: _saving ? 'Saving…' : 'Proceed',
+                      label: _saving ? t.saving : t.proceed,
                       onPressed: _saving ? null : _saveAndProceed,
                     ),
                     const SizedBox(height: 18),
@@ -187,7 +189,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
                       child: GestureDetector(
                         onTap: () => context.go(AppRoutes.locationPref),
                         child: Text(
-                          'Skip for now',
+                          t.skipForNow,
                           style: GoogleFonts.urbanist(
                             fontSize: 14,
                             color: context.c.textHint,

@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../../../l10n/app_localizations.dart';
 
 class EventBookingDetailScreen extends StatefulWidget {
   final String vendorName;
@@ -25,6 +26,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: context.c.background,
       body: Column(
@@ -98,12 +100,12 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
                   child: Row(
                     children: [
                       _SegTab(
-                        label: 'Details',
+                        label: t.tabDetails,
                         active: _tabIndex == 0,
                         onTap: () => setState(() => _tabIndex = 0),
                       ),
                       _SegTab(
-                        label: 'Timeline',
+                        label: t.tabTimeline,
                         active: _tabIndex == 1,
                         onTap: () => setState(() => _tabIndex = 1),
                       ),
@@ -130,6 +132,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
   // ── Details Tab ────────────────────────────────────────────────────────────
 
   Widget _buildDetailsTab(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Column(
       children: [
         // ── Service card ──────────────────────────────────────────────────
@@ -215,18 +218,18 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
               ),
               const Divider(height: 24),
               // Detail rows
-              _detailRow(Icons.work_outline_rounded, 'Service Type',
+              _detailRow(Icons.work_outline_rounded, t.serviceType,
                   'Wedding Decoration'),
-              _detailRow(Icons.add_circle_outline_rounded, 'Ad ons', '—'),
-              _detailRow(Icons.location_on_outlined, 'Location',
+              _detailRow(Icons.add_circle_outline_rounded, t.addOns, '—'),
+              _detailRow(Icons.location_on_outlined, t.locationTitle,
                   'Festac, Lokogoma Abuja'),
-              _detailRow(Icons.group_outlined, 'Guest Size', '140'),
-              _detailRow(Icons.calendar_today_rounded, 'Date and Time',
+              _detailRow(Icons.group_outlined, t.guestSize, '140'),
+              _detailRow(Icons.calendar_today_rounded, t.dateAndTime,
                   'Monday, 21st May, 2026'),
-              _detailRow(Icons.timer_outlined, 'Duration', '2 Hours'),
+              _detailRow(Icons.timer_outlined, t.duration, '2 Hours'),
               _detailRow(
                 Icons.more_horiz_rounded,
-                'Additional Information',
+                t.additionalInformation,
                 'Please use butter for the frosting instead of artificial cream',
               ),
               const SizedBox(height: 16),
@@ -279,6 +282,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
   }
 
   Widget _buildStatusBanner() {
+    final t = AppLocalizations.of(context);
     switch (widget.bookingStatus) {
       case 'quote_sent':
         return Container(
@@ -294,7 +298,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
                   size: 16, color: Color(0xFF065F46)),
               const SizedBox(width: 8),
               Text(
-                'Quote Sent by Vendor',
+                t.quoteSentByVendor,
                 style: GoogleFonts.urbanist(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -318,7 +322,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
                   size: 16, color: Color(0xFF065F46)),
               const SizedBox(width: 8),
               Text(
-                'Booking Completed',
+                t.bookingCompleted,
                 style: GoogleFonts.urbanist(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -342,7 +346,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
                   size: 16, color: Color(0xFFD97706)),
               const SizedBox(width: 8),
               Text(
-                'Awaiting Quote from vendor',
+                t.awaitingQuote,
                 style: GoogleFonts.urbanist(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -356,17 +360,18 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
   }
 
   Widget _buildBottomButton() {
+    final t = AppLocalizations.of(context);
     switch (widget.bookingStatus) {
       case 'quote_sent':
         return GlossyButton(
-          label: 'View Quote',
+          label: t.viewQuote,
           height: 50,
           onPressed: () => context.push(AppRoutes.conversationDetail,
               extra: {'conversationId': 'conv-01'}),
         );
       case 'completed':
         return GlossyButton(
-          label: 'View Conversation History',
+          label: t.viewConversationHistory,
           height: 50,
           onPressed: () => context.push(AppRoutes.conversationDetail,
               extra: {'conversationId': 'conv-01'}),
@@ -375,7 +380,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
         return Opacity(
           opacity: 0.4,
           child: GlossyButton(
-            label: 'View Quote',
+            label: t.viewQuote,
             height: 50,
             onPressed: null,
           ),
@@ -386,11 +391,12 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
   // ── Timeline Tab ───────────────────────────────────────────────────────────
 
   Widget _buildTimelineTab() {
+    final t = AppLocalizations.of(context);
     final steps = [
-      _TimelineStep(number: 1, title: 'Quote accepted', date: '14 Feb 2026', status: 'Complete'),
-      _TimelineStep(number: 2, title: 'Payment confirmed', date: '14 Feb 2026', status: 'Complete'),
-      _TimelineStep(number: 3, title: 'Event day', date: '14 Feb 2026', status: 'Pending'),
-      _TimelineStep(number: 4, title: 'Review', date: '14 Feb 2026', status: 'Pending'),
+      _TimelineStep(number: 1, title: t.tlQuoteAccepted, date: '14 Feb 2026', status: 'Complete'),
+      _TimelineStep(number: 2, title: t.tlPaymentConfirmed, date: '14 Feb 2026', status: 'Complete'),
+      _TimelineStep(number: 3, title: t.tlEventDayShort, date: '14 Feb 2026', status: 'Pending'),
+      _TimelineStep(number: 4, title: t.reviewTitle, date: '14 Feb 2026', status: 'Pending'),
     ];
 
     final completedSteps = steps.where((s) => s.status == 'Complete').length;
@@ -415,7 +421,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Booking Timeline',
+                t.bookingTimeline,
                 style: GoogleFonts.urbanist(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -442,6 +448,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
   }
 
   Widget _buildTimelineStep(_TimelineStep step, bool isLast) {
+    final t = AppLocalizations.of(context);
     final isComplete = step.status == 'Complete';
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -519,7 +526,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    step.status,
+                    isComplete ? t.statusComplete : t.statusPending,
                     style: GoogleFonts.urbanist(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -538,6 +545,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
   }
 
   Widget _buildQuickActions(int completedSteps) {
+    final t = AppLocalizations.of(context);
     // All done (step 4 complete)
     if (completedSteps >= 4) return const SizedBox.shrink();
 
@@ -558,7 +566,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Quick Actions',
+            t.quickActions,
             style: GoogleFonts.urbanist(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -569,7 +577,7 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
           // Event done → show review
           if (completedSteps >= 3) ...[
             GlossyButton(
-              label: '⭐ Leave a Review',
+              label: t.leaveReviewBtn,
               height: 50,
               onPressed: () => context.push(AppRoutes.leaveReview,
                   extra: {'vendorName': widget.vendorName}),
@@ -577,26 +585,26 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
           ] else ...[
             // Steps 1+2 done (confirmed)
             GlossyButton(
-              label: '💬 Message Vendor',
+              label: t.messageVendor,
               height: 50,
               onPressed: () => context.push(AppRoutes.conversationDetail,
                   extra: {'conversationId': 'conv-01'}),
             ),
             const SizedBox(height: 10),
             _outlineButton(
-              label: '📞 Call Vendor',
+              label: t.callVendor,
               color: AppColors.primary,
               onTap: () {},
             ),
             const SizedBox(height: 10),
             _outlineButton(
-              label: '📋 Download Booking Receipt',
+              label: t.downloadReceipt,
               color: AppColors.primary,
               onTap: () {},
             ),
             const SizedBox(height: 10),
             _outlineButton(
-              label: '⚠ Raise a Dispute',
+              label: t.raiseDisputeBtn,
               color: AppColors.error,
               onTap: () => context.push(AppRoutes.raiseDispute),
             ),

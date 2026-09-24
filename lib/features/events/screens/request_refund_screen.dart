@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 
 class RequestRefundScreen extends StatefulWidget {
   const RequestRefundScreen({super.key});
@@ -14,14 +15,6 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
   int _selectedOption = -1;
   final _descCtrl = TextEditingController();
 
-  static const _options = [
-    'Item not as described',
-    'Item not received',
-    'Overcharged / incorrect amount',
-    'Damaged item received',
-    'Other issue',
-  ];
-
   @override
   void dispose() {
     _descCtrl.dispose();
@@ -30,6 +23,14 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final options = [
+      t.disputeReasonNotDescribed,
+      t.refundReasonNotReceived,
+      t.disputeReasonOvercharged,
+      t.refundReasonDamaged,
+      t.disputeReasonOther,
+    ];
     return Scaffold(
       backgroundColor: context.c.background,
       body: Column(
@@ -67,7 +68,7 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Request Refund',
+                      t.requestRefund,
                       style: GoogleFonts.urbanist(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -112,7 +113,7 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Notice',
+                                t.notice,
                                 style: GoogleFonts.urbanist(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
@@ -121,7 +122,7 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Requesting a refund will notify our support team who will investigate the issue. Please provide as much detail as possible. Refund requests are typically resolved within 3-5 business days.',
+                                t.refundNotice,
                                 style: GoogleFonts.urbanist(
                                   fontSize: 13,
                                   color: AppColors.primary,
@@ -137,7 +138,7 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                   const SizedBox(height: 20),
                   // Refund category
                   Text(
-                    'Refund category',
+                    t.refundCategory,
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -145,7 +146,7 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  ..._options.asMap().entries.map((entry) {
+                  ...options.asMap().entries.map((entry) {
                     final i = entry.key;
                     final opt = entry.value;
                     final selected = _selectedOption == i;
@@ -192,7 +193,7 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                   const SizedBox(height: 20),
                   // Describe the issue
                   Text(
-                    'Describe the issue',
+                    t.describeIssue,
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -212,7 +213,7 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                       maxLines: 7,
                       style: GoogleFonts.urbanist(fontSize: 14),
                       decoration: InputDecoration(
-                        hintText: 'Describe what happened in detail...',
+                        hintText: t.describeWhatHappened,
                         hintStyle: GoogleFonts.urbanist(
                           fontSize: 14,
                           color: context.c.textHint,
@@ -225,7 +226,7 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                   const SizedBox(height: 20),
                   // Bank Details section
                   Text(
-                    'Bank Details',
+                    t.bankDetails,
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -246,7 +247,7 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                       children: [
                         Expanded(
                           child: Text(
-                            'Select Bank',
+                            t.selectBank,
                             style: GoogleFonts.urbanist(
                               fontSize: 14,
                               color: context.c.textHint,
@@ -270,7 +271,7 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                       keyboardType: TextInputType.number,
                       style: GoogleFonts.urbanist(fontSize: 14),
                       decoration: InputDecoration(
-                        hintText: 'Enter Account Number',
+                        hintText: t.enterAccountNumber,
                         hintStyle: GoogleFonts.urbanist(
                           fontSize: 14,
                           color: context.c.textHint,
@@ -305,7 +306,7 @@ class _RequestRefundScreenState extends State<RequestRefundScreen> {
                       ),
                       child: Center(
                         child: Text(
-                          'Request Refund',
+                          t.requestRefund,
                           style: GoogleFonts.urbanist(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,

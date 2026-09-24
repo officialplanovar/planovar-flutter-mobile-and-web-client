@@ -5,6 +5,7 @@ import '../../core/router/app_routes.dart';
 import '../../core/theme/app_colors.dart';
 import '../../shared/models/user_model.dart';
 import '../auth/data/auth_repository.dart';
+import '../../l10n/app_localizations.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -52,8 +53,7 @@ class _SplashScreenState extends State<SplashScreen>
       await prefs.setBool('isLoggedIn', false);
       if (!mounted) return;
       await _showWrongAppDialog(
-        'This account is registered as a vendor. Please use the Planovar '
-        'Vendor app to sign in.',
+        AppLocalizations.of(context).wrongAppMessage,
       );
       if (!mounted) return;
       context.go(AppRoutes.login);
@@ -81,12 +81,12 @@ class _SplashScreenState extends State<SplashScreen>
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        title: const Text('Wrong app'),
+        title: Text(AppLocalizations.of(context).wrongAppTitle),
         content: Text(message),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('OK'),
+            child: Text(AppLocalizations.of(context).ok),
           ),
         ],
       ),

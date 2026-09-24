@@ -12,6 +12,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/listing_model.dart';
 import '../../../shared/models/vendor_model.dart';
 import '../../../shared/widgets/add_to_event_sheet.dart';
+import '../../../l10n/app_localizations.dart';
 
 class CategoryResultsScreen extends StatefulWidget {
   const CategoryResultsScreen({
@@ -127,6 +128,7 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final listings = _listings;
     final vendors = _vendors;
 
@@ -194,8 +196,8 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
                       onChanged: (_) => setState(() {}),
                       decoration: InputDecoration(
                         hintText: _isProductsCategory
-                            ? 'Search products...'
-                            : 'Search ${widget.categoryName}...',
+                            ? t.searchProductsHint
+                            : t.searchCategoryHint(widget.categoryName),
                         hintStyle: GoogleFonts.urbanist(
                           fontSize: 14,
                           color: context.c.textHint,
@@ -251,19 +253,19 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
                 padding: const EdgeInsets.only(left: 16, bottom: 8),
                 children: [
                   _FilterChip(
-                    label: 'All',
+                    label: t.filterAll,
                     selected: _activeFilter == 'all',
                     onTap: () => setState(() => _activeFilter = 'all'),
                   ),
                   const SizedBox(width: 8),
                   _FilterChip(
-                    label: 'Available for Sale',
+                    label: t.availableForSale,
                     selected: _activeFilter == 'sale',
                     onTap: () => setState(() => _activeFilter = 'sale'),
                   ),
                   const SizedBox(width: 8),
                   _FilterChip(
-                    label: 'Available for Rent',
+                    label: t.availableForRent,
                     selected: _activeFilter == 'rent',
                     onTap: () => setState(() => _activeFilter = 'rent'),
                   ),
@@ -280,14 +282,14 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
                   )
                 : _failed
                 ? _ResultsMessage(
-                    message: 'Something went wrong. Tap to retry.',
+                    message: t.somethingWentWrongRetry,
                     onTap: _load,
                   )
                 : _isProductsCategory
                 ? (listings.isEmpty
                     ? Center(
                         child: Text(
-                          'No products found',
+                          t.noProductsFound,
                           style: GoogleFonts.urbanist(
                             fontSize: 15,
                             color: context.c.textHint,
@@ -315,7 +317,7 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
                 : (vendors.isEmpty
                     ? Center(
                         child: Text(
-                          'No vendors found',
+                          t.noVendorsFound,
                           style: GoogleFonts.urbanist(
                             fontSize: 15,
                             color: context.c.textHint,
@@ -467,6 +469,7 @@ class _ProductGridCardState extends State<_ProductGridCard> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return GestureDetector(
       onTap: () => context.push(AppRoutes.listingDetailPath(listing.id)),
       child: Container(
@@ -588,7 +591,7 @@ class _ProductGridCardState extends State<_ProductGridCard> {
                     Text(
                       listing.basePrice != null
                           ? Formatters.currency(listing.basePrice!)
-                          : 'Contact for price',
+                          : t.contactForPrice,
                       style: GoogleFonts.urbanist(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
@@ -612,8 +615,8 @@ class _ProductGridCardState extends State<_ProductGridCard> {
                         child: Center(
                           child: Text(
                             listing.isRentable
-                                ? 'Rent for your event'
-                                : 'Add to Event  +',
+                                ? t.rentForEvent
+                                : t.addToEventPlus,
                             style: GoogleFonts.urbanist(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
@@ -641,6 +644,7 @@ class _ProductGridCardState extends State<_ProductGridCard> {
 class _SimpleFilterSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       child: BackdropFilter(
@@ -668,7 +672,7 @@ class _SimpleFilterSheet extends StatelessWidget {
                 ),
               ),
               Text(
-                'Filters',
+                t.filters,
                 style: GoogleFonts.urbanist(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
@@ -677,7 +681,7 @@ class _SimpleFilterSheet extends StatelessWidget {
               ),
               const SizedBox(height: 24),
               Text(
-                'More filter options coming soon.',
+                t.moreFiltersComingSoon,
                 style: GoogleFonts.urbanist(
                   fontSize: 14,
                   color: context.c.textHint,
@@ -704,7 +708,7 @@ class _SimpleFilterSheet extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      'Close',
+                      t.close,
                       style: GoogleFonts.urbanist(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -764,8 +768,9 @@ class _VendorGridCardState extends State<_VendorGridCard> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final categoryLabel =
-        vendor.categories.isNotEmpty ? vendor.categories.first : 'Vendor';
+        vendor.categories.isNotEmpty ? vendor.categories.first : t.vendorLabel;
 
     return GestureDetector(
       onTap: onTap,

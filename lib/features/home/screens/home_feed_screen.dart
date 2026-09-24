@@ -16,6 +16,7 @@ import '../../../shared/models/vendor_model.dart';
 import '../../../shared/models/listing_model.dart';
 import '../../../shared/widgets/add_to_event_sheet.dart';
 import '../../../core/responsive/responsive.dart';
+import '../../../l10n/app_localizations.dart';
 
 String _fmtPrice(num n) {
   final s = n.toInt().toString();
@@ -95,12 +96,13 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final authState = context.watch<AuthBloc>().state;
     final user = authState is AuthAuthenticated ? authState.user : null;
     final nameParts = (user?.name ?? '').trim().split(RegExp(r'\s+'));
     final firstName = nameParts.isNotEmpty && nameParts.first.isNotEmpty
         ? nameParts.first
-        : 'there';
+        : t.thereFallback;
     final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
 
     // Real location from the client's profile prefs (no dummy fallback).
@@ -177,7 +179,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Welcome back',
+                                    t.homeWelcomeBack,
                                     style: GoogleFonts.urbanist(
                                       fontSize: 13,
                                       color: context.c.textHint,
@@ -273,7 +275,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                               children: [
                                 Expanded(
                                   child: Text(
-                                    'Search for a vendor or location',
+                                    t.searchVendorOrLocation,
                                     style: GoogleFonts.urbanist(
                                       fontSize: 14,
                                       color: context.c.textHint,
@@ -302,7 +304,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
 
                   // Browse Categories
                   _SectionHeader(
-                    title: 'Browse Categories',
+                    title: t.browseCategories,
                     onViewAll: () => context.go(AppRoutes.explore),
                   ),
                   const SizedBox(height: 12),
@@ -325,7 +327,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
 
                   // Upcoming Events
                   _SectionHeader(
-                    title: 'Your Upcoming Events',
+                    title: t.yourUpcomingEvents,
                     onViewAll: () => context.go(AppRoutes.events),
                   ),
                   const SizedBox(height: 12),
@@ -338,7 +340,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                       ),
                       child: Center(
                         child: Text(
-                          'No upcoming events',
+                          t.noUpcomingEvents,
                           style: GoogleFonts.urbanist(
                               color: context.c.textHint),
                         ),
@@ -363,7 +365,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
 
                   // Recommended Vendors
                   _SectionHeader(
-                    title: 'Recommended Vendors for you',
+                    title: t.recommendedVendors,
                     onViewAll: () => context.go(AppRoutes.explore),
                   ),
                   const SizedBox(height: 12),
@@ -388,7 +390,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
 
                   // Recommended Products
                   _SectionHeader(
-                    title: 'Recommended Products for you',
+                    title: t.recommendedProducts,
                     onViewAll: () => context.go(AppRoutes.explore),
                   ),
                   const SizedBox(height: 12),
@@ -427,6 +429,7 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -442,7 +445,7 @@ class _SectionHeader extends StatelessWidget {
           GestureDetector(
             onTap: onViewAll,
             child: Text(
-              'View All',
+              t.viewAll,
               style: GoogleFonts.urbanist(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -529,6 +532,7 @@ class _EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final d = booking.eventDate;
     final imageUrl = booking.listing?.media.isNotEmpty == true
         ? booking.listing!.media.first
@@ -622,7 +626,7 @@ class _EventCard extends StatelessWidget {
                 children: [
                   Text(
                     booking.listing?.title ??
-                        '${booking.vendor?.businessName ?? ''} Event',
+                        t.eventCardTitle(booking.vendor?.businessName ?? ''),
                     style: GoogleFonts.urbanist(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -694,6 +698,7 @@ class _VendorGridCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -761,7 +766,7 @@ class _VendorGridCard extends StatelessWidget {
                           child: Text(
                             vendor.categories.isNotEmpty
                                 ? vendor.categories.first
-                                : 'Vendor',
+                                : t.vendorLabel,
                             style: GoogleFonts.urbanist(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
@@ -824,14 +829,15 @@ class _ProductCardState extends State<_ProductCard> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final listing = widget.listing;
     final price = listing.basePrice != null
         ? _fmtPrice(listing.basePrice!)
         : listing.packages.isNotEmpty
             ? _fmtPrice(listing.packages.first.price)
-            : 'Get Quote';
+            : t.getQuote;
     final btnLabel =
-        listing.isRentable ? 'Rent for your event' : 'Add to Event +';
+        listing.isRentable ? t.rentForEvent : t.addToEventPlus;
     final imageUrl = listing.media.isNotEmpty ? listing.media.first : '';
 
     return GestureDetector(

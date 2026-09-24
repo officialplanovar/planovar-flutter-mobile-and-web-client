@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 
 class RaiseDisputeScreen extends StatefulWidget {
   const RaiseDisputeScreen({super.key});
@@ -15,14 +16,6 @@ class _RaiseDisputeScreenState extends State<RaiseDisputeScreen> {
   int _selectedOption = -1;
   final _descCtrl = TextEditingController();
 
-  static const _options = [
-    'Item not as described',
-    'Vendor did not show up / Complete the service',
-    'Overcharged / incorrect amount',
-    'Damaged / missing item',
-    'Other issue',
-  ];
-
   @override
   void dispose() {
     _descCtrl.dispose();
@@ -31,6 +24,14 @@ class _RaiseDisputeScreenState extends State<RaiseDisputeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final options = [
+      t.disputeReasonNotDescribed,
+      t.disputeReasonNoShow,
+      t.disputeReasonOvercharged,
+      t.disputeReasonDamaged,
+      t.disputeReasonOther,
+    ];
     return Scaffold(
       backgroundColor: context.c.background,
       body: Column(
@@ -68,7 +69,7 @@ class _RaiseDisputeScreenState extends State<RaiseDisputeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Raise a dispute',
+                      t.raiseDispute,
                       style: GoogleFonts.urbanist(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -113,7 +114,7 @@ class _RaiseDisputeScreenState extends State<RaiseDisputeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Notice',
+                                t.notice,
                                 style: GoogleFonts.urbanist(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
@@ -122,7 +123,7 @@ class _RaiseDisputeScreenState extends State<RaiseDisputeScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Raising a dispute will notify our support team who will investigate the issue. Please provide as much detail as possible. Disputes are typically resolved within 3-5 business days.',
+                                t.disputeNotice,
                                 style: GoogleFonts.urbanist(
                                   fontSize: 13,
                                   color: AppColors.primary,
@@ -138,7 +139,7 @@ class _RaiseDisputeScreenState extends State<RaiseDisputeScreen> {
                   const SizedBox(height: 20),
                   // Dispute category
                   Text(
-                    'Dispute category',
+                    t.disputeCategory,
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -146,7 +147,7 @@ class _RaiseDisputeScreenState extends State<RaiseDisputeScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  ..._options.asMap().entries.map((entry) {
+                  ...options.asMap().entries.map((entry) {
                     final i = entry.key;
                     final opt = entry.value;
                     final selected = _selectedOption == i;
@@ -193,7 +194,7 @@ class _RaiseDisputeScreenState extends State<RaiseDisputeScreen> {
                   const SizedBox(height: 20),
                   // Describe the issue
                   Text(
-                    'Describe the issue',
+                    t.describeIssue,
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -213,7 +214,7 @@ class _RaiseDisputeScreenState extends State<RaiseDisputeScreen> {
                       maxLines: 7,
                       style: GoogleFonts.urbanist(fontSize: 14),
                       decoration: InputDecoration(
-                        hintText: 'Describe what happened in detail...',
+                        hintText: t.describeWhatHappened,
                         hintStyle: GoogleFonts.urbanist(
                           fontSize: 14,
                           color: context.c.textHint,
@@ -226,7 +227,7 @@ class _RaiseDisputeScreenState extends State<RaiseDisputeScreen> {
                   const SizedBox(height: 20),
                   // Attach evidence
                   Text(
-                    'Attach evidence (optional)',
+                    t.attachEvidence,
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -256,7 +257,7 @@ class _RaiseDisputeScreenState extends State<RaiseDisputeScreen> {
                                   color: AppColors.primary, size: 28),
                               const SizedBox(height: 6),
                               Text(
-                                'Upload Image',
+                                t.uploadImage,
                                 style: GoogleFonts.urbanist(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
@@ -293,7 +294,7 @@ class _RaiseDisputeScreenState extends State<RaiseDisputeScreen> {
                       ),
                       child: Center(
                         child: Text(
-                          'Submit Dispute',
+                          t.submitDispute,
                           style: GoogleFonts.urbanist(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -319,7 +320,7 @@ class _RaiseDisputeScreenState extends State<RaiseDisputeScreen> {
                       ),
                       child: Center(
                         child: Text(
-                          'Message Vendor Instead',
+                          t.messageVendorInstead,
                           style: GoogleFonts.urbanist(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

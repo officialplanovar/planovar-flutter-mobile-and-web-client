@@ -1,11 +1,8 @@
 {
   "@@locale": "en",
   "language": "Language",
-  "@language": {},
   "languageIntro": "Choose your preferred language. English is available now — more are on the way.",
-  "@languageIntro": {},
   "comingSoon": "Soon",
-  "@comingSoon": {},
   "save": "Save",
   "cancel": "Cancel",
   "retry": "Retry",
@@ -29,5 +26,888 @@
   "signInWithGoogle": "Sign In with Google",
   "orLabel": "or",
   "noAccountQuestion": "Don't Have an account?",
-  "signUp": "Sign up"
+  "signUp": "Sign up",
+  "emailRequired": "Email is required",
+  "emailInvalid": "Enter a valid email",
+  "passwordRequired": "Password is required",
+  "agreeTermsError": "Please agree to the Terms & Privacy Policy",
+  "registerHello": "Hello ",
+  "registerWelcome": "Welcome to Planova! Let's Get Started",
+  "fullName": "Full Name",
+  "fullNameHint": "Enter your Full Name",
+  "fullNameRequired": "Full name is required",
+  "proceed": "Proceed",
+  "agreeTermsPrefix": "By checking the box you agree to our ",
+  "termsConditions": "Terms & Conditions",
+  "andConnector": " and ",
+  "privacyPolicy": "Privacy Policy",
+  "signUpWithGoogle": "Sign up with Google",
+  "alreadyHaveAccount": "Already Have an account? ",
+  "signInLink": "Sign in",
+  "getStarted": "Get Started",
+  "onboard1TitleBlack": "Tired of chasing endless",
+  "onboard1TitlePurple": "referrals?",
+  "onboard1Body": "Planning an event shouldn't feel like a second job. Stop the fragmentation and discover quality vendors in seconds.",
+  "onboard2TitleBlack": "The finest talent, at your",
+  "onboard2TitlePurple": "fingertips.",
+  "onboard2Body": "Access our curated network of top-tier caterers, decorators, and photographers. Verified quality, every time.",
+  "onboard3TitleBlack": "Join the community of pro",
+  "onboard3TitlePurple": "planners.",
+  "onboard3Body": "Don't miss out on exclusive vendor rates. Join over 50,000 users hosting unforgettable moments.",
+  "otpNewCodeSent": "A new code has been sent",
+  "otpResendError": "Could not resend code: {error}",
+  "@otpResendError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "otpVerifyPrompt": "Enter the code we sent to verify your email, or tap Resend.",
+  "verifyYourEmail": "Verify your Email",
+  "confirmOtp": "Confirm OTP",
+  "otpSentToEmail": "We've sent a 6 digit OTP to your email",
+  "otpEnterSentTo": "Enter the OTP Sent to ",
+  "resendInSeconds": "Resend in {seconds}s",
+  "@resendInSeconds": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "resendOtp": "Resend OTP",
+  "addPhoneTitle": "Add your phone number",
+  "addPhoneSubtitle": "This helps us personalize your experience a little more",
+  "enterPhoneNumber": "Enter Phone Number",
+  "saving": "Saving…",
+  "skipForNow": "Skip for now",
+  "createStrongPassword": "Create a Strong Password",
+  "newPassword": "New Password",
+  "confirmPassword": "Confirm Password",
+  "passwordsDoNotMatch": "Passwords do not match",
+  "criteriaCapital": "Should have a Capital Letter",
+  "criteriaNumber": "Should have a Number e.g 1,2,4,etc",
+  "criteriaSpecial": "Should have a Special Character e.g @,$,%,etc",
+  "forgotPasswordTitle": "Forgot Password?",
+  "forgotPasswordSubtitle": "Enter the email used in registration, we will\nsend a 6 digit OTP code for verification",
+  "passwordResetSuccess": "Password reset successfully. Please log in.",
+  "resetYourPassword": "Reset your Password",
+  "resetPassword": "Reset Password",
+  "categoryPrefTitle": "Let us know what events\nyou'd want",
+  "categoryPrefSubtitle": "We'll personalize your recommendations and search results.",
+  "locationSaveError": "Could not save location: {error}",
+  "@locationSaveError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "selectPreferredLocation": "Select your Preferred Location",
+  "country": "Country",
+  "selectCountry": "Select Country",
+  "city": "City",
+  "selectYourCity": "Select your city",
+  "thereFallback": "there",
+  "homeWelcomeBack": "Welcome back",
+  "searchVendorOrLocation": "Search for a vendor or location",
+  "browseCategories": "Browse Categories",
+  "yourUpcomingEvents": "Your Upcoming Events",
+  "recommendedVendors": "Recommended Vendors for you",
+  "recommendedProducts": "Recommended Products for you",
+  "noUpcomingEvents": "No upcoming events",
+  "viewAll": "View All",
+  "eventCardTitle": "{name} Event",
+  "@eventCardTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "vendorLabel": "Vendor",
+  "getQuote": "Get Quote",
+  "rentForEvent": "Rent for your event",
+  "addToEventPlus": "Add to Event +",
+  "services": "Services",
+  "products": "Products",
+  "findYourVibe": "Find your vibe",
+  "searchCategoriesHint": "Search categories...",
+  "browseServicesByCategory": "Browse Services by Category",
+  "noCategoriesFound": "No categories found",
+  "filterReset": "Reset",
+  "filters": "Filters",
+  "priceRange": "Price Range",
+  "rating": "Rating",
+  "locationTitle": "Location",
+  "enterCityOrArea": "Enter city or area",
+  "applyFilters": "Apply Filters",
+  "applyFiltersCount": "Apply Filters ({count})",
+  "@applyFiltersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchProductsHint": "Search products...",
+  "searchCategoryHint": "Search {name}...",
+  "@searchCategoryHint": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "filterAll": "All",
+  "availableForSale": "Available for Sale",
+  "availableForRent": "Available for Rent",
+  "somethingWentWrongRetry": "Something went wrong. Tap to retry.",
+  "noProductsFound": "No products found",
+  "noVendorsFound": "No vendors found",
+  "contactForPrice": "Contact for price",
+  "moreFiltersComingSoon": "More filter options coming soon.",
+  "close": "Close",
+  "myEventsAmp": "My Events & ",
+  "ordersTitle": "Orders",
+  "segMyEvents": "My Events",
+  "orderTracking": "Order Tracking",
+  "upcoming": "Upcoming",
+  "past": "Past",
+  "cancelledLabel": "Cancelled",
+  "completedLabel": "Completed",
+  "noPastEvents": "No past events",
+  "noCancelledEvents": "No cancelled events",
+  "eventChip": "Event",
+  "noVendorsSourcedYet": "No vendors sourced yet",
+  "vendorsSourced": "{count, plural, =1{1 vendor sourced} other{{count} vendors sourced}}",
+  "@vendorsSourced": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "viewDetails": "View Details",
+  "singleLabel": "Single",
+  "venueLabel": "Venue",
+  "locationNotSet": "Location not set",
+  "tabPurchase": "Purchase",
+  "tabRentals": "Rentals",
+  "noOrdersYet": "No orders here yet",
+  "quoteLabel": "Quote",
+  "addVendorTitle": "Add vendor?",
+  "addVendorBody": "Add {vendor} to \"{event}\"?",
+  "@addVendorBody": {
+    "placeholders": {
+      "vendor": {
+        "type": "String"
+      },
+      "event": {
+        "type": "String"
+      }
+    }
+  },
+  "thisEvent": "this event",
+  "addAction": "Add",
+  "vendorAddedToEvent": "{vendor} added to your event",
+  "@vendorAddedToEvent": {
+    "placeholders": {
+      "vendor": {
+        "type": "String"
+      }
+    }
+  },
+  "eventNotFound": "Event Not Found",
+  "eventNotFoundBody": "Event not found",
+  "guestsCount": "{count, plural, =1{1 guest} other{{count} guests}}",
+  "@guestsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "planningProgress": "Planning progress",
+  "budgetRangeLabel": "Budget: {min} – {max}",
+  "@budgetRangeLabel": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "browseRecommendedHint": "Browse the Recommended tab to add vendors to this event.",
+  "viewGroupChat": "💬 View Group Chat",
+  "createGroupChatBtn": "💬 Create Group Chat",
+  "addNewVendor": "+ Add a new Vendor",
+  "cancelEventBtn": "⚠ Cancel Event",
+  "cancelEventTitle": "Cancel event?",
+  "cancelEventBody": "This cancels \"{name}\". This cannot be undone.",
+  "@cancelEventBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "keep": "Keep",
+  "cancelEventAction": "Cancel event",
+  "eventCancelled": "Event cancelled",
+  "vendorsAvailableForEvent": "Vendors available for your event",
+  "searchVendorsHint": "Search vendors...",
+  "noVendorsAvailableYet": "No vendors available yet",
+  "noVendorsInCategories": "No vendors in the selected categories",
+  "tabVendors": "Vendors",
+  "tabRecommended": "Recommended",
+  "tabTimeline": "Timeline",
+  "tabItems": "Items",
+  "statusComplete": "Complete",
+  "statusPending": "Pending",
+  "tlEventCreated": "Event created",
+  "tlSourceVendors": "Source your vendors",
+  "tlEventConfirmed": "Event confirmed",
+  "tlEventDay": "Event day ({date})",
+  "@tlEventDay": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "tlEventCompleted": "Event completed",
+  "eventTimeline": "Event Timeline",
+  "nothingAddedYet": "Nothing added to this event yet.\nOpen a product or service and tap \"Add to Event\" to see it here.",
+  "addedToThisEvent": "Added to this event",
+  "rentNow": "Rent now",
+  "orderNow": "Order now",
+  "requestQuote": "Request Quote",
+  "quoteInquiryMessage": "Hi! I'd like a quote for \"{title}\" for my event \"{event}\" on {date}.",
+  "@quoteInquiryMessage": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "event": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "inquirySent": "Inquiry sent — the vendor will send you a quote",
+  "createGroupChatTitle": "Create group chat?",
+  "createGroupChatBody": "All vendors attached to this event will automatically join — including any you add later. Quotes and invoices stay private in your direct chats.",
+  "createAction": "Create",
+  "removeFromEventTitle": "Remove from event?",
+  "removeFromEventBody": "Remove \"{title}\" from {event}?",
+  "@removeFromEventBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "event": {
+        "type": "String"
+      }
+    }
+  },
+  "removeAction": "Remove",
+  "listingRemoved": "{title} removed",
+  "@listingRemoved": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "createAnPrefix": "Create an ",
+  "step1Subtitle": "Step one, Choose the Event Type",
+  "eventType": "Event Type",
+  "typeWedding": "Wedding",
+  "typeBirthday": "Birthday",
+  "typeCorporate": "Corporate",
+  "typeGraduation": "Graduation",
+  "otherLabel": "Other",
+  "pleaseSpecify": "Please Specify",
+  "eventPrefix": "Event ",
+  "detailsHighlight": "Details",
+  "step2Subtitle": "Step Two, Enter your Event Details",
+  "eventTitle": "Event Title",
+  "eventTitleHint": "e.g. My Wedding Reception",
+  "eventDate": "Event Date",
+  "selectDate": "Select date",
+  "guestCount": "Guest Count",
+  "timeFrom": "Time From",
+  "startTime": "Start time",
+  "timeTo": "Time To",
+  "endTime": "End time",
+  "venue": "Venue",
+  "venueHint": "Enter venue address",
+  "budgetMinLabel": "Budget Min (₦)",
+  "budgetMaxLabel": "Budget Max (₦)",
+  "eventThumbnail": "Event Thumbnail",
+  "uploadThumbnail": "Upload thumbnail",
+  "categoriesHighlight": "Categories",
+  "step3Subtitle": "Step Three, Select your Preferences",
+  "whatServicesNeeded": "What services do you need for your event?",
+  "step4Subtitle": "Step Four, Select your Vendors",
+  "eventCreatedAdded": "Event created — added to it 🎉",
+  "eventCreated": "Event created 🎉",
+  "recommendedVendorsForEvent": "Recommended vendors for your event",
+  "sourcedOfTotal": "{sourced} of {total} Vendors",
+  "@sourcedOfTotal": {
+    "placeholders": {
+      "sourced": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "searchForItems": "Search for items",
+  "addedCheck": "Added ✓",
+  "reviewSourcedVendors": "Review Sourced Vendors",
+  "createEventWithoutSourcing": "Create Event without sourcing",
+  "allVendorsSourced": "All {count} Vendors sourced for all categories",
+  "@allVendorsSourced": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "createEvent": "Create Event",
+  "tabProductsToBuy": "Products to buy",
+  "tabServicesToBook": "Services to book",
+  "tabEquipmentRentals": "Equipment rentals",
+  "verified": "Verified",
+  "serviceRadiusInfo": "{location} · 20km service radius",
+  "@serviceRadiusInfo": {
+    "placeholders": {
+      "location": {
+        "type": "String"
+      }
+    }
+  },
+  "businessHoursInfo": "Mon–Sat · 9am–6pm",
+  "respondsWithin": "Responds within ~30 mins",
+  "selectOptionPreference": "Select an option based on your Preference",
+  "nothingHereYet": "Nothing here yet.",
+  "serviceDetails": "Service Details",
+  "description": "Description",
+  "cancellationPolicy": "Cancellation Policy:",
+  "moderateValue": "Moderate",
+  "minServiceDuration": "Minimum Service Duration:",
+  "fourHours": "4 hours",
+  "addToEvent": "Add to Event",
+  "quoteSent": "Quote Sent",
+  "removeVendor": "Remove Vendor",
+  "swapVendor": "Swap Vendor",
+  "tapStarsToRate": "Tap the stars to rate your experience",
+  "ratedStars": "Rated {rating} stars",
+  "@ratedStars": {
+    "placeholders": {
+      "rating": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewSubmitted": "Review submitted — thank you! ⭐",
+  "reviewTitle": "Review",
+  "reviewSubtitle": "Let us know how your booking went",
+  "leaveFeedback": "Leave a Detailed feedback",
+  "feedbackHint": "Let us know how your experience was",
+  "sending": "Sending…",
+  "sendReview": "Send Review",
+  "cancelOrder": "Cancel Order",
+  "notice": "Notice",
+  "cancelOrderNotice": "Cancelling this order will notify the vendor and our support team. Cancellation fees may apply depending on the vendor's policy. Refunds are typically processed within 3-5 business days.",
+  "reasonForCancellation": "Reason for cancellation",
+  "cancelReasonPlans": "Change of plans",
+  "cancelReasonBetter": "Found a better alternative",
+  "cancelReasonNoResponse": "Vendor not responding",
+  "cancelReasonMistake": "Ordered by mistake",
+  "cancelReasonOther": "Other reason",
+  "describeIssue": "Describe the issue",
+  "provideAdditionalDetails": "Provide additional details...",
+  "messageVendorInstead": "Message Vendor Instead",
+  "youLabel": "You",
+  "memberLabel": "Member",
+  "noMessagesYet": "No messages yet — say hello 👋",
+  "membersCount": "{count, plural, =1{1 member} other{{count} members}}",
+  "@membersCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addTodoTooltip": "Add a to-do",
+  "paymentUpdate": "Payment update",
+  "confirmedBanner": "Confirmed",
+  "messageTheGroup": "Message the group…",
+  "raiseDispute": "Raise a dispute",
+  "disputeNotice": "Raising a dispute will notify our support team who will investigate the issue. Please provide as much detail as possible. Disputes are typically resolved within 3-5 business days.",
+  "disputeCategory": "Dispute category",
+  "disputeReasonNotDescribed": "Item not as described",
+  "disputeReasonNoShow": "Vendor did not show up / Complete the service",
+  "disputeReasonOvercharged": "Overcharged / incorrect amount",
+  "disputeReasonDamaged": "Damaged / missing item",
+  "disputeReasonOther": "Other issue",
+  "describeWhatHappened": "Describe what happened in detail...",
+  "attachEvidence": "Attach evidence (optional)",
+  "uploadImage": "Upload Image",
+  "submitDispute": "Submit Dispute",
+  "requestRefund": "Request Refund",
+  "refundNotice": "Requesting a refund will notify our support team who will investigate the issue. Please provide as much detail as possible. Refund requests are typically resolved within 3-5 business days.",
+  "refundCategory": "Refund category",
+  "refundReasonNotReceived": "Item not received",
+  "refundReasonDamaged": "Damaged item received",
+  "bankDetails": "Bank Details",
+  "selectBank": "Select Bank",
+  "enterAccountNumber": "Enter Account Number",
+  "orderDetails": "Order Details",
+  "orderCouldNotLoad": "This order could not be loaded.",
+  "orderFallback": "Order",
+  "total": "Total",
+  "statusHeading": "Status",
+  "requirements": "Requirements",
+  "statusDelivered": "Delivered",
+  "statusOrderConfirmed": "Order Confirmed",
+  "statusOutForDelivery": "Out for Delivery",
+  "statusOrderPlaced": "Order placed",
+  "requestRefundWarn": "⚠ Request Refund",
+  "cancelOrderWarn": "⚠ Cancel Order",
+  "rentalDetails": "Rental Details",
+  "rentalCouldNotLoad": "This rental could not be loaded.",
+  "rentalFallback": "Rental",
+  "perDayRate": "Per day rate",
+  "refundableDeposit": "Refundable deposit",
+  "statusReturned": "Returned",
+  "statusPickedUp": "Picked up",
+  "statusRequested": "Requested",
+  "tabDetails": "Details",
+  "serviceType": "Service Type",
+  "addOns": "Ad ons",
+  "guestSize": "Guest Size",
+  "dateAndTime": "Date and Time",
+  "duration": "Duration",
+  "additionalInformation": "Additional Information",
+  "quoteSentByVendor": "Quote Sent by Vendor",
+  "bookingCompleted": "Booking Completed",
+  "awaitingQuote": "Awaiting Quote from vendor",
+  "viewQuote": "View Quote",
+  "viewConversationHistory": "View Conversation History",
+  "tlQuoteAccepted": "Quote accepted",
+  "tlPaymentConfirmed": "Payment confirmed",
+  "tlEventDayShort": "Event day",
+  "bookingTimeline": "Booking Timeline",
+  "quickActions": "Quick Actions",
+  "leaveReviewBtn": "⭐ Leave a Review",
+  "messageVendor": "💬 Message Vendor",
+  "callVendor": "📞 Call Vendor",
+  "downloadReceipt": "📋 Download Booking Receipt",
+  "raiseDisputeBtn": "⚠ Raise a Dispute",
+  "myBookings": "My Bookings",
+  "tabActive": "Active",
+  "noBookingsHere": "No bookings here",
+  "noBookingsSubtitle": "When you book a vendor, it will appear here.",
+  "selectEventDateError": "Please select an event date",
+  "enterEventLocationError": "Please enter the event location",
+  "bookingRequestSubmitted": "Booking request submitted!",
+  "requestAQuote": "Request a Quote",
+  "eventDetailsHeading": "Event Details",
+  "selectEventDate": "Select event date",
+  "eventLocation": "Event Location",
+  "eventLocationHint": "e.g. Eko Hotel, Victoria Island, Lagos",
+  "requirementsHint": "Describe your event, guest count, special requests...",
+  "selectPackage": "Select Package",
+  "submitRequest": "Submit Request",
+  "bookingNotFound": "Booking not found",
+  "bookingDetails": "Booking Details",
+  "progress": "Progress",
+  "statusActive": "Active",
+  "dateLabel": "Date",
+  "cancelBookingTitle": "Cancel Booking?",
+  "cancelBookingBody": "Are you sure you want to cancel this booking?",
+  "noLabel": "No",
+  "yesCancel": "Yes, Cancel",
+  "cancelBooking": "Cancel Booking",
+  "paymentArrangedNotice": "Payment is arranged directly between you and the vendor. Transactions happen outside Planovar and are at both parties' own risk.",
+  "quoteNotFound": "Quote not found",
+  "quoteFrom": "Quote from {vendor}",
+  "@quoteFrom": {
+    "placeholders": {
+      "vendor": {
+        "type": "String"
+      }
+    }
+  },
+  "expiredOn": "Expired on {date}",
+  "@expiredOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "validUntil": "Valid until {date}",
+  "@validUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "notesFromVendor": "Notes from vendor",
+  "acceptAndBook": "Accept & Book",
+  "acceptQuoteTitle": "Accept Quote?",
+  "acceptQuoteBody": "Are you sure you want to accept this quote for {amount}?",
+  "@acceptQuoteBody": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "quoteAcceptedInvoice": "Quote accepted — an invoice has been added to your chat.",
+  "couldNotAcceptQuote": "Could not accept quote: {error}",
+  "@couldNotAcceptQuote": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "decline": "Decline",
+  "notificationsTitle": "Notifications",
+  "markAllRead": "Mark all read",
+  "noNotifications": "No notifications",
+  "listingNotFound": "Listing not found",
+  "reviewsCountParen": "({count}) Reviews",
+  "@reviewsCountParen": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "readLess": "Read less",
+  "readMore": "Read more",
+  "quantity": "Quantity",
+  "sizes": "Sizes",
+  "colorLabel": "Color",
+  "policyTitle": "{policy} Cancellation Policy",
+  "@policyTitle": {
+    "placeholders": {
+      "policy": {
+        "type": "String"
+      }
+    }
+  },
+  "serviceDuration": "Service Duration:",
+  "vendorDetails": "Vendor Details",
+  "messageVendorPlain": "Message Vendor",
+  "rentForYourEvent": "Rent for your Event",
+  "addToEventPlusIcon": "+ Add to Event",
+  "fromPrice": "From ₦ {price}",
+  "@fromPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "quoteOnRequest": "Quote on request",
+  "policyFlexible1": "Full refund if cancelled up to 24 hours before the event.",
+  "policyFlexible2": "A small processing fee may apply.",
+  "policyStrict1": "No refund once the booking is confirmed.",
+  "policyModerate1": "100% refund if cancelled 7+ days before the event.",
+  "policyModerate2": "50% refund if cancelled 3–6 days before the event.",
+  "policyModerate3": "No refund within 48 hours of the event.",
+  "vendorNotFound": "Vendor not found",
+  "linkCopied": "Link copied to clipboard",
+  "tabAbout": "About",
+  "tabReviews": "Reviews",
+  "noDescriptionAvailable": "No description available.",
+  "noProductsAvailable": "No products available",
+  "noServicesAvailable": "No services available",
+  "verifiedReviewsCount": "{count, plural, =1{1 verified review} other{{count} verified reviews}}",
+  "@verifiedReviewsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noReviewsYet": "No reviews yet",
+  "stayConnected": "Stay Connected with your Vendors",
+  "searchConversations": "Search conversations",
+  "noConversationsYet": "No conversations yet",
+  "groupChat": "Group Chat",
+  "groupVendorsCount": "Group · {count, plural, =1{1 vendor} other{{count} vendors}}",
+  "@groupVendorsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "quoteSentAmount": "Quote sent - ₦{amount} · ",
+  "@quoteSentAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "tapToReview": "Tap to Review",
+  "daysAgo": "{days}d ago",
+  "@daysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "quoteAcceptedInvoiceCreated": "Quote accepted — invoice created 🎉",
+  "quoteDeclined": "Quote declined",
+  "quoteVersionValid": "Version {version} · valid till {date}",
+  "@quoteVersionValid": {
+    "placeholders": {
+      "version": {
+        "type": "int"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "lineItems": "Line items",
+  "paymentTerms": "Payment terms",
+  "noteFromVendor": "Note from the vendor",
+  "leaveAReview": "Leave a review",
+  "shareYourExperience": "Share your experience…",
+  "addShortComment": "Add a short comment",
+  "reviewSubmittedStar": "Review submitted ⭐",
+  "submitting": "Submitting…",
+  "submitReviewBtn": "Submit review",
+  "couldNotOpenPayment": "Could not open the payment page",
+  "finishPayment": "Finish payment",
+  "finishPaymentBody": "Tap \"I've paid\" once you've completed the ₦{charge} payment (incl. ₦{fee} transaction fee) on Paystack.",
+  "@finishPaymentBody": {
+    "placeholders": {
+      "charge": {
+        "type": "String"
+      },
+      "fee": {
+        "type": "String"
+      }
+    }
+  },
+  "notYet": "Not yet",
+  "ivePaid": "I've paid",
+  "paymentReceived": "Payment received 🎉",
+  "paymentStillProcessing": "Payment is still processing — we'll update it shortly",
+  "today": "Today",
+  "chatFallback": "Chat",
+  "sayHello": "Say hello 👋",
+  "quoteAcceptedBanner": "Quote accepted",
+  "quoteExpired": "Quote expired",
+  "declinedBanner": "Declined",
+  "depositRefundedAmount": "Deposit refunded · ₦{amount}",
+  "@depositRefundedAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "depositRefunded": "Deposit refunded",
+  "paymentReceivedAmount": "Payment received · ₦{amount}",
+  "@paymentReceivedAmount": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentReceivedBanner": "Payment received",
+  "orderUpdate": "Order update",
+  "reviewSubmittedRating": "Review submitted · {rating}★",
+  "@reviewSubmittedRating": {
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      }
+    }
+  },
+  "paymentConfirmedFallback": "Payment confirmed",
+  "paymentProcessingFallback": "Payment processing…",
+  "bookingCancelledFallback": "This booking has been cancelled.",
+  "disputeRaisedFallback": "A dispute has been raised.",
+  "howDidItGo": "How did it go?",
+  "refundRequestedFallback": "Refund request submitted.",
+  "paymentConfirmedTitle": "Payment Confirmed",
+  "paymentProcessingTitle": "Payment Processing",
+  "bookingCancelledTitle": "Booking Cancelled",
+  "disputeRaisedTitle": "Dispute Raised",
+  "disputeReviewNote": "Our team will review this dispute within 24 hours.",
+  "howWasExperience": "How was your experience?",
+  "leaveReviewPlain": "Leave a Review",
+  "refundRequestedTitle": "Refund Requested",
+  "refundProcessNote": "Refund will be processed within 5–7 business days.",
+  "typeAMessage": "Type a message",
+  "myAccount": "My account",
+  "settingsSection": "Settings",
+  "signOut": "Sign out",
+  "yourProfile": "Your profile",
+  "editProfile": "Edit Profile",
+  "savedLabel": "Saved",
+  "savedVendors": "Saved Vendors",
+  "yourWishlist": "Your Wishlist",
+  "myReviews": "My Reviews",
+  "myReviewsSubtitle": "View your overall ratings from vendors",
+  "theme": "Theme",
+  "themeSubtitle": "Select your preferred display",
+  "languageSubtitle": "Choose your preferred language",
+  "notificationsSubtitle": "Manage alerts & preferences",
+  "privacySecurity": "Privacy and Security",
+  "privacySubtitle": "Account security settings",
+  "helpSupport": "Help and Support",
+  "helpSubtitle": "Visit our help centre for inquiries",
+  "deleteAccount": "Delete your account",
+  "deleteAccountSubtitle": "Permanently delete your account",
+  "signOutConfirm": "Are you sure you want to sign out",
+  "couldNotUploadPhoto": "Could not upload photo: {error}",
+  "@couldNotUploadPhoto": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "profileUpdated": "Profile updated",
+  "couldNotUpdateProfile": "Could not update profile: {error}",
+  "@couldNotUpdateProfile": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "firstName": "First Name",
+  "enterFirstName": "Enter first name",
+  "lastName": "Last Name",
+  "enterLastName": "Enter last name",
+  "phoneNumber": "Phone Number",
+  "saveChanges": "Save Changes",
+  "reviewsScreenSubtitle": "View all your reviews from past events",
+  "noSavedVendors": "No saved vendors yet",
+  "noSavedVendorsSub": "Tap the heart on any vendor to save it here.",
+  "noSavedProducts": "No saved products yet",
+  "noSavedProductsSub": "Tap the heart on any product to save it here.",
+  "yourFavourites": "Your Favourites",
+  "favouritesSubtitle": "View all your saved vendors and products",
+  "changePassword": "Change Password",
+  "changePasswordSubtitle": "Create a new strong password",
+  "enterNewPassword": "Enter new password",
+  "confirmNewPassword": "Confirm new password",
+  "hasCapital": "Has capital letter",
+  "hasNumber": "Has number",
+  "hasSpecial": "Has special character",
+  "savePassword": "Save Password",
+  "twoFactorAuth": "Two factor authentication",
+  "twoFactorSubtitle": "add an extra layer of security",
+  "twoFactorEmailDesc": "Authentication code will be sent to your email for verification",
+  "twoFactorPhoneDesc": "Authentication code will be sent to your phone for verification",
+  "savePreferences": "Save Preferences",
+  "support": "Support",
+  "chatWithTeam": "Chat with our team",
+  "supportBeingSetup": "Support is being set up",
+  "openLiveChatDesc": "Open our live chat to talk to a support agent.",
+  "supportEmailDesc": "Our live chat isn't connected yet — email us and we'll get right back to you.",
+  "openLiveChat": "Open live chat",
+  "emailSupport": "Email support",
+  "themeScreenSubtitle": "Select your preferred theme appearance",
+  "lightLabel": "Light",
+  "darkLabel": "Dark",
+  "systemLabel": "System",
+  "systemSubtitle": "Use your default system preference",
+  "notifSettingsSubtitle": "Manage when you'll receive notifications",
+  "allNotifications": "All notifications",
+  "notifChannelDesc": "Choose where you want to receive notifications",
+  "channelNone": "None",
+  "channelInApp": "In app",
+  "channelEmail": "Email",
+  "channelBoth": "Both",
+  "notifAllMessages": "All messages",
+  "notifAllMessagesSub": "someone replies your message",
+  "notifOrderDelivery": "Order/Delivery Timeline",
+  "notifOrderDeliverySub": "get notified when there's a new delivery status",
+  "notifEventTimeline": "Event Timeline",
+  "notifEventTimelineSub": "get notified when there's a new event timeline",
+  "notifPayment": "Payment alerts",
+  "notifPaymentSub": "get notified when a payment is successful",
+  "notifQuote": "Quote / Invoice alerts",
+  "notifQuoteSub": "get notified when you get a quote",
+  "notifVendorMatch": "Vendor Match",
+  "notifVendorMatchSub": "get alerts for recommended vendors",
+  "privacyScreenSubtitle": "manage your password and 2 factor authentications",
+  "changeYourPassword": "Change your password",
+  "changePasswordRowSub": "Update your login credentials",
+  "twoFactorRow": "2 factor authentication",
+  "twoFactorRowSub": "add extra layer of security",
+  "helpAndSupport": "Help & Support",
+  "helpScreenSubtitle": "Get real time help for all your inquires",
+  "searchForHelp": "Search for help",
+  "emailSupportTitle": "Email Support",
+  "liveChat": "Live Chat",
+  "liveChatSub": "chat with our support team available Mon - Fri 8am - 5pm",
+  "phoneSupport": "Phone Support",
+  "faqTitle": "FAQ",
+  "faqSub": "Get answers to your burning questions",
+  "faqScreenTitle": "Frequently Asked Questions",
+  "faqScreenSubtitle": "Answers to your burning questions",
+  "searchFaqs": "Search FAQs",
+  "faqQ1": "How do I book a vendor?",
+  "faqA1": "Browse vendors, tap on one you like, view their listings, and tap \"Request a Quote\" or \"Book Now\". Fill in your event details and submit. The vendor will respond within 24 hours.",
+  "faqQ2": "How does the payment process work?",
+  "faqA2": "Once a vendor accepts your booking and you accept their quote, you'll pay a 50% deposit to confirm the booking. The remaining balance is due 7 days before your event.",
+  "faqQ3": "Can I cancel a booking?",
+  "faqA3": "Yes, you can cancel a booking before it is confirmed at no charge. After confirmation, our cancellation policy applies — please review the vendor's cancellation terms in their profile.",
+  "faqQ4": "What if I'm not satisfied with a vendor?",
+  "faqA4": "Contact our support team within 48 hours of your event. We'll mediate with the vendor and work towards a resolution, including partial refunds where appropriate.",
+  "faqQ5": "Are vendors verified?",
+  "faqA5": "Vendors with a verified badge have had their business credentials and portfolio reviewed by our team. We also use client reviews to maintain quality standards.",
+  "faqQ6": "How do I leave a review?",
+  "faqA6": "After your event is marked as completed, you'll receive a prompt to leave a review. You can also go to Bookings → Past → the completed booking → Leave Review.",
+  "sadToSeeYouGo": "We're sad to see you go",
+  "letUsKnow": "Let us know what went wrong",
+  "deleteReason1": "No longer using the platform/service",
+  "deleteReason2": "Found a better alternative",
+  "deleteReason3": "Privacy Concerns",
+  "deleteReason4": "Too many emails/notifications",
+  "deleteReason5": "Difficulty navigating the platform",
+  "deleteReason6": "Personal Reasons",
+  "deleteReason7": "Other not listed above",
+  "tellUsMore": "Tell us more...",
+  "deleteAccountBtn": "Delete Account",
+  "areYouSure": "Are you sure?",
+  "deleteAccountWarning": "by deleting your account you will lose the following",
+  "deleteLoss1": "• Access to your active events",
+  "deleteLoss2": "• Access to your account records and credentials",
+  "deleteLoss3": "• Login details",
+  "deleteLoss4": "• All Vendor contacts via message and call",
+  "connecting": "Connecting…",
+  "ringing": "Ringing…",
+  "wrongAppTitle": "Wrong app",
+  "wrongAppMessage": "This account is registered as a vendor. Please use the Planovar Vendor app to sign in.",
+  "ok": "OK"
 }

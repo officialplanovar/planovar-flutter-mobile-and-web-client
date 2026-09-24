@@ -14,6 +14,7 @@ import '../../../shared/widgets/chat_order_cards.dart';
 import '../../../shared/widgets/create_todo_sheet.dart';
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/bloc/auth_state.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Real event GROUP chat — get-or-creates the conversation (auto-adds every
 /// event vendor), streams messages over the socket, supports to-dos, and free
@@ -134,7 +135,7 @@ class _EventGroupChatScreenState extends State<EventGroupChatScreen> {
         .map((p) => TodoMemberOption(userId: p.userId, name: p.name))
         .toList();
     if (members.isEmpty) {
-      members.add(TodoMemberOption(userId: _currentUserId, name: 'You'));
+      members.add(TodoMemberOption(userId: _currentUserId, name: AppLocalizations.of(context).youLabel));
     }
     showCreateTodoSheet(
       context,
@@ -146,15 +147,17 @@ class _EventGroupChatScreenState extends State<EventGroupChatScreen> {
   }
 
   String _senderName(String id) {
-    if (id == _currentUserId) return 'You';
+    final t = AppLocalizations.of(context);
+    if (id == _currentUserId) return t.youLabel;
     for (final p in _conversation?.participants ?? const <ChatParticipant>[]) {
       if (p.userId == id) return p.name;
     }
-    return 'Member';
+    return t.memberLabel;
   }
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final memberCount =
         _conversation?.participants.length ?? (widget.groupVendors.length + 1);
     return Scaffold(
@@ -168,7 +171,7 @@ class _EventGroupChatScreenState extends State<EventGroupChatScreen> {
                   ? const Center(child: CircularProgressIndicator())
                   : _messages.isEmpty
                       ? Center(
-                          child: Text('No messages yet — say hello 👋',
+                          child: Text(t.noMessagesYet,
                               style: GoogleFonts.urbanist(color: context.c.textHint)))
                       : ListView.builder(
                           controller: _scrollCtrl,
@@ -185,6 +188,7 @@ class _EventGroupChatScreenState extends State<EventGroupChatScreen> {
   }
 
   Widget _buildHeader(int memberCount) {
+    final t = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.fromLTRB(6, 6, 6, 10),
       decoration: BoxDecoration(
@@ -220,13 +224,13 @@ class _EventGroupChatScreenState extends State<EventGroupChatScreen> {
                     overflow: TextOverflow.ellipsis,
                     style: GoogleFonts.urbanist(
                         fontSize: 16, fontWeight: FontWeight.w800, color: context.c.textPrimary)),
-                Text('$memberCount members',
+                Text(t.membersCount(memberCount),
                     style: GoogleFonts.urbanist(fontSize: 12, color: context.c.textSecondary)),
               ],
             ),
           ),
           IconButton(
-            tooltip: 'Add a to-do',
+            tooltip: t.addTodoTooltip,
             icon: const Icon(Icons.playlist_add_check_rounded, color: AppColors.primary),
             onPressed: _addTodo,
           ),
@@ -236,6 +240,7 @@ class _EventGroupChatScreenState extends State<EventGroupChatScreen> {
   }
 
   Widget _buildMessage(MessageModel msg) {
+    final t = AppLocalizations.of(context);
     if (msg.type == 'todo' && msg.todo != null) {
       return TodoCard(
         todo: msg.todo!,
@@ -244,14 +249,14 @@ class _EventGroupChatScreenState extends State<EventGroupChatScreen> {
       );
     }
     if (msg.type == 'milestone_paid' || msg.type == 'deposit_refunded') {
-      return const ChatSystemBanner(
-          label: 'Payment update', color: Color(0xFF047857), bg: Color(0xFFF0FDF4), icon: Icons.payments_rounded);
+      return ChatSystemBanner(
+          label: t.paymentUpdate, color: const Color(0xFF047857), bg: const Color(0xFFF0FDF4), icon: Icons.payments_rounded);
     }
     if (msg.type == 'booking_confirmed' ||
         msg.type == 'order_accepted' ||
         msg.type == 'quote_accepted') {
-      return const ChatSystemBanner(
-          label: 'Confirmed', color: Color(0xFF047857), bg: Color(0xFFF0FDF4));
+      return ChatSystemBanner(
+          label: t.confirmedBanner, color: const Color(0xFF047857), bg: const Color(0xFFF0FDF4));
     }
 
     // Plain chat bubble
@@ -296,6 +301,7 @@ class _EventGroupChatScreenState extends State<EventGroupChatScreen> {
   }
 
   Widget _buildInputBar() {
+    final t = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
       decoration: BoxDecoration(
@@ -310,7 +316,7 @@ class _EventGroupChatScreenState extends State<EventGroupChatScreen> {
               style: GoogleFonts.urbanist(color: context.c.textPrimary),
               onSubmitted: (_) => _sendMessage(),
               decoration: InputDecoration(
-                hintText: 'Message the group…',
+                hintText: t.messageTheGroup,
                 hintStyle: GoogleFonts.urbanist(color: context.c.textHint),
                 filled: true,
                 fillColor: context.c.background,

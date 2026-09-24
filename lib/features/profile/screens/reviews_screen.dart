@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ReviewsScreen extends StatelessWidget {
   const ReviewsScreen({super.key});
@@ -74,6 +75,7 @@ class ReviewsScreen extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Container(
       color: context.c.primaryLight,
       child: SafeArea(
@@ -106,7 +108,7 @@ class ReviewsScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Reviews',
+                    t.tabReviews,
                     style: GoogleFonts.urbanist(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -114,7 +116,7 @@ class ReviewsScreen extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'View all your reviews from past events',
+                    t.reviewsScreenSubtitle,
                     style: GoogleFonts.urbanist(
                       fontSize: 13,
                       color: context.c.textHint,
@@ -130,6 +132,7 @@ class ReviewsScreen extends StatelessWidget {
   }
 
   Widget _buildRatingSummary(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -161,7 +164,7 @@ class ReviewsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                '128 verified reviews',
+                t.verifiedReviewsCount(128),
                 style: GoogleFonts.urbanist(
                   fontSize: 13,
                   color: context.c.textHint,

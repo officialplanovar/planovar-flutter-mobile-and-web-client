@@ -11,6 +11,7 @@ import '../../../shared/models/user_model.dart';
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/bloc/auth_event.dart';
 import '../../auth/bloc/auth_state.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -50,6 +51,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final authState = context.watch<AuthBloc>().state;
     final user = authState is AuthAuthenticated ? authState.user : null;
     return BlocListener<AuthBloc, AuthState>(
@@ -76,7 +78,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Padding(
                 padding: const EdgeInsets.only(left: 20, bottom: 10),
                 child: Text(
-                  'My account',
+                  t.myAccount,
                   style: GoogleFonts.urbanist(
                     fontSize: 13,
                     color: context.c.textHint,
@@ -91,7 +93,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Padding(
                 padding: const EdgeInsets.only(left: 20, bottom: 10),
                 child: Text(
-                  'Settings',
+                  t.settingsSection,
                   style: GoogleFonts.urbanist(
                     fontSize: 13,
                     color: context.c.textHint,
@@ -119,7 +121,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         const Icon(Icons.logout_rounded, color: AppColors.error, size: 20),
                         const SizedBox(width: 8),
                         Text(
-                          'Sign out',
+                          t.signOut,
                           style: GoogleFonts.urbanist(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -142,6 +144,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildHeader(BuildContext context, UserModel? user) {
+    final t = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -176,7 +179,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                user?.name ?? 'Your profile',
+                user?.name ?? t.yourProfile,
                 style: GoogleFonts.urbanist(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -202,7 +205,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   }
                 },
                 icon: const Icon(Icons.edit_rounded, size: 15),
-                label: const Text('Edit Profile'),
+                label: Text(t.editProfile),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primary,
                   side: const BorderSide(color: AppColors.primary),
@@ -222,6 +225,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildStatsCard(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.symmetric(vertical: 18),
@@ -239,13 +243,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: IntrinsicHeight(
         child: Row(
           children: [
-            _StatCol(value: _events?.toString() ?? '—', label: 'Events'),
+            _StatCol(value: _events?.toString() ?? '—', label: t.navEvents),
             VerticalDivider(width: 1, thickness: 1, color: context.c.border),
-            _StatCol(value: _orders?.toString() ?? '—', label: 'Orders'),
+            _StatCol(value: _orders?.toString() ?? '—', label: t.ordersTitle),
             VerticalDivider(width: 1, thickness: 1, color: context.c.border),
-            _StatCol(value: _saved?.toString() ?? '—', label: 'Saved'),
+            _StatCol(value: _saved?.toString() ?? '—', label: t.savedLabel),
             VerticalDivider(width: 1, thickness: 1, color: context.c.border),
-            const _StatCol(value: '—', label: 'Reviews'),
+            _StatCol(value: '—', label: t.tabReviews),
           ],
         ),
       ),
@@ -253,6 +257,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildAccountCard(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
@@ -270,15 +275,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           _ProfileRow(
             icon: Icons.favorite_rounded,
-            label: 'Saved Vendors',
-            subtitle: 'Your Wishlist',
+            label: t.savedVendors,
+            subtitle: t.yourWishlist,
             onTap: () => context.push(AppRoutes.favourites),
           ),
           Divider(height: 1, thickness: 1, color: context.c.divider),
           _ProfileRow(
             icon: Icons.star_rounded,
-            label: 'My Reviews',
-            subtitle: 'View your overall ratings from vendors',
+            label: t.myReviews,
+            subtitle: t.myReviewsSubtitle,
             onTap: () => context.push(AppRoutes.reviews),
           ),
         ],
@@ -287,6 +292,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildSettingsCard(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(
@@ -304,43 +310,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
         children: [
           _ProfileRow(
             icon: Icons.palette_rounded,
-            label: 'Theme',
-            subtitle: 'Select your preferred display',
+            label: t.theme,
+            subtitle: t.themeSubtitle,
             onTap: () => context.push(AppRoutes.themeSettings),
           ),
           Divider(height: 1, thickness: 1, color: context.c.divider),
           _ProfileRow(
             icon: Icons.language_rounded,
-            label: 'Language',
-            subtitle: 'Choose your preferred language',
+            label: t.language,
+            subtitle: t.languageSubtitle,
             onTap: () => context.push(AppRoutes.language),
           ),
           Divider(height: 1, thickness: 1, color: context.c.divider),
           _ProfileRow(
             icon: Icons.notifications_rounded,
-            label: 'Notifications',
-            subtitle: 'Manage alerts & preferences',
+            label: t.notificationsTitle,
+            subtitle: t.notificationsSubtitle,
             onTap: () => context.push(AppRoutes.notificationSettings),
           ),
           Divider(height: 1, thickness: 1, color: context.c.divider),
           _ProfileRow(
             icon: Icons.lock_rounded,
-            label: 'Privacy and Security',
-            subtitle: 'Account security settings',
+            label: t.privacySecurity,
+            subtitle: t.privacySubtitle,
             onTap: () => context.push(AppRoutes.privacy),
           ),
           Divider(height: 1, thickness: 1, color: context.c.divider),
           _ProfileRow(
             icon: Icons.help_outline_rounded,
-            label: 'Help and Support',
-            subtitle: 'Visit our help centre for inquiries',
+            label: t.helpSupport,
+            subtitle: t.helpSubtitle,
             onTap: () => context.push(AppRoutes.help),
           ),
           Divider(height: 1, thickness: 1, color: context.c.divider),
           _ProfileRow(
             icon: Icons.delete_outline_rounded,
-            label: 'Delete your account',
-            subtitle: 'Permanently delete your account',
+            label: t.deleteAccount,
+            subtitle: t.deleteAccountSubtitle,
             onTap: () => context.push(AppRoutes.deleteAccount),
           ),
         ],
@@ -349,6 +355,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   void _showSignOutDialog(BuildContext context) {
+    final t = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (dialogCtx) => Dialog(
@@ -385,12 +392,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Sign out',
+                t.signOut,
                 style: GoogleFonts.urbanist(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
-                'Are you sure you want to sign out',
+                t.signOutConfirm,
                 style: GoogleFonts.urbanist(fontSize: 14, color: context.c.textSecondary),
                 textAlign: TextAlign.center,
               ),
@@ -410,7 +417,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            'Cancel',
+                            t.cancel,
                             style: GoogleFonts.urbanist(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
@@ -436,7 +443,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            'Proceed',
+                            t.proceed,
                             style: GoogleFonts.urbanist(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,

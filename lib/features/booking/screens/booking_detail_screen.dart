@@ -12,6 +12,7 @@ import '../../../shared/widgets/glossy_button.dart';
 import '../../../shared/widgets/status_chip.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../l10n/app_localizations.dart';
 
 class BookingDetailScreen extends StatefulWidget {
   final String bookingId;
@@ -50,18 +51,20 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     if (_loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
     if (_booking == null) {
-      return Scaffold(appBar: AppBar(), body: const EmptyState(icon: Icons.calendar_today_outlined, title: 'Booking not found'));
+      return Scaffold(appBar: AppBar(), body: EmptyState(icon: Icons.calendar_today_outlined, title: t.bookingNotFound));
     }
 
     final booking = _booking!;
     final steps = ['Pending', 'Confirmed', 'Active', 'Completed'];
+    final stepLabels = [t.statusPending, t.confirmedBanner, t.statusActive, t.completedLabel];
     final currentStep = steps.indexWhere((s) => s.toLowerCase() == booking.status.toLowerCase());
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Booking Details'),
+        title: Text(t.bookingDetails),
         leading: BackButton(onPressed: () => context.pop()),
       ),
       body: SingleChildScrollView(
@@ -80,12 +83,12 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Progress', style: AppTextStyles.label(context)),
+                  Text(t.progress, style: AppTextStyles.label(context)),
                   const SizedBox(height: 16),
                   Row(
                     children: steps.asMap().entries.map((entry) {
                       final i = entry.key;
-                      final step = entry.value;
+                      final step = stepLabels[i];
                       final isCompleted = i <= currentStep;
                       final isLast = i == steps.length - 1;
                       return Expanded(
@@ -147,13 +150,13 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Event Details', style: AppTextStyles.label(context)),
+                  Text(t.eventDetailsHeading, style: AppTextStyles.label(context)),
                   const SizedBox(height: 12),
-                  _DetailRow(icon: Icons.calendar_today_outlined, label: 'Date', value: Formatters.date(booking.eventDate)),
+                  _DetailRow(icon: Icons.calendar_today_outlined, label: t.dateLabel, value: Formatters.date(booking.eventDate)),
                   if (booking.eventLocation != null)
-                    _DetailRow(icon: Icons.location_on_outlined, label: 'Location', value: booking.eventLocation!),
+                    _DetailRow(icon: Icons.location_on_outlined, label: t.locationTitle, value: booking.eventLocation!),
                   if (booking.requirements != null)
-                    _DetailRow(icon: Icons.notes_rounded, label: 'Requirements', value: booking.requirements!),
+                    _DetailRow(icon: Icons.notes_rounded, label: t.requirements, value: booking.requirements!),
                 ],
               ),
             ),
@@ -185,7 +188,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(booking.vendor?.businessName ?? 'Vendor', style: AppTextStyles.label(context)),
+                          Text(booking.vendor?.businessName ?? t.vendorLabel, style: AppTextStyles.label(context)),
                           if (booking.vendor?.location != null)
                             Text(booking.vendor!.location!, style: AppTextStyles.caption(context)),
                         ],
@@ -211,7 +214,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                   children: [
                     Row(
                       children: [
-                        Text('Quote', style: AppTextStyles.label(context)),
+                        Text(t.quoteLabel, style: AppTextStyles.label(context)),
                         const Spacer(),
                         StatusChip(status: _quote!.status),
                       ],
@@ -223,7 +226,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                     ),
                     const SizedBox(height: 12),
                     GlossyButton(
-                      label: 'View Quote',
+                      label: t.viewQuote,
                       onPressed: () => context.push(AppRoutes.quoteDetailPath(_quote!.id)),
                     ),
                   ],
@@ -239,14 +242,14 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                   final confirm = await showDialog<bool>(
                     context: context,
                     builder: (ctx) => AlertDialog(
-                      title: const Text('Cancel Booking?'),
-                      content: const Text('Are you sure you want to cancel this booking?'),
+                      title: Text(t.cancelBookingTitle),
+                      content: Text(t.cancelBookingBody),
                       actions: [
-                        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('No')),
+                        TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.noLabel)),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
                           onPressed: () => Navigator.pop(ctx, true),
-                          child: const Text('Yes, Cancel'),
+                          child: Text(t.yesCancel),
                         ),
                       ],
                     ),
@@ -258,7 +261,7 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                     context.pop();
                   }
                 },
-                child: const Text('Cancel Booking'),
+                child: Text(t.cancelBooking),
               ),
             if (booking.status == 'confirmed') ...[
               // Subscription-only model: payment is arranged off-platform.
@@ -268,21 +271,20 @@ class _BookingDetailScreenState extends State<BookingDetailScreen> {
                   color: const Color(0xFFFFFBEB),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Text(
-                  'Payment is arranged directly between you and the vendor. '
-                  'Transactions happen outside Planovar and are at both parties\' own risk.',
-                  style: TextStyle(fontSize: 12.5, color: Color(0xFF92400E), height: 1.5),
+                child: Text(
+                  t.paymentArrangedNotice,
+                  style: const TextStyle(fontSize: 12.5, color: Color(0xFF92400E), height: 1.5),
                 ),
               ),
             ],
             if (booking.status == 'completed')
               GlossyButton(
-                label: '⭐ Leave a Review',
+                label: t.leaveReviewBtn,
                 onPressed: () => context.push(
                   AppRoutes.leaveReview,
                   extra: {
                     'bookingId': booking.id,
-                    'vendorName': booking.vendor?.businessName ?? 'Vendor',
+                    'vendorName': booking.vendor?.businessName ?? t.vendorLabel,
                   },
                 ),
               ),

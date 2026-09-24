@@ -185,8 +185,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           hintText: t.emailHint,
                         ),
                         validator: (v) {
-                          if (v == null || v.isEmpty) return 'Email is required';
-                          if (!v.contains('@')) return 'Enter a valid email';
+                          if (v == null || v.isEmpty) return t.emailRequired;
+                          if (!v.contains('@')) return t.emailInvalid;
                           return null;
                         },
                       ),
@@ -210,7 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         validator: (v) => (v == null || v.isEmpty)
-                            ? 'Password is required'
+                            ? t.passwordRequired
                             : null,
                       ),
                       const SizedBox(height: 28),

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/auth_illustration.dart';
 import '../../../shared/widgets/auth_step_bar.dart';
 import '../../../shared/widgets/glossy_button.dart';
@@ -38,6 +39,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthPasswordResetSent) {
@@ -80,7 +82,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         const SizedBox(height: 24),
                         Center(
                           child: Text(
-                            'Forgot Password?',
+                            t.forgotPasswordTitle,
                             textAlign: TextAlign.center,
                             style: GoogleFonts.urbanist(
                               fontSize: 26,
@@ -92,7 +94,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         const SizedBox(height: 10),
                         Center(
                           child: Text(
-                            'Enter the email used in registration, we will\nsend a 6 digit OTP code for verification',
+                            t.forgotPasswordSubtitle,
                             textAlign: TextAlign.center,
                             style: GoogleFonts.urbanist(
                               fontSize: 14,
@@ -102,18 +104,18 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           ),
                         ),
                         const SizedBox(height: 36),
-                        _FieldLabel('Email Address'),
+                        _FieldLabel(t.emailAddress),
                         TextFormField(
                           controller: _emailCtrl,
                           keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            hintText: 'Enter your Email address',
+                          decoration: InputDecoration(
+                            hintText: t.emailHint,
                           ),
                           validator: (v) {
                             if (v == null || v.isEmpty)
-                              return 'Email is required';
+                              return t.emailRequired;
                             if (!v.contains('@'))
-                              return 'Enter a valid email';
+                              return t.emailInvalid;
                             return null;
                           },
                         ),
@@ -121,7 +123,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         BlocBuilder<AuthBloc, AuthState>(
                           builder: (context, state) {
                             return GlossyButton(
-                              label: 'Proceed',
+                              label: t.proceed,
                               onPressed:
                                   state is AuthLoading ? null : _submit,
                               isLoading: state is AuthLoading,

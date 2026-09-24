@@ -8,6 +8,7 @@ import '../../../shared/models/quote_model.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../../../l10n/app_localizations.dart';
 
 class QuoteDetailScreen extends StatefulWidget {
   final String quoteId;
@@ -39,9 +40,10 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     if (_loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
     if (_quote == null) {
-      return Scaffold(appBar: AppBar(), body: const EmptyState(icon: Icons.receipt_outlined, title: 'Quote not found'));
+      return Scaffold(appBar: AppBar(), body: EmptyState(icon: Icons.receipt_outlined, title: t.quoteNotFound));
     }
 
     final quote = _quote!;
@@ -49,7 +51,7 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Quote from ${quote.vendor?.businessName ?? 'Vendor'}'),
+        title: Text(t.quoteFrom(quote.vendor?.businessName ?? t.vendorLabel)),
         leading: BackButton(onPressed: () => context.pop()),
       ),
       body: SingleChildScrollView(
@@ -75,8 +77,8 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                   const SizedBox(width: 6),
                   Text(
                     isExpired
-                        ? 'Expired on ${Formatters.date(quote.validUntil)}'
-                        : 'Valid until ${Formatters.date(quote.validUntil)}',
+                        ? t.expiredOn(Formatters.date(quote.validUntil))
+                        : t.validUntil(Formatters.date(quote.validUntil)),
                     style: AppTextStyles.caption(context).copyWith(
                       color: isExpired ? AppColors.error : AppColors.success,
                       fontWeight: FontWeight.w600,
@@ -118,7 +120,7 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     child: Row(
                       children: [
-                        Text('Total', style: AppTextStyles.heading4(context)),
+                        Text(t.total, style: AppTextStyles.heading4(context)),
                         const Spacer(),
                         Text(
                           Formatters.currency(quote.amount),
@@ -141,7 +143,7 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Notes from vendor', style: AppTextStyles.label(context)),
+                    Text(t.notesFromVendor, style: AppTextStyles.label(context)),
                     const SizedBox(height: 6),
                     Text(
                       quote.description!,
@@ -154,18 +156,18 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
             if (quote.status == 'pending' && !isExpired) ...[
               const SizedBox(height: 32),
               GlossyButton(
-                label: 'Accept & Book',
+                label: t.acceptAndBook,
                 onPressed: () async {
                   final confirm = await showDialog<bool>(
                     context: context,
                     builder: (ctx) => AlertDialog(
-                      title: const Text('Accept Quote?'),
-                      content: Text('Are you sure you want to accept this quote for ${Formatters.currency(quote.amount)}?'),
+                      title: Text(t.acceptQuoteTitle),
+                      content: Text(t.acceptQuoteBody(Formatters.currency(quote.amount))),
                       actions: [
-                        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+                        TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
                         ElevatedButton(
                           onPressed: () => Navigator.pop(ctx, true),
-                          child: const Text('Accept & Book'),
+                          child: Text(t.acceptAndBook),
                         ),
                       ],
                     ),
@@ -179,9 +181,8 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                       if (!mounted) return;
                       // ignore: use_build_context_synchronously
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                              'Quote accepted — an invoice has been added to your chat.'),
+                        SnackBar(
+                          content: Text(t.quoteAcceptedInvoice),
                           backgroundColor: AppColors.success,
                         ),
                       );
@@ -192,7 +193,7 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                       // ignore: use_build_context_synchronously
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Could not accept quote: $e'),
+                          content: Text(t.couldNotAcceptQuote('$e')),
                           backgroundColor: AppColors.error,
                         ),
                       );
@@ -212,7 +213,7 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                   // ignore: use_build_context_synchronously
                   context.pop();
                 },
-                child: const Text('Decline'),
+                child: Text(t.decline),
               ),
             ],
           ],

@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glossy_button.dart';
 import '../../../shared/models/user_model.dart';
 import '../../auth/data/auth_repository.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// View + edit the signed-in client's profile (name, phone). The avatar is
 /// shown read-only for now (image upload is a separate flow).
@@ -69,7 +70,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text('Could not upload photo: $e'),
+              content: Text(AppLocalizations.of(context).couldNotUploadPhoto('$e')),
               backgroundColor: AppColors.error),
         );
       }
@@ -97,14 +98,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated')),
+        SnackBar(content: Text(AppLocalizations.of(context).profileUpdated)),
       );
       context.pop(true);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text('Could not update profile: $e'),
+              content: Text(AppLocalizations.of(context).couldNotUpdateProfile('$e')),
               backgroundColor: AppColors.error),
         );
       }
@@ -115,6 +116,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: context.c.surface,
       appBar: AppBar(
@@ -126,7 +128,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               color: context.c.textPrimary, size: 20),
           onPressed: () => context.pop(),
         ),
-        title: Text('Edit Profile',
+        title: Text(t.editProfile,
             style: GoogleFonts.urbanist(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -221,21 +223,21 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                     ),
                     const SizedBox(height: 28),
-                    _Label('First Name'),
-                    _Field(controller: _firstName, hint: 'Enter first name'),
+                    _Label(t.firstName),
+                    _Field(controller: _firstName, hint: t.enterFirstName),
                     const SizedBox(height: 18),
-                    _Label('Last Name'),
-                    _Field(controller: _lastName, hint: 'Enter last name'),
+                    _Label(t.lastName),
+                    _Field(controller: _lastName, hint: t.enterLastName),
                     const SizedBox(height: 18),
-                    _Label('Phone Number'),
+                    _Label(t.phoneNumber),
                     _Field(
                       controller: _phone,
-                      hint: 'Enter phone number',
+                      hint: t.enterPhoneNumber,
                       keyboardType: TextInputType.phone,
                     ),
                     const SizedBox(height: 36),
                     GlossyButton(
-                      label: 'Save Changes',
+                      label: t.saveChanges,
                       onPressed: _saving ? null : _save,
                       isLoading: _saving,
                     ),

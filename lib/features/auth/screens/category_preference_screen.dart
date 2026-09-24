@@ -10,6 +10,7 @@ import '../../../shared/models/category_model.dart';
 import '../../../shared/widgets/auth_step_bar.dart';
 import '../../../shared/widgets/glossy_button.dart';
 import '../../../shared/widgets/network_image_widget.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/auth_remote_data_source.dart';
 
 class CategoryPreferenceScreen extends StatefulWidget {
@@ -54,6 +55,7 @@ class _CategoryPreferenceScreenState extends State<CategoryPreferenceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: context.c.surface,
       body: SafeArea(
@@ -71,7 +73,7 @@ class _CategoryPreferenceScreenState extends State<CategoryPreferenceScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Let us know what events\nyou\'d want',
+                            t.categoryPrefTitle,
                             style: GoogleFonts.urbanist(
                               fontSize: 26,
                               fontWeight: FontWeight.w800,
@@ -81,7 +83,7 @@ class _CategoryPreferenceScreenState extends State<CategoryPreferenceScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            "We'll personalize your recommendations and search results.",
+                            t.categoryPrefSubtitle,
                             style: GoogleFonts.urbanist(
                               fontSize: 14,
                               color: context.c.textHint,
@@ -181,7 +183,7 @@ class _CategoryPreferenceScreenState extends State<CategoryPreferenceScreen> {
                     padding: pagePadding(context)
                         .add(const EdgeInsets.only(top: 8, bottom: 28)),
                     child: GlossyButton(
-                      label: 'Proceed',
+                      label: t.proceed,
                       onPressed: (_selected.isNotEmpty && !_saving)
                           ? _saveAndFinish
                           : null,

@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../shared/models/booking_model.dart';
 import '../../../shared/models/listing_model.dart';
+import '../../../l10n/app_localizations.dart';
 
 class RentalDetailScreen extends StatefulWidget {
   final String bookingId;
@@ -63,10 +64,11 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     if (_loading) {
       return Scaffold(
         backgroundColor: context.c.background,
-        appBar: AppBar(title: const Text('Rental Details')),
+        appBar: AppBar(title: Text(t.rentalDetails)),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -75,12 +77,12 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
     if (booking == null && listing == null) {
       return Scaffold(
         backgroundColor: context.c.background,
-        appBar: AppBar(title: const Text('Rental Details')),
+        appBar: AppBar(title: Text(t.rentalDetails)),
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Text(
-              'This rental could not be loaded.',
+              t.rentalCouldNotLoad,
               textAlign: TextAlign.center,
               style: GoogleFonts.urbanist(
                 fontSize: 15,
@@ -134,7 +136,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                 ),
                 Expanded(
                   child: Text(
-                    'Rental Details',
+                    t.rentalDetails,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.urbanist(
                       fontSize: 18,
@@ -175,11 +177,12 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
     BookingModel? booking,
     ListingModel? listing,
   ) {
-    final title = listing?.title ?? booking?.listing?.title ?? 'Rental';
+    final t = AppLocalizations.of(context);
+    final title = listing?.title ?? booking?.listing?.title ?? t.rentalFallback;
     final media = listing?.media ?? const <String>[];
     final vendorName = booking?.vendor?.businessName ??
         listing?.vendor?.businessName ??
-        'Vendor';
+        t.vendorLabel;
     final eventDate = booking?.eventDate;
 
     return Container(
@@ -282,6 +285,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
     ListingModel? listing,
     String status,
   ) {
+    final t = AppLocalizations.of(context);
     final (label, bg, fg) = _statusStyle(status);
     final amount = booking?.finalAmount ?? booking?.quoteAmount;
     // Real listing-level rental rates (nullable) — no fabricated figures.
@@ -307,7 +311,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
           Row(
             children: [
               Text(
-                'Status',
+                t.statusHeading,
                 style: GoogleFonts.urbanist(
                   fontSize: 13,
                   color: context.c.textSecondary,
@@ -333,17 +337,17 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
           ),
           if (perDay != null) ...[
             const SizedBox(height: 14),
-            _feeRow(context, 'Per day rate', Formatters.currency(perDay)),
+            _feeRow(context, t.perDayRate, Formatters.currency(perDay)),
           ],
           if (deposit != null)
             _feeRow(
-                context, 'Refundable deposit', Formatters.currency(deposit)),
+                context, t.refundableDeposit, Formatters.currency(deposit)),
           if (amount != null) ...[
             const Divider(height: 24),
             Row(
               children: [
                 Text(
-                  'Total',
+                  t.total,
                   style: GoogleFonts.urbanist(
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
@@ -368,6 +372,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
   }
 
   Widget _buildRequirementsCard(BuildContext context, String requirements) {
+    final t = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -386,7 +391,7 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Requirements',
+            t.requirements,
             style: GoogleFonts.urbanist(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -434,17 +439,18 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
   }
 
   (String, Color, Color) _statusStyle(String status) {
+    final t = AppLocalizations.of(context);
     switch (status) {
       case 'completed':
-        return ('Returned', const Color(0xFFD1FAE5), const Color(0xFF065F46));
+        return (t.statusReturned, const Color(0xFFD1FAE5), const Color(0xFF065F46));
       case 'confirmed':
-        return ('Confirmed', const Color(0xFFD1FAE5), const Color(0xFF065F46));
+        return (t.confirmedBanner, const Color(0xFFD1FAE5), const Color(0xFF065F46));
       case 'active':
-        return ('Picked up', const Color(0xFFEDE9FE), AppColors.primary);
+        return (t.statusPickedUp, const Color(0xFFEDE9FE), AppColors.primary);
       case 'cancelled':
-        return ('Cancelled', const Color(0xFFFFE4E6), const Color(0xFFEF4444));
+        return (t.cancelledLabel, const Color(0xFFFFE4E6), const Color(0xFFEF4444));
       default:
-        return ('Requested', const Color(0xFFFEF3C7), const Color(0xFFB45309));
+        return (t.statusRequested, const Color(0xFFFEF3C7), const Color(0xFFB45309));
     }
   }
 

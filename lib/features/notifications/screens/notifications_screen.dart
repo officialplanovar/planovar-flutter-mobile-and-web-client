@@ -6,6 +6,7 @@ import '../../../shared/models/notification_model.dart';
 import '../../../shared/widgets/shimmer_list.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../l10n/app_localizations.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -66,20 +67,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notifications'),
+        title: Text(t.notificationsTitle),
         actions: [
           TextButton(
             onPressed: _markAllRead,
-            child: const Text('Mark all read'),
+            child: Text(t.markAllRead),
           ),
         ],
       ),
       body: _loading
           ? const Padding(padding: EdgeInsets.all(16), child: ShimmerList(itemCount: 5))
           : _notifications.isEmpty
-              ? const EmptyState(icon: Icons.notifications_off_outlined, title: 'No notifications')
+              ? EmptyState(icon: Icons.notifications_off_outlined, title: t.noNotifications)
               : ListView.separated(
                   itemCount: _notifications.length,
                   separatorBuilder: (_, __) => const Divider(height: 1),

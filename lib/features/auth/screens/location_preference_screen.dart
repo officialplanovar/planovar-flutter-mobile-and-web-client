@@ -10,6 +10,7 @@ import '../../../shared/models/city_model.dart';
 import '../../../shared/widgets/auth_illustration.dart';
 import '../../../shared/widgets/auth_step_bar.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/auth_remote_data_source.dart';
 import '../../../core/api/api_client.dart';
 
@@ -45,7 +46,7 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
       debugPrint('[onboarding] location save failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not save location: $e')),
+          SnackBar(content: Text(AppLocalizations.of(context).locationSaveError('$e'))),
         );
       }
     }
@@ -81,6 +82,7 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: context.c.surface,
       body: SafeArea(
@@ -107,7 +109,7 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
                           const SizedBox(height: 24),
                           Center(
                             child: Text(
-                              'Select your Preferred Location',
+                              t.selectPreferredLocation,
                               textAlign: TextAlign.center,
                               style: GoogleFonts.urbanist(
                                 fontSize: 26,
@@ -117,11 +119,11 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
                             ),
                           ),
                           const SizedBox(height: 36),
-                          _FieldLabel('Country'),
+                          _FieldLabel(t.country),
                           DropdownButtonFormField<CountryModel>(
                             value: _selectedCountry,
                             hint: Text(
-                              'Select Country',
+                              t.selectCountry,
                               style: GoogleFonts.urbanist(
                                   fontSize: 15, color: context.c.textHint),
                             ),
@@ -149,11 +151,11 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
                             decoration: const InputDecoration(),
                           ),
                           const SizedBox(height: 20),
-                          _FieldLabel('City'),
+                          _FieldLabel(t.city),
                           DropdownButtonFormField<CityModel>(
                             value: _selectedCity,
                             hint: Text(
-                              'Select your city',
+                              t.selectYourCity,
                               style: GoogleFonts.urbanist(
                                   fontSize: 15, color: context.c.textHint),
                             ),
@@ -185,7 +187,7 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
                     padding: pagePadding(context)
                         .add(const EdgeInsets.only(bottom: 28)),
                     child: GlossyButton(
-                      label: _saving ? 'Saving…' : 'Proceed',
+                      label: _saving ? t.saving : t.proceed,
                       onPressed: _saving ? null : _saveAndProceed,
                     ),
                   ),
