@@ -1,0 +1,6 @@
+{
+  "ENV": "dev",
+  "API_BASE_URL": "https://dev-api.planovar.com",
+  "CRISP_WEBSITE_ID": "",
+  "OAUTH_SCHEME": "planovardev"
+}

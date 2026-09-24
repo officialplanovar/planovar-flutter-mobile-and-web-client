@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/mock/mock_data.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/services/listing_service.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../shared/models/listing_model.dart';
 
-class OrderDetailScreen extends StatelessWidget {
+class OrderDetailScreen extends StatefulWidget {
   final String listingId;
   final String status;
 
@@ -16,11 +17,64 @@ class OrderDetailScreen extends StatelessWidget {
   });
 
   @override
+  State<OrderDetailScreen> createState() => _OrderDetailScreenState();
+}
+
+class _OrderDetailScreenState extends State<OrderDetailScreen> {
+  final _listingService = ListingService();
+  ListingModel? _listing;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final listing = await _listingService.getListing(widget.listingId);
+      if (!mounted) return;
+      setState(() {
+        _listing = listing;
+        _loading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final listing = MockData.listings.firstWhere(
-      (l) => l.id == listingId,
-      orElse: () => MockData.listings.first,
-    );
+    if (_loading) {
+      return Scaffold(
+        backgroundColor: context.c.background,
+        appBar: AppBar(title: const Text('Order Details')),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+    final listing = _listing;
+    if (listing == null) {
+      return Scaffold(
+        backgroundColor: context.c.background,
+        appBar: AppBar(title: const Text('Order Details')),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              'This order could not be loaded.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.urbanist(
+                fontSize: 15,
+                color: context.c.textSecondary,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+    final status = widget.status;
     final isCompleted = status == 'completed';
     final isPending = status.toLowerCase().contains('pending') ||
         status == 'Order placed' ||
@@ -109,7 +163,7 @@ class OrderDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildOrderSummaryCard(BuildContext context, dynamic listing) {
+  Widget _buildOrderSummaryCard(BuildContext context, ListingModel listing) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

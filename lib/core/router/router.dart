@@ -23,19 +23,10 @@ import '../../features/listing/screens/listing_detail_screen.dart';
 import '../../features/booking/screens/bookings_screen.dart';
 import '../../features/booking/screens/booking_detail_screen.dart';
 import '../../features/booking/screens/new_booking_screen.dart';
-import '../../features/booking/screens/service_details_screen.dart';
-import '../../features/booking/screens/awaiting_response_screen.dart';
-import '../../features/booking/screens/confirm_quote_screen.dart';
 import '../../features/quote/screens/quote_detail_screen.dart';
 import '../../features/messaging/screens/messages_screen.dart';
 import '../../features/messaging/screens/chat_screen.dart';
-import '../../features/payments/screens/payments_screen.dart';
-import '../../features/payments/screens/process_payment_screen.dart';
-import '../../features/payments/screens/payment_success_screen.dart';
 import '../../features/explore/screens/category_results_screen.dart';
-import '../../features/booking/screens/checkout_screen.dart';
-import '../../features/booking/screens/rent_product_screen.dart';
-import '../../features/booking/screens/booking_confirmed_screen.dart';
 import '../../features/notifications/screens/notifications_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
 import '../../features/profile/screens/favourites_screen.dart';
@@ -184,52 +175,6 @@ GoRouter createRouter() {
         builder: (_, state) {
           final extra = state.extra as Map<String, dynamic>? ?? {};
           return NewBookingScreen(listingId: extra['listingId'] as String? ?? '');
-        },
-      ),
-
-      // Service details & quote flow (all before /bookings/:id to avoid param capture)
-      GoRoute(
-        path: AppRoutes.serviceDetails,
-        builder: (_, state) {
-          final extra = state.extra as Map<String, dynamic>? ?? {};
-          return ServiceDetailsScreen(
-            listingId: extra['listingId'] as String? ?? '',
-            eventId: extra['eventId'] as String? ?? '',
-          );
-        },
-      ),
-      GoRoute(
-        path: AppRoutes.confirmQuote,
-        builder: (_, state) {
-          final extra = state.extra as Map<String, dynamic>? ?? {};
-          return ConfirmQuoteScreen(
-            listingId: extra['listingId'] as String? ?? '',
-            eventId: extra['eventId'] as String? ?? '',
-            preferredDate: extra['preferredDate'] as String?,
-            notes: extra['notes'] as String?,
-          );
-        },
-      ),
-      GoRoute(
-        path: AppRoutes.awaitingResponse,
-        builder: (_, state) {
-          final extra = state.extra as Map<String, dynamic>? ?? {};
-          return AwaitingResponseScreen(
-            vendorName: extra['vendorName'] as String? ?? 'Vendor',
-            bookingRef: extra['bookingRef'] as String? ?? '#PN-49204',
-            date: extra['date'] as String? ?? 'TBD',
-          );
-        },
-      ),
-      GoRoute(
-        path: AppRoutes.bookingConfirmed,
-        builder: (_, state) {
-          final extra = state.extra as Map<String, dynamic>? ?? {};
-          return BookingConfirmedScreen(
-            vendorName: extra['vendorName'] as String? ?? 'Vendor',
-            bookingRef: extra['bookingRef'] as String? ?? '#PN-49204',
-            date: extra['date'] as String? ?? 'TBD',
-          );
         },
       ),
 
@@ -385,50 +330,6 @@ GoRouter createRouter() {
       GoRoute(
         path: AppRoutes.conversationDetail,
         builder: (_, state) => ChatScreen(conversationId: state.pathParameters['id']!),
-      ),
-
-      // Payments
-      GoRoute(
-        path: AppRoutes.checkout,
-        builder: (_, state) {
-          final extra = state.extra as Map<String, dynamic>? ?? {};
-          return CheckoutScreen(
-            listingId: extra['listingId'] as String? ?? '',
-            eventId: extra['eventId'] as String? ?? '',
-          );
-        },
-      ),
-      GoRoute(
-        path: AppRoutes.rentProduct,
-        builder: (_, state) {
-          final extra = state.extra as Map<String, dynamic>? ?? {};
-          return RentProductScreen(
-            listingId: extra['listingId'] as String? ?? '',
-            eventId: extra['eventId'] as String? ?? '',
-          );
-        },
-      ),
-      GoRoute(path: AppRoutes.payments, builder: (_, __) => const PaymentsScreen()),
-      GoRoute(
-        path: AppRoutes.processPayment,
-        builder: (_, state) {
-          final extra = state.extra as Map<String, dynamic>? ?? {};
-          return ProcessPaymentScreen(
-            vendorName: extra['vendorName'] as String?,
-            amount: extra['amount'] as double?,
-          );
-        },
-      ),
-      GoRoute(
-        path: AppRoutes.paymentSuccess,
-        builder: (_, state) {
-          final extra = state.extra as Map<String, dynamic>? ?? {};
-          return PaymentSuccessScreen(
-            eventId: extra['eventId'] as String? ?? '',
-            vendorName: extra['vendorName'] as String? ?? 'Vendor',
-            eventDate: extra['eventDate'] as DateTime? ?? DateTime.now(),
-          );
-        },
       ),
 
       // Notifications

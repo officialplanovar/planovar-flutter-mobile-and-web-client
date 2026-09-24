@@ -2,10 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/mock/mock_data.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/theme_cubit.dart';
+
+/// Static help-centre FAQ content shown on the FAQ screen.
+const List<Map<String, String>> _faqs = [
+  {
+    'question': 'How do I book a vendor?',
+    'answer':
+        'Browse vendors, tap on one you like, view their listings, and tap "Request a Quote" or "Book Now". Fill in your event details and submit. The vendor will respond within 24 hours.',
+  },
+  {
+    'question': 'How does the payment process work?',
+    'answer':
+        'Once a vendor accepts your booking and you accept their quote, you\'ll pay a 50% deposit to confirm the booking. The remaining balance is due 7 days before your event.',
+  },
+  {
+    'question': 'Can I cancel a booking?',
+    'answer':
+        'Yes, you can cancel a booking before it is confirmed at no charge. After confirmation, our cancellation policy applies — please review the vendor\'s cancellation terms in their profile.',
+  },
+  {
+    'question': 'What if I\'m not satisfied with a vendor?',
+    'answer':
+        'Contact our support team within 48 hours of your event. We\'ll mediate with the vendor and work towards a resolution, including partial refunds where appropriate.',
+  },
+  {
+    'question': 'Are vendors verified?',
+    'answer':
+        'Vendors with a verified badge have had their business credentials and portfolio reviewed by our team. We also use client reviews to maintain quality standards.',
+  },
+  {
+    'question': 'How do I leave a review?',
+    'answer':
+        'After your event is marked as completed, you\'ll receive a prompt to leave a review. You can also go to Bookings → Past → the completed booking → Leave Review.',
+  },
+];
 
 // ─── Shared header builder ────────────────────────────────────────────────────
 
@@ -846,7 +879,7 @@ class _FaqScreenState extends State<FaqScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final faqs = MockData.faqs;
+    final faqs = _faqs;
     return Scaffold(
       backgroundColor: context.c.background,
       body: Column(

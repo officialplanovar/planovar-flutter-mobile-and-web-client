@@ -5,7 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/responsive/responsive.dart';
 import '../../../core/services/messaging_service.dart';
 import '../../../core/services/chat_socket.dart';
-import '../../../core/mock/mock_notification_service.dart';
+import '../../../core/services/notification_service.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/conversation_model.dart';
@@ -21,13 +21,13 @@ class MessagesScreen extends StatefulWidget {
 class _MessagesScreenState extends State<MessagesScreen> {
   final _service = MessagingService();
   final _socket = ChatSocket();
-  final _notifService = MockNotificationService();
   final _searchCtrl = TextEditingController();
 
   List<ConversationModel> _all = [];
   List<ConversationModel> _filtered = [];
   bool _loading = true;
   String _myId = '';
+  int _unreadNotifs = 0;
 
   @override
   void initState() {
@@ -110,6 +110,13 @@ class _MessagesScreenState extends State<MessagesScreen> {
     });
     _filter(_searchCtrl.text); // preserve any active search
     _joinAll(); // join rooms for any new conversations
+    // Unread notification badge (best-effort; keeps 0 on failure).
+    try {
+      final count = await NotificationService().unreadCount();
+      if (mounted) setState(() => _unreadNotifs = count);
+    } catch (_) {
+      // Leave the badge at 0 if the count can't be fetched.
+    }
   }
 
   void _filter(String query) {
@@ -151,7 +158,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final unreadCount = _notifService.unreadCount;
+    final unreadCount = _unreadNotifs;
 
     return Scaffold(
       backgroundColor: context.c.background,

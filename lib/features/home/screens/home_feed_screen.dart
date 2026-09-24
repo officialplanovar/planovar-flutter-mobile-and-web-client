@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/mock/mock_notification_service.dart';
+import '../../../core/services/notification_service.dart';
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/bloc/auth_state.dart';
 import '../../../core/router/app_routes.dart';
@@ -35,7 +35,7 @@ class HomeFeedScreen extends StatefulWidget {
 }
 
 class _HomeFeedScreenState extends State<HomeFeedScreen> {
-  final _notifService = MockNotificationService();
+  int _unreadNotifs = 0;
 
   // Live feed data from the API. Empty = show empty/hidden section (no mock).
   List<CategoryModel> _liveCategories = [];
@@ -76,6 +76,13 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
       });
     } catch (_) {
       // Keep sections empty on error — no mock data shown.
+    }
+    // Unread notification badge (best-effort; keeps 0 on failure).
+    try {
+      final count = await NotificationService().unreadCount();
+      if (mounted) setState(() => _unreadNotifs = count);
+    } catch (_) {
+      // Leave the badge at 0 if the count can't be fetched.
     }
   }
 
@@ -215,7 +222,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                                         color: AppColors.primary,
                                         size: 22),
                                   ),
-                                  if (_notifService.unreadCount > 0)
+                                  if (_unreadNotifs > 0)
                                     Positioned(
                                       right: 0,
                                       top: 0,
@@ -228,7 +235,7 @@ class _HomeFeedScreenState extends State<HomeFeedScreen> {
                                         ),
                                         child: Center(
                                           child: Text(
-                                            '${_notifService.unreadCount}',
+                                            '$_unreadNotifs',
                                             style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 10,

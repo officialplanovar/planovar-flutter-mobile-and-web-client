@@ -1,0 +1,7 @@
+// Flavor-specific settings for the "dev" environment (client app).
+// Referenced by the Debug/Release/Profile-dev configs. Keep bundle IDs in sync
+// with android/app/build.gradle.kts and your Firebase/OAuth/Paystack setup.
+APP_DISPLAY_NAME = Planovar Client [DEV]
+BUNDLE_ID_SUFFIX = .dev
+FLUTTER_ENV = dev
+OAUTH_SCHEME = planovardev

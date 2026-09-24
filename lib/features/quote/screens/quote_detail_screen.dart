@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/services/quote_service.dart';
-import '../../../core/router/app_routes.dart';
+import '../../../core/services/chat_orders_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_text_styles.dart';
 import '../../../shared/models/quote_model.dart';
@@ -171,17 +171,32 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                     ),
                   );
                   if (confirm == true) {
-                    await _quoteService.acceptQuote(quote.id);
-                    if (!mounted) return;
-                    // ignore: use_build_context_synchronously
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Quote accepted! Proceeding to payment.'),
-                        backgroundColor: AppColors.success,
-                      ),
-                    );
-                    // ignore: use_build_context_synchronously
-                    context.push(AppRoutes.payments);
+                    try {
+                      // Real flow: accepting the quote creates the invoice +
+                      // booking server-side; the invoice card and its Paystack
+                      // milestone payment then appear in the DM conversation.
+                      await ChatOrdersService().acceptQuote(quote.id);
+                      if (!mounted) return;
+                      // ignore: use_build_context_synchronously
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                              'Quote accepted — an invoice has been added to your chat.'),
+                          backgroundColor: AppColors.success,
+                        ),
+                      );
+                      // ignore: use_build_context_synchronously
+                      context.pop();
+                    } catch (e) {
+                      if (!mounted) return;
+                      // ignore: use_build_context_synchronously
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Could not accept quote: $e'),
+                          backgroundColor: AppColors.error,
+                        ),
+                      );
+                    }
                   }
                 },
               ),

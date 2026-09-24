@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/mock/mock_data.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/services/reference_data_service.dart';
 import '../../../core/state/overlay_state.dart';
@@ -41,7 +40,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
       (_selectedRating != null ? 1 : 0) +
       (_locationFilter.isNotEmpty ? 1 : 0);
 
-  /// Live categories from the API (mock fallback while loading / on error).
+  /// Live categories from the API (empty while loading / on error).
   List<CategoryModel> _liveCategories = [];
 
   @override
@@ -52,8 +51,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
     }).catchError((_) {});
   }
 
-  List<CategoryModel> get _allCategories =>
-      _liveCategories.isNotEmpty ? _liveCategories : MockData.categories;
+  List<CategoryModel> get _allCategories => _liveCategories;
 
   List<CategoryModel> get _filteredCategories {
     final q = _searchCtrl.text.trim().toLowerCase();
