@@ -113,6 +113,14 @@ class AuthRemoteDataSource {
     ensureOk(res);
   }
 
+  /// Permanently delete (anonymize) the account server-side, then clear the
+  /// local session so the app returns to a signed-out state.
+  Future<void> deleteAccount() async {
+    final res = await _dio.delete('/users/me');
+    ensureOk(res);
+    await _api.tokenStore.clear();
+  }
+
   Future<void> signOut() async {
     try {
       await _dio.post('/api/auth/sign-out');

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../auth/data/auth_repository.dart';
 import '../../../core/theme/theme_cubit.dart';
 import '../../../l10n/app_localizations.dart';
 
@@ -1159,6 +1160,21 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     );
   }
 
+  Future<void> _performDelete() async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await AuthRepository().deleteAccount();
+      if (!mounted) return;
+      context.go(AppRoutes.login);
+    } catch (e) {
+      if (!mounted) return;
+      messenger.showSnackBar(SnackBar(
+        content: Text(e.toString().replaceFirst('Exception: ', '')),
+        backgroundColor: AppColors.error,
+      ));
+    }
+  }
+
   void _showDeleteConfirmDialog(BuildContext context) {
     final t = AppLocalizations.of(context);
     showDialog(
@@ -1254,7 +1270,10 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: GestureDetector(
-                      onTap: () => Navigator.pop(dialogCtx),
+                      onTap: () {
+                        Navigator.pop(dialogCtx);
+                        _performDelete();
+                      },
                       child: Container(
                         height: 48,
                         decoration: BoxDecoration(
