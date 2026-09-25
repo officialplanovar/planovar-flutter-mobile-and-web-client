@@ -159,6 +159,10 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                   _buildSummaryCard(context, booking, listing),
                   const SizedBox(height: 16),
                   _buildStatusAndFeesCard(context, booking, listing, status),
+                  if (booking != null && booking.milestones.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    _buildPaymentHistoryCard(context, booking),
+                  ],
                   if (booking?.requirements?.isNotEmpty == true) ...[
                     const SizedBox(height: 16),
                     _buildRequirementsCard(context, booking!.requirements!),
@@ -366,6 +370,90 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
               ],
             ),
           ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPaymentHistoryCard(BuildContext context, BookingModel b) {
+    final t = AppLocalizations.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: context.c.surface,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            t.orderPaymentHistory,
+            style: GoogleFonts.urbanist(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: context.c.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 4),
+          ...b.milestones.map((m) {
+            final paid = m.isPaid;
+            final sub = paid && m.paidAt != null
+                ? '${t.orderPaid} · ${Formatters.date(m.paidAt!)}'
+                : (m.dueAt != null
+                    ? '${t.orderDue} · ${Formatters.date(m.dueAt!)}'
+                    : t.orderPending);
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                children: [
+                  Icon(
+                    paid ? Icons.check_circle_rounded : Icons.schedule_rounded,
+                    size: 20,
+                    color: paid ? const Color(0xFF10B981) : context.c.textHint,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          m.label,
+                          style: GoogleFonts.urbanist(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: context.c.textPrimary,
+                          ),
+                        ),
+                        Text(
+                          sub,
+                          style: GoogleFonts.urbanist(
+                            fontSize: 11,
+                            color: context.c.textHint,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    Formatters.currency(m.amount),
+                    style: GoogleFonts.urbanist(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: context.c.textPrimary,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
         ],
       ),
     );

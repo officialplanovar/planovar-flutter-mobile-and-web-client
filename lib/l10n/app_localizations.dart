@@ -3733,6 +3733,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'OK'**
   String get ok;
+
+  /// No description provided for @orderFeeBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee Breakdown'**
+  String get orderFeeBreakdown;
+
+  /// No description provided for @orderSubtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get orderSubtotal;
+
+  /// No description provided for @orderDeliveryFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery Fee'**
+  String get orderDeliveryFee;
+
+  /// No description provided for @orderPlatformFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Platform Fee'**
+  String get orderPlatformFee;
+
+  /// No description provided for @orderDeposit.
+  ///
+  /// In en, this message translates to:
+  /// **'Refundable Deposit'**
+  String get orderDeposit;
+
+  /// No description provided for @orderTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get orderTotal;
+
+  /// No description provided for @orderPaymentHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment History'**
+  String get orderPaymentHistory;
+
+  /// No description provided for @orderPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get orderPaid;
+
+  /// No description provided for @orderDue.
+  ///
+  /// In en, this message translates to:
+  /// **'Due'**
+  String get orderDue;
+
+  /// No description provided for @orderPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get orderPending;
 }
 
 class _AppLocalizationsDelegate

@@ -1985,4 +1985,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get orderFeeBreakdown => 'Fee Breakdown';
+
+  @override
+  String get orderSubtotal => 'Subtotal';
+
+  @override
+  String get orderDeliveryFee => 'Delivery Fee';
+
+  @override
+  String get orderPlatformFee => 'Platform Fee';
+
+  @override
+  String get orderDeposit => 'Refundable Deposit';
+
+  @override
+  String get orderTotal => 'Total';
+
+  @override
+  String get orderPaymentHistory => 'Payment History';
+
+  @override
+  String get orderPaid => 'Paid';
+
+  @override
+  String get orderDue => 'Due';
+
+  @override
+  String get orderPending => 'Pending';
 }

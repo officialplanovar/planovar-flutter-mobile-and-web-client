@@ -909,5 +909,15 @@
   "ringing": "Sonnerie…",
   "wrongAppTitle": "Mauvaise application",
   "wrongAppMessage": "Ce compte est enregistré en tant que vendeur. Veuillez utiliser l'application Planovar Vendor pour vous connecter.",
-  "ok": "OK"
+  "ok": "OK",
+  "orderFeeBreakdown": "Détail des frais",
+  "orderSubtotal": "Sous-total",
+  "orderDeliveryFee": "Frais de livraison",
+  "orderPlatformFee": "Frais de plateforme",
+  "orderDeposit": "Caution remboursable",
+  "orderTotal": "Total",
+  "orderPaymentHistory": "Historique des paiements",
+  "orderPaid": "Payé",
+  "orderDue": "À payer",
+  "orderPending": "En attente"
 }

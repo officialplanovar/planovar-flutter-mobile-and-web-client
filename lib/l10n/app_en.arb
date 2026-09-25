@@ -909,5 +909,15 @@
   "ringing": "Ringing…",
   "wrongAppTitle": "Wrong app",
   "wrongAppMessage": "This account is registered as a vendor. Please use the Planovar Vendor app to sign in.",
-  "ok": "OK"
+  "ok": "OK",
+  "orderFeeBreakdown": "Fee Breakdown",
+  "orderSubtotal": "Subtotal",
+  "orderDeliveryFee": "Delivery Fee",
+  "orderPlatformFee": "Platform Fee",
+  "orderDeposit": "Refundable Deposit",
+  "orderTotal": "Total",
+  "orderPaymentHistory": "Payment History",
+  "orderPaid": "Paid",
+  "orderDue": "Due",
+  "orderPending": "Pending"
 }

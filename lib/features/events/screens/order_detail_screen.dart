@@ -167,6 +167,14 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   _buildOrderSummaryCard(context, booking, listing),
                   const SizedBox(height: 16),
                   _buildStatusCard(context, status),
+                  if (booking != null) ...[
+                    const SizedBox(height: 16),
+                    _buildFeeBreakdownCard(context, booking),
+                  ],
+                  if (booking != null && booking.milestones.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    _buildPaymentHistoryCard(context, booking),
+                  ],
                   if (booking?.requirements?.isNotEmpty == true) ...[
                     const SizedBox(height: 16),
                     _buildRequirementsCard(context, booking!.requirements!),
@@ -404,6 +412,158 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         ],
       ),
     );
+  }
+
+  Widget _card(BuildContext context, {required List<Widget> children}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: context.c.surface,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
+    );
+  }
+
+  Widget _cardTitle(BuildContext context, String text) => Text(
+        text,
+        style: GoogleFonts.urbanist(
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+          color: context.c.textPrimary,
+        ),
+      );
+
+  Widget _feeRow(BuildContext context, String label, String value,
+      {bool bold = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: GoogleFonts.urbanist(
+                fontSize: 13,
+                fontWeight: bold ? FontWeight.w800 : FontWeight.w500,
+                color: bold ? context.c.textPrimary : context.c.textSecondary,
+              ),
+            ),
+          ),
+          Text(
+            value,
+            style: GoogleFonts.urbanist(
+              fontSize: 13,
+              fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
+              color: context.c.textPrimary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeeBreakdownCard(BuildContext context, BookingModel b) {
+    final t = AppLocalizations.of(context);
+    final rows = <Widget>[];
+    if (b.feeLines.isNotEmpty) {
+      for (final line in b.feeLines) {
+        rows.add(_feeRow(context, line.label, Formatters.currency(line.amount)));
+      }
+    } else {
+      final subtotal = b.invoiceSubtotal;
+      if (subtotal != null) {
+        rows.add(_feeRow(context, t.orderSubtotal, Formatters.currency(subtotal)));
+      }
+      if ((b.deliveryFee ?? 0) > 0) {
+        rows.add(_feeRow(context, t.orderDeliveryFee, Formatters.currency(b.deliveryFee!)));
+      }
+      if ((b.platformFee ?? 0) > 0) {
+        rows.add(_feeRow(context, t.orderPlatformFee, Formatters.currency(b.platformFee!)));
+      }
+      if ((b.depositAmount ?? 0) > 0) {
+        rows.add(_feeRow(context, t.orderDeposit, Formatters.currency(b.depositAmount!)));
+      }
+    }
+    final total = b.invoiceTotal ?? b.finalAmount ?? b.quoteAmount;
+    if (rows.isEmpty && total == null) return const SizedBox.shrink();
+    return _card(context, children: [
+      _cardTitle(context, t.orderFeeBreakdown),
+      const SizedBox(height: 8),
+      ...rows,
+      if (total != null) ...[
+        Divider(color: context.c.border, height: 20),
+        _feeRow(context, t.orderTotal, Formatters.currency(total), bold: true),
+      ],
+    ]);
+  }
+
+  Widget _buildPaymentHistoryCard(BuildContext context, BookingModel b) {
+    final t = AppLocalizations.of(context);
+    return _card(context, children: [
+      _cardTitle(context, t.orderPaymentHistory),
+      const SizedBox(height: 4),
+      ...b.milestones.map((m) {
+        final paid = m.isPaid;
+        final sub = paid && m.paidAt != null
+            ? '${t.orderPaid} · ${Formatters.date(m.paidAt!)}'
+            : (m.dueAt != null
+                ? '${t.orderDue} · ${Formatters.date(m.dueAt!)}'
+                : t.orderPending);
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            children: [
+              Icon(
+                paid ? Icons.check_circle_rounded : Icons.schedule_rounded,
+                size: 20,
+                color: paid ? const Color(0xFF10B981) : context.c.textHint,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      m.label,
+                      style: GoogleFonts.urbanist(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: context.c.textPrimary,
+                      ),
+                    ),
+                    Text(
+                      sub,
+                      style: GoogleFonts.urbanist(
+                        fontSize: 11,
+                        color: context.c.textHint,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Text(
+                Formatters.currency(m.amount),
+                style: GoogleFonts.urbanist(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: context.c.textPrimary,
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
+    ]);
   }
 
   (String, Color, Color) _statusStyle(String status) {

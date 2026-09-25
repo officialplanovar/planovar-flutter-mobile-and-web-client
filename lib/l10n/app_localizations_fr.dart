@@ -2023,4 +2023,34 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get orderFeeBreakdown => 'Détail des frais';
+
+  @override
+  String get orderSubtotal => 'Sous-total';
+
+  @override
+  String get orderDeliveryFee => 'Frais de livraison';
+
+  @override
+  String get orderPlatformFee => 'Frais de plateforme';
+
+  @override
+  String get orderDeposit => 'Caution remboursable';
+
+  @override
+  String get orderTotal => 'Total';
+
+  @override
+  String get orderPaymentHistory => 'Historique des paiements';
+
+  @override
+  String get orderPaid => 'Payé';
+
+  @override
+  String get orderDue => 'À payer';
+
+  @override
+  String get orderPending => 'En attente';
 }
