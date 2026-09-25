@@ -15,6 +15,7 @@ import '../../../shared/models/vendor_model.dart';
 import '../../../shared/widgets/add_to_event_sheet.dart';
 import '../../../shared/widgets/glossy_button.dart';
 import '../../../shared/widgets/request_order_sheet.dart';
+import '../../../l10n/app_localizations.dart';
 
 class EventDetailScreen extends StatefulWidget {
   final String eventId;
@@ -27,7 +28,6 @@ class EventDetailScreen extends StatefulWidget {
 
 class _EventDetailScreenState extends State<EventDetailScreen> {
   int _tabIndex = 0;
-  final List<String> _tabs = ['Vendors', 'Recommended', 'Timeline', 'Items'];
   final List<String> _selectedCategories = [];
   final _searchCtrl = TextEditingController();
 
@@ -88,24 +88,25 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   /// Confirms before sourcing a recommended vendor into this event.
   Future<void> _confirmSourceVendor(VendorModel vendor) async {
+    final t = AppLocalizations.of(context);
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: ctx.c.surface,
-        title: Text('Add vendor?', style: GoogleFonts.urbanist()),
+        title: Text(t.addVendorTitle, style: GoogleFonts.urbanist()),
         content: Text(
-          'Add ${vendor.businessName} to "${_event?.name ?? 'this event'}"?',
+          t.addVendorBody(vendor.businessName, _event?.name ?? t.thisEvent),
           style: GoogleFonts.urbanist(color: ctx.c.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(t.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Add',
-                style: TextStyle(
+            child: Text(t.addAction,
+                style: const TextStyle(
                     color: AppColors.primary, fontWeight: FontWeight.w700)),
           ),
         ],
@@ -122,7 +123,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       await _load(); // refresh sourced vendors
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${vendor.businessName} added to your event')),
+        SnackBar(content: Text(AppLocalizations.of(context).vendorAddedToEvent(vendor.businessName))),
       );
     } catch (e) {
       if (!mounted) return;
@@ -161,18 +162,19 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       );
     }
 
+    final t = AppLocalizations.of(context);
     final event = _event;
     if (event == null) {
       return Scaffold(
         appBar: AppBar(
           backgroundColor: context.c.surface,
-          title: Text('Event Not Found', style: GoogleFonts.urbanist()),
+          title: Text(t.eventNotFound, style: GoogleFonts.urbanist()),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded),
             onPressed: _goBack,
           ),
         ),
-        body: const Center(child: Text('Event not found')),
+        body: Center(child: Text(t.eventNotFoundBody)),
       );
     }
 
@@ -261,6 +263,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Widget _buildEventInfo(EventModel event) {
+    final t = AppLocalizations.of(context);
     return Container(
       color: context.c.surface,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
@@ -280,7 +283,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 const Icon(Icons.star_rounded, size: 12, color: AppColors.starColor),
                 const SizedBox(width: 4),
                 Text(
-                  'Event',
+                  t.eventChip,
                   style: GoogleFonts.urbanist(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -310,7 +313,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               if (event.location != null)
                 _infoChip(Icons.location_on_rounded, event.location!),
               if (event.guestCount != null)
-                _infoChip(Icons.group_rounded, '${event.guestCount} guests'),
+                _infoChip(Icons.group_rounded, t.guestsCount(event.guestCount!)),
             ],
           ),
           const SizedBox(height: 16),
@@ -337,6 +340,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Widget _buildPlanningProgress(EventModel event) {
+    final t = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
       padding: const EdgeInsets.all(16),
@@ -350,7 +354,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           Row(
             children: [
               Text(
-                'Planning progress',
+                t.planningProgress,
                 style: GoogleFonts.urbanist(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -359,7 +363,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               ),
               const Spacer(),
               Text(
-                'Budget: ${_fmtBudget(event.budgetMin)} – ${_fmtBudget(event.budgetMax)}',
+                t.budgetRangeLabel(_fmtBudget(event.budgetMin), _fmtBudget(event.budgetMax)),
                 style: GoogleFonts.urbanist(
                   fontSize: 12,
                   color: AppColors.primary,
@@ -376,9 +380,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               const SizedBox(width: 6),
               Text(
                 event.vendorsSourced == 0
-                    ? 'No vendors sourced yet'
-                    : '${event.vendorsSourced} '
-                        '${event.vendorsSourced == 1 ? 'vendor' : 'vendors'} sourced',
+                    ? t.noVendorsSourcedYet
+                    : t.vendorsSourced(event.vendorsSourced),
                 style:
                     GoogleFonts.urbanist(fontSize: 12, color: AppColors.primary),
               ),
@@ -399,13 +402,15 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Widget _buildTabBar() {
+    final t = AppLocalizations.of(context);
+    final tabs = [t.tabVendors, t.tabRecommended, t.tabTimeline, t.tabItems];
     return Container(
       color: context.c.surface,
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
-          children: List.generate(_tabs.length, (i) {
+          children: List.generate(tabs.length, (i) {
             final active = _tabIndex == i;
             return GestureDetector(
               onTap: () => setState(() => _tabIndex = i),
@@ -421,7 +426,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   ),
                 ),
                 child: Text(
-                  _tabs[i],
+                  tabs[i],
                   style: GoogleFonts.urbanist(
                     fontSize: 14,
                     fontWeight: active ? FontWeight.w700 : FontWeight.w500,
@@ -454,6 +459,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   // ── Vendors Tab ────────────────────────────────────────────────────────────
 
   Widget _buildVendorsTab(EventModel event) {
+    final t = AppLocalizations.of(context);
     final vendors = event.sourcedVendors;
     final isCancelled = event.status.toUpperCase() == 'CANCELLED';
     return Padding(
@@ -476,7 +482,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       size: 36, color: context.c.textHint),
                   const SizedBox(height: 10),
                   Text(
-                    'No vendors sourced yet',
+                    t.noVendorsSourcedYet,
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -485,7 +491,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Browse the Recommended tab to add vendors to this event.',
+                    t.browseRecommendedHint,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.urbanist(
                         fontSize: 12, color: context.c.textSecondary),
@@ -501,20 +507,20 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           const SizedBox(height: 20),
           // Bottom actions
           GlossyButton(
-            label: event.hasGroupChat ? '💬 View Group Chat' : '💬 Create Group Chat',
+            label: event.hasGroupChat ? t.viewGroupChat : t.createGroupChatBtn,
             height: 50,
             onPressed: () => _openGroupChat(event),
           ),
           const SizedBox(height: 12),
           _outlineButton(
-            label: '+ Add a new Vendor',
+            label: t.addNewVendor,
             color: AppColors.primary,
             onTap: () => setState(() => _tabIndex = 1),
           ),
           if (!isCancelled) ...[
             const SizedBox(height: 12),
             _outlineButton(
-              label: '⚠ Cancel Event',
+              label: t.cancelEventBtn,
               color: AppColors.error,
               onTap: () => _confirmCancel(event),
             ),
@@ -586,24 +592,25 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Future<void> _confirmCancel(EventModel event) async {
+    final t = AppLocalizations.of(context);
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: ctx.c.surface,
-        title: Text('Cancel event?', style: GoogleFonts.urbanist()),
+        title: Text(t.cancelEventTitle, style: GoogleFonts.urbanist()),
         content: Text(
-          'This cancels "${event.name}". This cannot be undone.',
+          t.cancelEventBody(event.name),
           style: GoogleFonts.urbanist(color: ctx.c.textSecondary),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Keep'),
+            child: Text(t.keep),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Cancel event',
-                style: TextStyle(color: AppColors.error)),
+            child: Text(t.cancelEventAction,
+                style: const TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -614,7 +621,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       notifyEventsChanged();
       if (!mounted) return;
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('Event cancelled')));
+          .showSnackBar(SnackBar(content: Text(t.eventCancelled)));
       context.pop();
     } catch (e) {
       if (!mounted) return;
@@ -627,6 +634,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   // ── Recommended Tab ────────────────────────────────────────────────────────
 
   Widget _buildRecommendedTab() {
+    final t = AppLocalizations.of(context);
     final categories = _recCategories;
 
     // Selected category names, then vendors whose tags match any of them.
@@ -647,7 +655,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Vendors available for your event',
+            t.vendorsAvailableForEvent,
             style: GoogleFonts.urbanist(
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -718,7 +726,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     controller: _searchCtrl,
                     style: GoogleFonts.urbanist(fontSize: 14),
                     decoration: InputDecoration(
-                      hintText: 'Search vendors...',
+                      hintText: t.searchVendorsHint,
                       hintStyle: GoogleFonts.urbanist(
                         fontSize: 14,
                         color: context.c.textHint,
@@ -759,8 +767,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               child: Center(
                 child: Text(
                     selectedNames.isEmpty
-                        ? 'No vendors available yet'
-                        : 'No vendors in the selected categories',
+                        ? t.noVendorsAvailableYet
+                        : t.noVendorsInCategories,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.urbanist(color: context.c.textHint)),
               ),
@@ -784,6 +792,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Widget _vendorGridCard(VendorModel vendor) {
+    final t = AppLocalizations.of(context);
     final alreadyAdded =
         _event?.sourcedVendors.any((v) => v.id == vendor.id) ?? false;
     return GestureDetector(
@@ -842,7 +851,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       child: Text(
                         vendor.categories.isNotEmpty
                             ? vendor.categories.first
-                            : 'Vendor',
+                            : t.vendorLabel,
                         style: GoogleFonts.urbanist(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
@@ -904,34 +913,34 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   // ── Timeline Tab ───────────────────────────────────────────────────────────
 
   Widget _buildTimelineTab(EventModel event) {
+    final t = AppLocalizations.of(context);
     final s = event.status.toUpperCase();
     final now = DateTime.now();
     final dayReached = !event.date.isAfter(DateTime(now.year, now.month, now.day));
     String done(bool v) => v ? 'Complete' : 'Pending';
 
     final steps = [
-      _TimelineStep(number: 1, title: 'Event created', status: 'Complete'),
+      _TimelineStep(number: 1, title: t.tlEventCreated, status: 'Complete'),
       _TimelineStep(
         number: 2,
         title: event.vendorsSourced == 0
-            ? 'Source your vendors'
-            : '${event.vendorsSourced} '
-                '${event.vendorsSourced == 1 ? 'vendor' : 'vendors'} sourced',
+            ? t.tlSourceVendors
+            : t.vendorsSourced(event.vendorsSourced),
         status: done(event.vendorsSourced > 0),
       ),
       _TimelineStep(
         number: 3,
-        title: 'Event confirmed',
+        title: t.tlEventConfirmed,
         status: done(s == 'CONFIRMED' || s == 'ACTIVE' || s == 'COMPLETED'),
       ),
       _TimelineStep(
         number: 4,
-        title: 'Event day (${_fmtDate(event.date)})',
+        title: t.tlEventDay(_fmtDate(event.date)),
         status: done(dayReached || s == 'COMPLETED'),
       ),
       _TimelineStep(
         number: 5,
-        title: 'Event completed',
+        title: t.tlEventCompleted,
         status: done(s == 'COMPLETED'),
       ),
     ];
@@ -955,7 +964,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Event Timeline',
+              t.eventTimeline,
               style: GoogleFonts.urbanist(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -976,6 +985,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Widget _buildTimelineStep(_TimelineStep step, bool isLast) {
+    final t = AppLocalizations.of(context);
     final isComplete = step.status == 'Complete';
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1041,7 +1051,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    step.status,
+                    isComplete ? t.statusComplete : t.statusPending,
                     style: GoogleFonts.urbanist(
                       fontSize: 11,
                       fontWeight: FontWeight.w600,
@@ -1062,14 +1072,14 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   // ── Products Tab ───────────────────────────────────────────────────────────
 
   Widget _buildProductsTab(EventModel event) {
+    final t = AppLocalizations.of(context);
     final items = event.addedListings;
     if (items.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 60, horizontal: 24),
         child: Center(
           child: Text(
-            'Nothing added to this event yet.\nOpen a product or service and tap '
-            '"Add to Event" to see it here.',
+            t.nothingAddedYet,
             textAlign: TextAlign.center,
             style: GoogleFonts.urbanist(color: context.c.textHint, height: 1.5),
           ),
@@ -1083,7 +1093,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'Added to this event',
+              t.addedToThisEvent,
               style: GoogleFonts.urbanist(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -1102,9 +1112,10 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Widget _productBrowseCard(ListingModel p, {EventModel? event}) {
+    final t = AppLocalizations.of(context);
     final price = p.basePrice != null
         ? '₦${p.basePrice!.toInt()}'
-        : 'Contact for price';
+        : t.contactForPrice;
     return GestureDetector(
       onTap: () => context.push(
         AppRoutes.listingDetailPath(p.id),
@@ -1192,11 +1203,12 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   Widget _itemActionButton(EventModel event, ListingModel p) {
     final isRental = p.isRentable;
     final isProduct = p.pricingType == 'fixed';
+    final t = AppLocalizations.of(context);
     final label = isRental
-        ? 'Rent now'
+        ? t.rentNow
         : isProduct
-            ? 'Order now'
-            : 'Request Quote';
+            ? t.orderNow
+            : t.requestQuote;
     final icon = isRental
         ? Icons.event_available_rounded
         : isProduct
@@ -1234,13 +1246,12 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       final d = event.date;
       await MessagingService().sendMessage(
         conversationId: conv.id,
-        content:
-            'Hi! I\'d like a quote for "${p.title}" for my event "${event.name}" '
-            'on ${d.day}/${d.month}/${d.year}.',
+        content: AppLocalizations.of(context)
+            .quoteInquiryMessage(p.title, event.name, '${d.day}/${d.month}/${d.year}'),
       );
       if (!mounted) return;
       messenger.showSnackBar(
-        const SnackBar(content: Text('Inquiry sent — the vendor will send you a quote')),
+        SnackBar(content: Text(AppLocalizations.of(context).inquirySent)),
       );
       router.push(AppRoutes.conversationDetailPath(conv.id));
     } catch (e) {
@@ -1262,29 +1273,29 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
 
   Future<void> _openGroupChat(EventModel event) async {
     if (!event.hasGroupChat) {
+      final t = AppLocalizations.of(context);
       final ok = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
           backgroundColor: ctx.c.surface,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text('Create group chat?',
+          title: Text(t.createGroupChatTitle,
               style: GoogleFonts.urbanist(
                   fontSize: 17, fontWeight: FontWeight.w800, color: ctx.c.textPrimary)),
           content: Text(
-            'All vendors attached to this event will automatically join — including any you add later. '
-            'Quotes and invoices stay private in your direct chats.',
+            t.createGroupChatBody,
             style: GoogleFonts.urbanist(fontSize: 14, color: ctx.c.textSecondary),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: Text('Cancel',
+              child: Text(t.cancel,
                   style: GoogleFonts.urbanist(
                       fontWeight: FontWeight.w600, color: ctx.c.textSecondary)),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: Text('Create',
+              child: Text(t.createAction,
                   style: GoogleFonts.urbanist(
                       fontWeight: FontWeight.w700, color: AppColors.primary)),
             ),
@@ -1299,11 +1310,12 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   }
 
   Future<void> _removeListing(EventModel event, ListingModel listing) async {
+    final t = AppLocalizations.of(context);
     final ok = await confirmEventAction(
       context,
-      title: 'Remove from event?',
-      message: 'Remove "${listing.title}" from ${event.name}?',
-      confirmLabel: 'Remove',
+      title: t.removeFromEventTitle,
+      message: t.removeFromEventBody(listing.title, event.name),
+      confirmLabel: t.removeAction,
       destructive: true,
     );
     if (!ok || !mounted) return;
@@ -1313,7 +1325,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       await _load();
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${listing.title} removed')),
+        SnackBar(content: Text(t.listingRemoved(listing.title))),
       );
     } catch (e) {
       if (!mounted) return;

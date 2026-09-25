@@ -10,6 +10,7 @@ import '../../../shared/models/listing_model.dart';
 import '../../../shared/models/vendor_model.dart';
 import '../../../shared/widgets/add_to_event_sheet.dart';
 import '../../../shared/widgets/glass_circle_button.dart';
+import '../../../l10n/app_localizations.dart';
 
 class VendorProfileScreen extends StatefulWidget {
   final String vendorId;
@@ -126,7 +127,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
     );
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Link copied to clipboard')),
+      SnackBar(content: Text(AppLocalizations.of(context).linkCopied)),
     );
   }
 
@@ -149,6 +150,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     if (_loadFailed) {
       return Scaffold(
         backgroundColor: context.c.background,
@@ -159,7 +161,7 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
         ),
         body: Center(
           child: Text(
-            'Vendor not found',
+            t.vendorNotFound,
             style: GoogleFonts.urbanist(color: context.c.textSecondary),
           ),
         ),
@@ -358,8 +360,8 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
                                 const Icon(Icons.verified_rounded,
                                     color: AppColors.primary, size: 15),
                                 const SizedBox(width: 3),
-                                const Text(
-                                  'Verified',
+                                Text(
+                                  t.verified,
                                   style: TextStyle(
 
                                     fontWeight: FontWeight.w600,
@@ -393,11 +395,11 @@ class _VendorProfileScreenState extends State<VendorProfileScreen>
                     // Tab bar
                     TabBar(
                       controller: _tabController,
-                      tabs: const [
-                        Tab(text: 'About'),
-                        Tab(text: 'Products'),
-                        Tab(text: 'Services'),
-                        Tab(text: 'Reviews'),
+                      tabs: [
+                        Tab(text: t.tabAbout),
+                        Tab(text: t.products),
+                        Tab(text: t.services),
+                        Tab(text: t.tabReviews),
                       ],
                       indicator: const UnderlineTabIndicator(
                         borderSide:
@@ -473,8 +475,9 @@ class _AboutTabState extends State<_AboutTab> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final description =
-        widget.vendor.description ?? 'No description available.';
+        widget.vendor.description ?? t.noDescriptionAvailable;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
@@ -496,7 +499,7 @@ class _AboutTabState extends State<_AboutTab> {
           GestureDetector(
             onTap: () => setState(() => _expanded = !_expanded),
             child: Text(
-              _expanded ? 'Read less' : 'Read more',
+              _expanded ? t.readLess : t.readMore,
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 13,
@@ -511,7 +514,7 @@ class _AboutTabState extends State<_AboutTab> {
           if (widget.vendor.categories.isNotEmpty) ...[
             const SizedBox(height: 22),
             Text(
-              'Categories',
+              t.categoriesHighlight,
               style: TextStyle(
                 fontWeight: FontWeight.w700,
                 fontSize: 15,
@@ -600,7 +603,7 @@ class _ProductsTab extends StatelessWidget {
     if (products.isEmpty) {
       return Center(
         child: Text(
-          'No products available',
+          AppLocalizations.of(context).noProductsAvailable,
           style: TextStyle(
 
             fontSize: 14,
@@ -656,10 +659,11 @@ class _ProductCardState extends State<_ProductCard> {
     final isRentable = listing.pricingType == 'fixed' &&
         listing.basePrice != null &&
         listing.basePrice! < 50000;
-    final buttonLabel = isRentable ? 'Rent for your Event' : 'Add to Event +';
+    final t = AppLocalizations.of(context);
+    final buttonLabel = isRentable ? t.rentForYourEvent : t.addToEventPlus;
     final priceLabel = listing.basePrice != null
         ? widget.fmt(listing.basePrice!)
-        : 'Get Quote';
+        : t.getQuote;
 
     return GestureDetector(
       onTap: () => context.push(
@@ -706,7 +710,7 @@ class _ServicesTab extends StatelessWidget {
     if (services.isEmpty) {
       return Center(
         child: Text(
-          'No services available',
+          AppLocalizations.of(context).noServicesAvailable,
           style: TextStyle(
 
             fontSize: 14,
@@ -768,7 +772,7 @@ class _ServiceCardState extends State<_ServiceCard> {
           ? widget.fmt(prices.first)
           : '${widget.fmt(prices.first)} – ${widget.fmt(prices.last)}';
     } else {
-      priceDisplay = 'Get Quote';
+      priceDisplay = AppLocalizations.of(context).getQuote;
     }
 
     return GestureDetector(
@@ -1027,6 +1031,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final vendor = widget.vendor;
     final rating = vendor.ratingAvg;
 
@@ -1077,7 +1082,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${vendor.reviewCount} verified reviews',
+                  t.verifiedReviewsCount(vendor.reviewCount),
                   style: TextStyle(
 
                     fontSize: 13,
@@ -1099,7 +1104,7 @@ class _ReviewsTabState extends State<_ReviewsTab> {
               padding: const EdgeInsets.symmetric(vertical: 28),
               child: Center(
                 child: Text(
-                  'No reviews yet',
+                  t.noReviewsYet,
                   style: TextStyle(
                     fontSize: 14,
                     color: context.c.textHint,

@@ -10,6 +10,7 @@ import '../../../shared/widgets/status_chip.dart';
 import '../../../shared/widgets/shimmer_list.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../core/utils/formatters.dart';
+import '../../../l10n/app_localizations.dart';
 
 class BookingsScreen extends StatefulWidget {
   const BookingsScreen({super.key});
@@ -54,12 +55,13 @@ class _BookingsScreenState extends State<BookingsScreen> with SingleTickerProvid
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Bookings'),
+        title: Text(t.myBookings),
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [Tab(text: 'Active'), Tab(text: 'Past')],
+          tabs: [Tab(text: t.tabActive), Tab(text: t.past)],
           labelColor: AppColors.primary,
           unselectedLabelColor: context.c.textSecondary,
           indicatorColor: AppColors.primary,
@@ -89,11 +91,12 @@ class _BookingList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     if (bookings.isEmpty) {
-      return const EmptyState(
+      return EmptyState(
         icon: Icons.calendar_today_outlined,
-        title: 'No bookings here',
-        subtitle: 'When you book a vendor, it will appear here.',
+        title: t.noBookingsHere,
+        subtitle: t.noBookingsSubtitle,
       );
     }
     return ListView.builder(
@@ -125,7 +128,7 @@ class _BookingList extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        booking.vendor?.businessName ?? 'Vendor',
+                        booking.vendor?.businessName ?? t.vendorLabel,
                         style: AppTextStyles.label(context),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

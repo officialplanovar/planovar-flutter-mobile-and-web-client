@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 
 class CancelOrderScreen extends StatefulWidget {
   const CancelOrderScreen({super.key});
@@ -15,14 +16,6 @@ class _CancelOrderScreenState extends State<CancelOrderScreen> {
   int _selectedOption = -1;
   final _descCtrl = TextEditingController();
 
-  static const _options = [
-    'Change of plans',
-    'Found a better alternative',
-    'Vendor not responding',
-    'Ordered by mistake',
-    'Other reason',
-  ];
-
   @override
   void dispose() {
     _descCtrl.dispose();
@@ -31,6 +24,14 @@ class _CancelOrderScreenState extends State<CancelOrderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final options = [
+      t.cancelReasonPlans,
+      t.cancelReasonBetter,
+      t.cancelReasonNoResponse,
+      t.cancelReasonMistake,
+      t.cancelReasonOther,
+    ];
     return Scaffold(
       backgroundColor: context.c.background,
       body: Column(
@@ -68,7 +69,7 @@ class _CancelOrderScreenState extends State<CancelOrderScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Cancel Order',
+                      t.cancelOrder,
                       style: GoogleFonts.urbanist(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -113,7 +114,7 @@ class _CancelOrderScreenState extends State<CancelOrderScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Notice',
+                                t.notice,
                                 style: GoogleFonts.urbanist(
                                   fontSize: 14,
                                   fontWeight: FontWeight.w700,
@@ -122,7 +123,7 @@ class _CancelOrderScreenState extends State<CancelOrderScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Cancelling this order will notify the vendor and our support team. Cancellation fees may apply depending on the vendor\'s policy. Refunds are typically processed within 3-5 business days.',
+                                t.cancelOrderNotice,
                                 style: GoogleFonts.urbanist(
                                   fontSize: 13,
                                   color: AppColors.primary,
@@ -138,7 +139,7 @@ class _CancelOrderScreenState extends State<CancelOrderScreen> {
                   const SizedBox(height: 20),
                   // Cancellation reason
                   Text(
-                    'Reason for cancellation',
+                    t.reasonForCancellation,
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -146,7 +147,7 @@ class _CancelOrderScreenState extends State<CancelOrderScreen> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  ..._options.asMap().entries.map((entry) {
+                  ...options.asMap().entries.map((entry) {
                     final i = entry.key;
                     final opt = entry.value;
                     final selected = _selectedOption == i;
@@ -193,7 +194,7 @@ class _CancelOrderScreenState extends State<CancelOrderScreen> {
                   const SizedBox(height: 20),
                   // Describe the issue
                   Text(
-                    'Describe the issue',
+                    t.describeIssue,
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -213,7 +214,7 @@ class _CancelOrderScreenState extends State<CancelOrderScreen> {
                       maxLines: 7,
                       style: GoogleFonts.urbanist(fontSize: 14),
                       decoration: InputDecoration(
-                        hintText: 'Provide additional details...',
+                        hintText: t.provideAdditionalDetails,
                         hintStyle: GoogleFonts.urbanist(
                           fontSize: 14,
                           color: context.c.textHint,
@@ -247,7 +248,7 @@ class _CancelOrderScreenState extends State<CancelOrderScreen> {
                       ),
                       child: Center(
                         child: Text(
-                          'Cancel Order',
+                          t.cancelOrder,
                           style: GoogleFonts.urbanist(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -273,7 +274,7 @@ class _CancelOrderScreenState extends State<CancelOrderScreen> {
                       ),
                       child: Center(
                         child: Text(
-                          'Message Vendor Instead',
+                          t.messageVendorInstead,
                           style: GoogleFonts.urbanist(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/mock/mock_data.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/services/reference_data_service.dart';
 import '../../../core/state/overlay_state.dart';
@@ -11,6 +10,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/bloc/auth_state.dart';
 import '../../../shared/models/category_model.dart';
+import '../../../l10n/app_localizations.dart';
 
 String _fmtPrice(num n) {
   final s = n.toStringAsFixed(0);
@@ -41,7 +41,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
       (_selectedRating != null ? 1 : 0) +
       (_locationFilter.isNotEmpty ? 1 : 0);
 
-  /// Live categories from the API (mock fallback while loading / on error).
+  /// Live categories from the API (empty while loading / on error).
   List<CategoryModel> _liveCategories = [];
 
   @override
@@ -52,8 +52,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
     }).catchError((_) {});
   }
 
-  List<CategoryModel> get _allCategories =>
-      _liveCategories.isNotEmpty ? _liveCategories : MockData.categories;
+  List<CategoryModel> get _allCategories => _liveCategories;
 
   List<CategoryModel> get _filteredCategories {
     final q = _searchCtrl.text.trim().toLowerCase();
@@ -68,11 +67,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
   void _openProducts() {
     context.push(
       AppRoutes.categoryResultsPath('products'),
-      extra: {'categoryName': 'Products'},
+      extra: {'categoryName': AppLocalizations.of(context).products},
     );
   }
 
   Widget _buildModeToggle(BuildContext context) {
+    final t = AppLocalizations.of(context);
     Widget tab(String label, IconData icon,
         {required bool selected, required VoidCallback onTap}) {
       return Expanded(
@@ -116,9 +116,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
       ),
       child: Row(
         children: [
-          tab('Services', Icons.handshake_outlined,
+          tab(t.services, Icons.handshake_outlined,
               selected: true, onTap: () {}),
-          tab('Products', Icons.shopping_bag_outlined,
+          tab(t.products, Icons.shopping_bag_outlined,
               selected: false, onTap: _openProducts),
         ],
       ),
@@ -154,6 +154,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final cats = _filteredCategories;
     final authState = context.watch<AuthBloc>().state;
     final user = authState is AuthAuthenticated ? authState.user : null;
@@ -204,7 +205,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         const SizedBox(height: 10),
                       ],
                       Text(
-                        'Find your vibe',
+                        t.findYourVibe,
                         style: GoogleFonts.urbanist(
                           fontSize: 26,
                           fontWeight: FontWeight.w800,
@@ -233,7 +234,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                                 controller: _searchCtrl,
                                 onChanged: (_) => setState(() {}),
                                 decoration: InputDecoration(
-                                  hintText: 'Search categories...',
+                                  hintText: t.searchCategoriesHint,
                                   hintStyle: GoogleFonts.urbanist(
                                     fontSize: 14,
                                     color: context.c.textHint,
@@ -329,7 +330,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
             sliver: SliverToBoxAdapter(
               child: Text(
-                'Browse Services by Category',
+                t.browseServicesByCategory,
                 style: GoogleFonts.urbanist(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -346,7 +347,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 60),
                     child: Center(
                       child: Text(
-                        'No categories found',
+                        t.noCategoriesFound,
                         style: GoogleFonts.urbanist(
                           fontSize: 15,
                           color: context.c.textHint,
@@ -503,6 +504,7 @@ class _FilterSheetState extends State<_FilterSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
       child: BackdropFilter(
@@ -542,7 +544,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                     GestureDetector(
                       onTap: _reset,
                       child: Text(
-                        'Reset',
+                        t.filterReset,
                         style: GoogleFonts.urbanist(
                           fontSize: 14,
                           color: AppColors.primary,
@@ -551,7 +553,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                       ),
                     ),
                     Text(
-                      'Filters',
+                      t.filters,
                       style: GoogleFonts.urbanist(
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
@@ -565,7 +567,7 @@ class _FilterSheetState extends State<_FilterSheet> {
 
                 // Price Range
                 Text(
-                  'Price Range',
+                  t.priceRange,
                   style: GoogleFonts.urbanist(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -636,7 +638,7 @@ class _FilterSheetState extends State<_FilterSheet> {
 
                 // Rating
                 Text(
-                  'Rating',
+                  t.rating,
                   style: GoogleFonts.urbanist(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -700,7 +702,7 @@ class _FilterSheetState extends State<_FilterSheet> {
 
                 // Location
                 Text(
-                  'Location',
+                  t.locationTitle,
                   style: GoogleFonts.urbanist(
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -718,7 +720,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                     controller: _locationCtrl,
                     onChanged: (_) => setState(() {}),
                     decoration: InputDecoration(
-                      hintText: 'Enter city or area',
+                      hintText: t.enterCityOrArea,
                       hintStyle: GoogleFonts.urbanist(
                         fontSize: 14,
                         color: context.c.textHint,
@@ -761,8 +763,8 @@ class _FilterSheetState extends State<_FilterSheet> {
                     child: Center(
                       child: Text(
                         _count > 0
-                            ? 'Apply Filters ($_count)'
-                            : 'Apply Filters',
+                            ? t.applyFiltersCount(_count)
+                            : t.applyFilters,
                         style: GoogleFonts.urbanist(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,

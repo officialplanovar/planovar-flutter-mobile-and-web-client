@@ -106,12 +106,16 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             SafeArea(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 480),
-                  child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Form(
+              child: LayoutBuilder(
+                builder: (context, constraints) => SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: ConstrainedBox(
+                    constraints:
+                        BoxConstraints(minHeight: constraints.maxHeight),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 480),
+                        child: Form(
                   key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,8 +185,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           hintText: t.emailHint,
                         ),
                         validator: (v) {
-                          if (v == null || v.isEmpty) return 'Email is required';
-                          if (!v.contains('@')) return 'Enter a valid email';
+                          if (v == null || v.isEmpty) return t.emailRequired;
+                          if (!v.contains('@')) return t.emailInvalid;
                           return null;
                         },
                       ),
@@ -206,7 +210,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         validator: (v) => (v == null || v.isEmpty)
-                            ? 'Password is required'
+                            ? t.passwordRequired
                             : null,
                       ),
                       const SizedBox(height: 28),
@@ -314,9 +318,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 32),
                     ],
                   ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-              ),
               ),
             ),
           ],

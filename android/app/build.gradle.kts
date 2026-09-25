@@ -1,8 +1,22 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+// Release signing is read from android/key.properties (git-ignored). When that
+// file is absent (e.g. a fresh checkout, CI without secrets) we fall back to the
+// debug keystore so the project still builds — but such a build is NOT
+// shippable. See android/key.properties.example.
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+val hasReleaseKeystore = keystorePropertiesFile.exists()
+if (hasReleaseKeystore) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 android {
@@ -20,21 +34,61 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.planovar.planovar_client"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
 
+    // ── Environment flavors ────────────────────────────────────────────────
+    // dev / staging get suffixed application IDs so all three can be installed
+    // side by side on one device; prod keeps the clean base ID. The visible app
+    // name comes from the per-flavor `app_name` string resource (referenced by
+    // android:label in AndroidManifest.xml).
+    flavorDimensions += "env"
+    productFlavors {
+        create("dev") {
+            dimension = "env"
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+            resValue("string", "app_name", "Planovar Client [DEV]")
+            // OAuth deep-link scheme (see AndroidManifest.xml + config/dev.json).
+            manifestPlaceholders["oauthScheme"] = "planovardev"
+        }
+        create("staging") {
+            dimension = "env"
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-staging"
+            resValue("string", "app_name", "Planovar Client [STAGING]")
+            manifestPlaceholders["oauthScheme"] = "planovarstaging"
+        }
+        create("prod") {
+            dimension = "env"
+            resValue("string", "app_name", "Planovar Client")
+            manifestPlaceholders["oauthScheme"] = "planovar"
+        }
+    }
+
+    signingConfigs {
+        create("release") {
+            if (hasReleaseKeystore) {
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = (keystoreProperties["storeFile"] as String?)?.let { file(it) }
+                storePassword = keystoreProperties["storePassword"] as String
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (hasReleaseKeystore) {
+                signingConfigs.getByName("release")
+            } else {
+                // Not shippable — see key.properties.example.
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }

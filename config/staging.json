@@ -1,0 +1,6 @@
+{
+  "ENV": "staging",
+  "API_BASE_URL": "https://staging-api.planovar.com",
+  "CRISP_WEBSITE_ID": "",
+  "OAUTH_SCHEME": "planovarstaging"
+}

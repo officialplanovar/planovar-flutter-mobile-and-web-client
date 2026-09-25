@@ -7,10 +7,12 @@ import '../../../core/services/booking_service.dart';
 import '../../../core/services/event_service.dart';
 import '../../../core/state/overlay_state.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/formatters.dart';
 import '../../../shared/models/booking_model.dart';
 import '../../../shared/models/event_model.dart';
 import '../../../shared/models/listing_model.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../../../l10n/app_localizations.dart';
 
 class MyEventsScreen extends StatefulWidget {
   const MyEventsScreen({super.key});
@@ -69,6 +71,7 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final topPadding = MediaQuery.of(context).padding.top;
 
     return Scaffold(
@@ -97,7 +100,7 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
                             text: TextSpan(
                               children: [
                                 TextSpan(
-                                  text: 'My Events & ',
+                                  text: t.myEventsAmp,
                                   style: GoogleFonts.urbanist(
                                     fontSize: 20,
                                     fontWeight: FontWeight.w800,
@@ -105,7 +108,7 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
                                   ),
                                 ),
                                 TextSpan(
-                                  text: 'Orders',
+                                  text: t.ordersTitle,
                                   style: GoogleFonts.urbanist(
                                     fontSize: 20,
                                     fontWeight: FontWeight.w800,
@@ -153,12 +156,12 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
                       child: Row(
                         children: [
                           _SegTab(
-                            label: 'My Events',
+                            label: t.segMyEvents,
                             active: _tabIndex == 0,
                             onTap: () => _switchTab(0),
                           ),
                           _SegTab(
-                            label: 'Order Tracking',
+                            label: t.orderTracking,
                             active: _tabIndex == 1,
                             onTap: () => _switchTab(1),
                           ),
@@ -171,19 +174,19 @@ class _MyEventsScreenState extends State<MyEventsScreen> {
                       Row(
                         children: [
                           _SubTab(
-                            label: 'Upcoming',
+                            label: t.upcoming,
                             active: _subTabIndex == 0,
                             onTap: () => setState(() => _subTabIndex = 0),
                           ),
                           const SizedBox(width: 8),
                           _SubTab(
-                            label: 'Past',
+                            label: t.past,
                             active: _subTabIndex == 1,
                             onTap: () => setState(() => _subTabIndex = 1),
                           ),
                           const SizedBox(width: 8),
                           _SubTab(
-                            label: 'Cancelled',
+                            label: t.cancelledLabel,
                             active: _subTabIndex == 2,
                             onTap: () => setState(() => _subTabIndex = 2),
                           ),
@@ -380,11 +383,12 @@ class _EventsTab extends StatelessWidget {
       }
     }).toList();
 
-    final label = subTabIndex == 1
-        ? 'past'
+    final t = AppLocalizations.of(context);
+    final emptyMsg = subTabIndex == 1
+        ? t.noPastEvents
         : subTabIndex == 2
-            ? 'cancelled'
-            : 'upcoming';
+            ? t.noCancelledEvents
+            : t.noUpcomingEvents;
 
     return RefreshIndicator(
       onRefresh: onRefresh,
@@ -395,7 +399,7 @@ class _EventsTab extends StatelessWidget {
               children: [
                 Center(
                   child: Text(
-                    'No $label events',
+                    emptyMsg,
                     style: GoogleFonts.urbanist(color: context.c.textHint),
                   ),
                 ),
@@ -434,6 +438,7 @@ class _EventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final statusLabel = event.statusLabel;
     // Confirmed = green; everything else (Draft/Planning) = amber.
     final isConfirmed = event.status.toUpperCase() == 'CONFIRMED';
@@ -505,7 +510,7 @@ class _EventCard extends StatelessWidget {
                                       size: 10, color: AppColors.starColor),
                                   const SizedBox(width: 3),
                                   Text(
-                                    'Event',
+                                    t.eventChip,
                                     style: GoogleFonts.urbanist(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w600,
@@ -573,9 +578,8 @@ class _EventCard extends StatelessWidget {
                   const SizedBox(width: 6),
                   Text(
                     event.vendorsSourced == 0
-                        ? 'No vendors sourced yet'
-                        : '${event.vendorsSourced} '
-                            '${event.vendorsSourced == 1 ? 'vendor' : 'vendors'} sourced',
+                        ? t.noVendorsSourcedYet
+                        : t.vendorsSourced(event.vendorsSourced),
                     style: GoogleFonts.urbanist(
                       fontSize: 12,
                       color: context.c.textSecondary,
@@ -592,7 +596,7 @@ class _EventCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: GlossyButton(
-                      label: 'View Details',
+                      label: t.viewDetails,
                       height: 40,
                       radius: 12,
                       onPressed: () => context.push(
@@ -650,9 +654,10 @@ class _PastEventCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final badgeBg = isCancelled ? const Color(0xFFFFE4E6) : const Color(0xFFD1FAE5);
     final badgeText = isCancelled ? const Color(0xFFEF4444) : const Color(0xFF065F46);
-    final badgeLabel = isCancelled ? 'Cancelled' : 'Completed';
+    final badgeLabel = isCancelled ? t.cancelledLabel : t.completedLabel;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -694,7 +699,7 @@ class _PastEventCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const _ServiceChip(label: 'Single'),
+                        _ServiceChip(label: t.singleLabel),
                         const Spacer(),
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -727,7 +732,9 @@ class _PastEventCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      '${event.location ?? 'Venue'} · ₦280,000',
+                      event.budgetRange.isNotEmpty
+                          ? '${event.location ?? t.venueLabel} · ${event.budgetRange}'
+                          : (event.location ?? t.venueLabel),
                       style: GoogleFonts.urbanist(
                         fontSize: 12,
                         color: context.c.textSecondary,
@@ -758,7 +765,7 @@ class _PastEventCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Friday, 13 March 2026 · 11:00 AM – 12:00 PM',
+                        fmtDate(event.date),
                         style: GoogleFonts.urbanist(
                           fontSize: 12,
                           color: context.c.textSecondary,
@@ -775,7 +782,7 @@ class _PastEventCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Lagos Island studio',
+                        event.location ?? t.locationNotSet,
                         style: GoogleFonts.urbanist(
                           fontSize: 12,
                           color: context.c.textSecondary,
@@ -789,7 +796,7 @@ class _PastEventCard extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           GlossyButton(
-            label: 'View Details',
+            label: t.viewDetails,
             height: 42,
             radius: 12,
             onPressed: () => context.push(
@@ -827,8 +834,6 @@ class _OrderTrackingTabState extends State<_OrderTrackingTab> {
   final _bookingService = BookingService();
   List<BookingModel> _bookings = const [];
   bool _loading = true;
-
-  static const _subTabs = ['Purchase', 'Rentals', 'Completed', 'Cancelled'];
 
   @override
   void initState() {
@@ -896,6 +901,8 @@ class _OrderTrackingTabState extends State<_OrderTrackingTab> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final subTabs = [t.tabPurchase, t.tabRentals, t.completedLabel, t.cancelledLabel];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -905,10 +912,10 @@ class _OrderTrackingTabState extends State<_OrderTrackingTab> {
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: List.generate(_subTabs.length, (i) {
+              children: List.generate(subTabs.length, (i) {
                 final active = _orderSubTab == i;
                 return Padding(
-                  padding: EdgeInsets.only(right: i < _subTabs.length - 1 ? 8 : 0),
+                  padding: EdgeInsets.only(right: i < subTabs.length - 1 ? 8 : 0),
                   child: GestureDetector(
                     onTap: () => setState(() => _orderSubTab = i),
                     child: AnimatedContainer(
@@ -920,7 +927,7 @@ class _OrderTrackingTabState extends State<_OrderTrackingTab> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        _subTabs[i],
+                        subTabs[i],
                         style: GoogleFonts.urbanist(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -948,12 +955,19 @@ class _OrderTrackingTabState extends State<_OrderTrackingTab> {
                         itemBuilder: (ctx, i) {
                           final booking = _filtered[i];
                           final status = _statusLabel(booking);
+                          final amount = booking.finalAmount ??
+                              booking.quoteAmount ??
+                              booking.listing!.basePrice;
                           return _OrderCard(
                             listing: booking.listing!,
                             status: status,
                             subTab: _orderSubTab,
-                            onTap: () =>
-                                _onCardTap(ctx, booking.listingId, status),
+                            dateText: Formatters.date(booking.eventDate),
+                            priceText: amount != null
+                                ? Formatters.currency(amount)
+                                : t.quoteLabel,
+                            onTap: () => _onCardTap(
+                                ctx, booking.id, booking.listingId, status),
                           );
                         },
                       ),
@@ -964,6 +978,7 @@ class _OrderTrackingTabState extends State<_OrderTrackingTab> {
   }
 
   Widget _buildEmpty(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return ListView(
       children: [
         const SizedBox(height: 80),
@@ -971,7 +986,7 @@ class _OrderTrackingTabState extends State<_OrderTrackingTab> {
             size: 56, color: context.c.textHint),
         const SizedBox(height: 12),
         Text(
-          'No orders here yet',
+          t.noOrdersYet,
           textAlign: TextAlign.center,
           style: GoogleFonts.urbanist(
               fontSize: 15,
@@ -982,12 +997,17 @@ class _OrderTrackingTabState extends State<_OrderTrackingTab> {
     );
   }
 
-  void _onCardTap(BuildContext ctx, String listingId, String status) {
+  void _onCardTap(
+      BuildContext ctx, String bookingId, String listingId, String status) {
     if (_orderSubTab == 1) {
-      ctx.push(AppRoutes.rentalDetail, extra: {'listingId': listingId});
+      ctx.push(AppRoutes.rentalDetail,
+          extra: {'bookingId': bookingId, 'listingId': listingId});
     } else {
-      ctx.push(AppRoutes.orderDetail,
-          extra: {'listingId': listingId, 'status': status});
+      ctx.push(AppRoutes.orderDetail, extra: {
+        'bookingId': bookingId,
+        'listingId': listingId,
+        'status': status,
+      });
     }
   }
 }
@@ -998,12 +1018,16 @@ class _OrderCard extends StatelessWidget {
   final ListingModel listing;
   final String status;
   final int subTab;
+  final String dateText;
+  final String priceText;
   final VoidCallback onTap;
 
   const _OrderCard({
     required this.listing,
     required this.status,
     required this.subTab,
+    required this.dateText,
+    required this.priceText,
     required this.onTap,
   });
 
@@ -1059,7 +1083,7 @@ class _OrderCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  '13 Mar 2026',
+                  dateText,
                   style: GoogleFonts.urbanist(
                     fontSize: 12,
                     color: context.c.textSecondary,
@@ -1074,9 +1098,7 @@ class _OrderCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    listing.basePrice != null
-                        ? '₦${listing.basePrice!.toStringAsFixed(0)}'
-                        : 'Quote',
+                    priceText,
                     style: GoogleFonts.urbanist(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,

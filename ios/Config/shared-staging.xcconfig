@@ -1,0 +1,7 @@
+// Flavor-specific settings for the "staging" environment (client app).
+// Referenced by the Debug/Release/Profile-staging configs. Keep bundle IDs in sync
+// with android/app/build.gradle.kts and your Firebase/OAuth/Paystack setup.
+APP_DISPLAY_NAME = Planovar Client [STAGING]
+BUNDLE_ID_SUFFIX = .staging
+FLUTTER_ENV = staging
+OAUTH_SCHEME = planovarstaging

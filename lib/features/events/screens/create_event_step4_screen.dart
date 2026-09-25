@@ -10,6 +10,7 @@ import '../../../shared/models/event_model.dart';
 import '../../../shared/models/listing_model.dart';
 import '../../../shared/models/vendor_model.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../../../l10n/app_localizations.dart';
 import 'create_event_step1_screen.dart' show EventStepHeader;
 
 class CreateEventStep4Screen extends StatefulWidget {
@@ -55,7 +56,7 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
       }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Event created — added to it 🎉')),
+        SnackBar(content: Text(AppLocalizations.of(context).eventCreatedAdded)),
       );
       // Unwind the wizard (step 1–4) to return to the listing detail that
       // launched it — using pop, not go, so the wizard leaves the history.
@@ -70,7 +71,7 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
 
     // Raw create flow — show real vendor recommendations.
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Event created 🎉')),
+      SnackBar(content: Text(AppLocalizations.of(context).eventCreated)),
     );
     _loadVendors();
   }
@@ -120,6 +121,7 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
   // ─── Vendor Browsing Screen ───────────────────────────────────────────────
 
   Widget _buildBrowsingScreen() {
+    final loc = AppLocalizations.of(context);
     final categories = _categories;
     final vendors = categories.isEmpty
         ? _allVendors
@@ -135,9 +137,9 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
           EventStepHeader(
             currentStep: 4,
             onBack: () => context.pop(),
-            titlePrefix: 'Event ',
-            titleHighlight: 'Categories',
-            subtitle: 'Step Four, Select your Vendors',
+            titlePrefix: loc.eventPrefix,
+            titleHighlight: loc.categoriesHighlight,
+            subtitle: loc.step4Subtitle,
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -146,7 +148,7 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Recommended vendors for your event',
+                    loc.recommendedVendorsForEvent,
                     style: GoogleFonts.urbanist(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
@@ -155,7 +157,7 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '$sourced of $total Vendors',
+                    loc.sourcedOfTotal(sourced, total),
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -221,7 +223,7 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
                                   color: context.c.textHint, size: 20),
                               const SizedBox(width: 8),
                               Text(
-                                'Search for items',
+                                loc.searchForItems,
                                 style: GoogleFonts.urbanist(
                                   fontSize: 13,
                                   color: const Color(0xFFD1D5DB),
@@ -256,7 +258,7 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
                       padding: const EdgeInsets.symmetric(vertical: 40),
                       child: Center(
                         child: Text(
-                          'No vendors available yet',
+                          loc.noVendorsAvailableYet,
                           style: GoogleFonts.urbanist(
                               color: context.c.textHint),
                         ),
@@ -304,6 +306,7 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
   // ─── Sourced Vendors Review Screen ───────────────────────────────────────
 
   Widget _buildReviewScreen() {
+    final loc = AppLocalizations.of(context);
     final categories = _categories;
     final vendors = _allVendors
         .where((v) => _sourcedVendorIds.contains(v.id))
@@ -316,9 +319,9 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
           EventStepHeader(
             currentStep: 4,
             onBack: () => setState(() => _showReview = false),
-            titlePrefix: 'Event ',
-            titleHighlight: 'Categories',
-            subtitle: 'Step Four, Select your Vendors',
+            titlePrefix: loc.eventPrefix,
+            titleHighlight: loc.categoriesHighlight,
+            subtitle: loc.step4Subtitle,
           ),
           // Category chips — all checked
           Container(
@@ -367,7 +370,7 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'All ${categories.length} Vendors sourced for all categories',
+                    loc.allVendorsSourced(categories.length),
                     style: GoogleFonts.urbanist(
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
@@ -392,7 +395,7 @@ class _CreateEventStep4ScreenState extends State<CreateEventStep4Screen> {
             color: context.c.surface,
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
             child: GlossyButton(
-              label: 'Create Event',
+              label: loc.createEvent,
               onPressed: () => context.go(AppRoutes.events),
             ),
           ),
@@ -426,6 +429,7 @@ class _VendorGridCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc4 = AppLocalizations.of(context);
     return Container(
       decoration: BoxDecoration(
         color: context.c.surface,
@@ -503,7 +507,7 @@ class _VendorGridCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
-                      'Added ✓',
+                      loc4.addedCheck,
                       style: GoogleFonts.urbanist(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -543,6 +547,7 @@ class _BrowsingBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Container(
       color: context.c.surface,
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
@@ -551,7 +556,7 @@ class _BrowsingBottomBar extends StatelessWidget {
         children: [
           if (hasSourced) ...[
             GlossyButton(
-              label: 'Review Sourced Vendors',
+              label: loc.reviewSourcedVendors,
               onPressed: onReview,
             ),
             const SizedBox(height: 14),
@@ -559,7 +564,7 @@ class _BrowsingBottomBar extends StatelessWidget {
           GestureDetector(
             onTap: onSkip,
             child: Text(
-              'Create Event without sourcing',
+              loc.createEventWithoutSourcing,
               style: GoogleFonts.urbanist(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -587,12 +592,6 @@ class _VendorDetailSheet extends StatefulWidget {
 
 class _VendorDetailSheetState extends State<_VendorDetailSheet> {
   int _tab = 0;
-  static const _tabs = [
-    'Products to buy',
-    'Services to book',
-    'Equipment rentals',
-  ];
-
   List<ListingModel> _allListings = const [];
   bool _loading = true;
 
@@ -633,6 +632,8 @@ class _VendorDetailSheetState extends State<_VendorDetailSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+    final tabs = [loc.tabProductsToBuy, loc.tabServicesToBook, loc.tabEquipmentRentals];
     final listings = _tabListings;
     final bottom = MediaQuery.of(context).padding.bottom;
 
@@ -677,7 +678,7 @@ class _VendorDetailSheetState extends State<_VendorDetailSheet> {
                       GestureDetector(
                         onTap: () => Navigator.pop(context),
                         child: Text(
-                          'Cancel',
+                          loc.cancel,
                           style: GoogleFonts.urbanist(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -717,7 +718,7 @@ class _VendorDetailSheetState extends State<_VendorDetailSheet> {
                                 color: AppColors.primary, size: 14),
                             const SizedBox(width: 3),
                             Text(
-                              'Verified',
+                              loc.verified,
                               style: GoogleFonts.urbanist(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
@@ -756,24 +757,23 @@ class _VendorDetailSheetState extends State<_VendorDetailSheet> {
                   // Info rows
                   _InfoRow(
                     icon: Icons.location_on_outlined,
-                    text:
-                        '${widget.vendor.location ?? 'Lagos Island'} · 20km service radius',
+                    text: loc.serviceRadiusInfo(widget.vendor.location ?? 'Lagos Island'),
                   ),
                   const SizedBox(height: 8),
-                  const _InfoRow(
+                  _InfoRow(
                     icon: Icons.access_time_outlined,
-                    text: 'Mon–Sat · 9am–6pm',
+                    text: loc.businessHoursInfo,
                   ),
                   const SizedBox(height: 8),
-                  const _InfoRow(
+                  _InfoRow(
                     icon: Icons.bolt_outlined,
-                    text: 'Responds within ~30 mins',
+                    text: loc.respondsWithin,
                   ),
                   const SizedBox(height: 20),
                   Divider(color: context.c.border),
                   const SizedBox(height: 16),
                   Text(
-                    'Select an option based on your Preference',
+                    loc.selectOptionPreference,
                     style: GoogleFonts.urbanist(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
@@ -785,7 +785,7 @@ class _VendorDetailSheetState extends State<_VendorDetailSheet> {
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
-                      children: List.generate(_tabs.length, (i) {
+                      children: List.generate(tabs.length, (i) {
                         final active = _tab == i;
                         return GestureDetector(
                           onTap: () => setState(() => _tab = i),
@@ -805,7 +805,7 @@ class _VendorDetailSheetState extends State<_VendorDetailSheet> {
                               ),
                             ),
                             child: Text(
-                              _tabs[i],
+                              tabs[i],
                               style: GoogleFonts.urbanist(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -830,7 +830,7 @@ class _VendorDetailSheetState extends State<_VendorDetailSheet> {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 20),
                       child: Text(
-                        'Nothing here yet.',
+                        loc.nothingHereYet,
                         style: GoogleFonts.urbanist(color: context.c.textHint),
                       ),
                     )
@@ -1015,6 +1015,7 @@ class _ServiceDetailSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final bottom = MediaQuery.of(context).padding.bottom;
 
     return Container(
@@ -1054,7 +1055,7 @@ class _ServiceDetailSheet extends StatelessWidget {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        'Service Details',
+                        loc.serviceDetails,
                         style: GoogleFonts.urbanist(
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
@@ -1120,7 +1121,7 @@ class _ServiceDetailSheet extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Description',
+                          loc.description,
                           style: GoogleFonts.urbanist(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
@@ -1143,19 +1144,19 @@ class _ServiceDetailSheet extends StatelessWidget {
                   const SizedBox(height: 16),
                   // Details
                   _DetailRow(
-                    label: 'Cancellation Policy:',
-                    value: 'Moderate',
+                    label: loc.cancellationPolicy,
+                    value: loc.moderateValue,
                     hasInfo: true,
                   ),
                   Divider(color: context.c.border, height: 24),
-                  const _DetailRow(
-                    label: 'Minimum Service Duration:',
-                    value: '4 hours',
+                  _DetailRow(
+                    label: loc.minServiceDuration,
+                    value: loc.fourHours,
                   ),
                   const SizedBox(height: 24),
                   // Add to Event button
                   GlossyButton(
-                    label: 'Add to Event',
+                    label: loc.addToEvent,
                     onPressed: onAdd,
                   ),
                 ],
@@ -1222,6 +1223,7 @@ class _SourcedVendorCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(14),
@@ -1291,7 +1293,7 @@ class _SourcedVendorCard extends StatelessWidget {
                               color: AppColors.primary, size: 13),
                           const SizedBox(width: 2),
                           Text(
-                            'Verified',
+                            loc.verified,
                             style: GoogleFonts.urbanist(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
@@ -1322,7 +1324,7 @@ class _SourcedVendorCard extends StatelessWidget {
           Wrap(
             spacing: 8,
             children: [
-              _StatusChip(label: 'Quote Sent', icon: Icons.check),
+              _StatusChip(label: loc.quoteSent, icon: Icons.check),
               _StatusChip(label: category, icon: Icons.check),
             ],
           ),
@@ -1346,7 +1348,7 @@ class _SourcedVendorCard extends StatelessWidget {
                             color: Color(0xFFEF4444), size: 16),
                         const SizedBox(width: 6),
                         Text(
-                          'Remove Vendor',
+                          loc.removeVendor,
                           style: GoogleFonts.urbanist(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
@@ -1375,7 +1377,7 @@ class _SourcedVendorCard extends StatelessWidget {
                             color: AppColors.primary, size: 16),
                         const SizedBox(width: 6),
                         Text(
-                          'Swap Vendor',
+                          loc.swapVendor,
                           style: GoogleFonts.urbanist(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,

@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/auth_illustration.dart';
 import '../../../shared/widgets/auth_step_bar.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/auth_repository.dart';
 
 class CreatePasswordScreen extends StatefulWidget {
@@ -66,6 +67,7 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: context.c.surface,
       body: SafeArea(
@@ -90,7 +92,7 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
                     const SizedBox(height: 24),
                     Center(
                       child: Text(
-                        'Create a Strong Password',
+                        t.createStrongPassword,
                         textAlign: TextAlign.center,
                         style: GoogleFonts.urbanist(
                           fontSize: 26,
@@ -100,13 +102,13 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
                       ),
                     ),
                     const SizedBox(height: 32),
-                    _FieldLabel('New Password'),
+                    _FieldLabel(t.newPassword),
                     TextFormField(
                       controller: _passwordCtrl,
                       obscureText: _obscure1,
                       onChanged: (_) => setState(() {}),
                       decoration: InputDecoration(
-                        hintText: 'Enter Password',
+                        hintText: t.passwordHint,
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscure1
@@ -121,13 +123,13 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    _FieldLabel('Confirm Password'),
+                    _FieldLabel(t.confirmPassword),
                     TextFormField(
                       controller: _confirmCtrl,
                       obscureText: _obscure2,
                       onChanged: (_) => setState(() {}),
                       decoration: InputDecoration(
-                        hintText: 'Confirm Password',
+                        hintText: t.confirmPassword,
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscure2
@@ -141,7 +143,7 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
                         ),
                         errorText: _confirmCtrl.text.isNotEmpty &&
                                 !_passwordsMatch
-                            ? 'Passwords do not match'
+                            ? t.passwordsDoNotMatch
                             : null,
                       ),
                     ),
@@ -151,22 +153,22 @@ class _CreatePasswordScreenState extends State<CreatePasswordScreen> {
                       const SizedBox(height: 20),
                       _CriteriaRow(
                         met: _hasCapital,
-                        label: 'Should have a Capital Letter',
+                        label: t.criteriaCapital,
                       ),
                       const SizedBox(height: 10),
                       _CriteriaRow(
                         met: _hasNumber,
-                        label: 'Should have a Number e.g 1,2,4,etc',
+                        label: t.criteriaNumber,
                       ),
                       const SizedBox(height: 10),
                       _CriteriaRow(
                         met: _hasSpecial,
-                        label: 'Should have a Special Character e.g @,\$,%,etc',
+                        label: t.criteriaSpecial,
                       ),
                     ],
                     const SizedBox(height: 36),
                     GlossyButton(
-                      label: _saving ? 'Saving…' : 'Proceed',
+                      label: _saving ? t.saving : t.proceed,
                       onPressed: (_allCriteriaMet && !_saving)
                           ? _setPasswordAndProceed
                           : null,

@@ -29,6 +29,14 @@ class AuthRepository {
   /// Launches the Google OAuth flow (redirects the browser to Google).
   Future<void> signInWithGoogle() => _remote.signInWithGoogle();
 
+  Future<void> deleteAccount() => _remote.deleteAccount();
+
+  Future<Map<String, dynamic>> getNotificationPrefs() =>
+      _remote.getNotificationPrefs();
+
+  Future<void> updateNotificationPrefs(Map<String, dynamic> prefs) =>
+      _remote.updateNotificationPrefs(prefs);
+
   Future<UserModel> signUp({
     required String fullName,
     required String email,

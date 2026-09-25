@@ -6,6 +6,7 @@ import '../../../core/router/app_routes.dart';
 import '../../../core/services/upload_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../../../l10n/app_localizations.dart';
 import 'create_event_step1_screen.dart' show EventStepHeader;
 
 class CreateEventStep2Screen extends StatefulWidget {
@@ -130,6 +131,7 @@ class _CreateEventStep2ScreenState extends State<CreateEventStep2Screen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final canProceed = _titleCtrl.text.trim().isNotEmpty && _date != null;
 
     return Scaffold(
@@ -139,9 +141,9 @@ class _CreateEventStep2ScreenState extends State<CreateEventStep2Screen> {
           EventStepHeader(
             currentStep: 2,
             onBack: () => context.pop(),
-            titlePrefix: 'Event ',
-            titleHighlight: 'Details',
-            subtitle: 'Step Two, Enter your Event Details',
+            titlePrefix: loc.eventPrefix,
+            titleHighlight: loc.detailsHighlight,
+            subtitle: loc.step2Subtitle,
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -149,11 +151,11 @@ class _CreateEventStep2ScreenState extends State<CreateEventStep2Screen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _FieldLabel('Event Title'),
+                  _FieldLabel(loc.eventTitle),
                   const SizedBox(height: 8),
                   _TextField(
                     controller: _titleCtrl,
-                    hint: 'e.g. My Wedding Reception',
+                    hint: loc.eventTitleHint,
                     onChanged: (_) => setState(() {}),
                   ),
                   const SizedBox(height: 18),
@@ -164,13 +166,13 @@ class _CreateEventStep2ScreenState extends State<CreateEventStep2Screen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _FieldLabel('Event Date'),
+                            _FieldLabel(loc.eventDate),
                             const SizedBox(height: 8),
                             GestureDetector(
                               onTap: _pickDate,
                               child: _ReadonlyField(
                                 text: _date != null ? _fmtDate(_date!) : null,
-                                hint: 'Select date',
+                                hint: loc.selectDate,
                                 icon: Icons.calendar_today_rounded,
                               ),
                             ),
@@ -182,7 +184,7 @@ class _CreateEventStep2ScreenState extends State<CreateEventStep2Screen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _FieldLabel('Guest Count'),
+                            _FieldLabel(loc.guestCount),
                             const SizedBox(height: 8),
                             _GuestCounter(
                               value: _guests,
@@ -202,7 +204,7 @@ class _CreateEventStep2ScreenState extends State<CreateEventStep2Screen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _FieldLabel('Time From'),
+                            _FieldLabel(loc.timeFrom),
                             const SizedBox(height: 8),
                             GestureDetector(
                               onTap: () => _pickTime(isFrom: true),
@@ -210,7 +212,7 @@ class _CreateEventStep2ScreenState extends State<CreateEventStep2Screen> {
                                 text: _timeFrom != null
                                     ? _fmtTime(_timeFrom!)
                                     : null,
-                                hint: 'Start time',
+                                hint: loc.startTime,
                                 icon: Icons.access_time_rounded,
                               ),
                             ),
@@ -222,7 +224,7 @@ class _CreateEventStep2ScreenState extends State<CreateEventStep2Screen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _FieldLabel('Time To'),
+                            _FieldLabel(loc.timeTo),
                             const SizedBox(height: 8),
                             GestureDetector(
                               onTap: () => _pickTime(isFrom: false),
@@ -230,7 +232,7 @@ class _CreateEventStep2ScreenState extends State<CreateEventStep2Screen> {
                                 text: _timeTo != null
                                     ? _fmtTime(_timeTo!)
                                     : null,
-                                hint: 'End time',
+                                hint: loc.endTime,
                                 icon: Icons.access_time_rounded,
                               ),
                             ),
@@ -240,11 +242,11 @@ class _CreateEventStep2ScreenState extends State<CreateEventStep2Screen> {
                     ],
                   ),
                   const SizedBox(height: 18),
-                  _FieldLabel('Venue'),
+                  _FieldLabel(loc.venue),
                   const SizedBox(height: 8),
                   _TextField(
                     controller: _venueCtrl,
-                    hint: 'Enter venue address',
+                    hint: loc.venueHint,
                   ),
                   const SizedBox(height: 18),
                   // Budget row
@@ -254,7 +256,7 @@ class _CreateEventStep2ScreenState extends State<CreateEventStep2Screen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _FieldLabel('Budget Min (₦)'),
+                            _FieldLabel(loc.budgetMinLabel),
                             const SizedBox(height: 8),
                             _TextField(
                               controller: _budgetMinCtrl,
@@ -269,7 +271,7 @@ class _CreateEventStep2ScreenState extends State<CreateEventStep2Screen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            _FieldLabel('Budget Max (₦)'),
+                            _FieldLabel(loc.budgetMaxLabel),
                             const SizedBox(height: 8),
                             _TextField(
                               controller: _budgetMaxCtrl,
@@ -283,7 +285,7 @@ class _CreateEventStep2ScreenState extends State<CreateEventStep2Screen> {
                   ),
                   const SizedBox(height: 18),
                   // Thumbnail upload
-                  _FieldLabel('Event Thumbnail'),
+                  _FieldLabel(loc.eventThumbnail),
                   const SizedBox(height: 8),
                   GestureDetector(
                     onTap: _uploading ? null : _pickThumbnail,
@@ -335,7 +337,7 @@ class _CreateEventStep2ScreenState extends State<CreateEventStep2Screen> {
                                         color: AppColors.primary, size: 22),
                                     const SizedBox(width: 10),
                                     Text(
-                                      'Upload thumbnail',
+                                      loc.uploadThumbnail,
                                       style: GoogleFonts.urbanist(
                                         fontSize: 14,
                                         fontWeight: FontWeight.w600,
@@ -353,7 +355,7 @@ class _CreateEventStep2ScreenState extends State<CreateEventStep2Screen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
             child: GlossyButton(
-              label: 'Next',
+              label: loc.next,
               onPressed: canProceed ? _next : null,
             ),
           ),

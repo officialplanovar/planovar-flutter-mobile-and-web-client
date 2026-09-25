@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/services/review_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../../../l10n/app_localizations.dart';
 
 class LeaveReviewScreen extends StatefulWidget {
   final String vendorName;
@@ -25,7 +26,7 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
   Future<void> _submit() async {
     if (_rating == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tap the stars to rate your experience')),
+        SnackBar(content: Text(AppLocalizations.of(context).tapStarsToRate)),
       );
       return;
     }
@@ -41,12 +42,12 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
         bookingId: bookingId,
         rating: _rating,
         body: _reviewCtrl.text.trim().isEmpty
-            ? 'Rated $_rating stars'
+            ? AppLocalizations.of(context).ratedStars(_rating)
             : _reviewCtrl.text.trim(),
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Review submitted — thank you! ⭐')),
+        SnackBar(content: Text(AppLocalizations.of(context).reviewSubmitted)),
       );
       context.pop();
     } catch (e) {
@@ -66,6 +67,7 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: context.c.surface,
       body: Column(
@@ -110,7 +112,7 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
                       child: Column(
                         children: [
                           Text(
-                            'Review',
+                            t.reviewTitle,
                             style: GoogleFonts.urbanist(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
@@ -119,7 +121,7 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Let us know how your booking went',
+                            t.reviewSubtitle,
                             style: GoogleFonts.urbanist(
                               fontSize: 12,
                               color: context.c.textSecondary,
@@ -203,7 +205,7 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
                   const SizedBox(height: 28),
                   // Feedback label
                   Text(
-                    'Leave a Detailed feedback',
+                    t.leaveFeedback,
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -224,7 +226,7 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
                       maxLines: 7,
                       style: GoogleFonts.urbanist(fontSize: 14),
                       decoration: InputDecoration(
-                        hintText: 'Let us know how your experience was',
+                        hintText: t.feedbackHint,
                         hintStyle: GoogleFonts.urbanist(
                           fontSize: 14,
                           color: context.c.textHint,
@@ -237,7 +239,7 @@ class _LeaveReviewScreenState extends State<LeaveReviewScreen> {
                   const SizedBox(height: 28),
                   // Send review button
                   GlossyButton(
-                    label: _sending ? 'Sending…' : 'Send Review',
+                    label: _sending ? t.sending : t.sendReview,
                     height: 52,
                     onPressed: _sending ? null : _submit,
                   ),

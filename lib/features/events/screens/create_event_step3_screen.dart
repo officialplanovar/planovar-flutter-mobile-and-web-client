@@ -6,6 +6,7 @@ import '../../../core/services/reference_data_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/category_model.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../../../l10n/app_localizations.dart';
 import 'create_event_step1_screen.dart' show EventStepHeader;
 
 class CreateEventStep3Screen extends StatefulWidget {
@@ -44,6 +45,7 @@ class _CreateEventStep3ScreenState extends State<CreateEventStep3Screen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final categories = _categories;
 
     return Scaffold(
@@ -53,9 +55,9 @@ class _CreateEventStep3ScreenState extends State<CreateEventStep3Screen> {
           EventStepHeader(
             currentStep: 3,
             onBack: () => context.pop(),
-            titlePrefix: 'Event ',
-            titleHighlight: 'Categories',
-            subtitle: 'Step Three, Select your Preferences',
+            titlePrefix: loc.eventPrefix,
+            titleHighlight: loc.categoriesHighlight,
+            subtitle: loc.step3Subtitle,
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -64,7 +66,7 @@ class _CreateEventStep3ScreenState extends State<CreateEventStep3Screen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'What services do you need for your event?',
+                    loc.whatServicesNeeded,
                     style: GoogleFonts.urbanist(
                       fontSize: 14,
                       color: context.c.textSecondary,
@@ -141,7 +143,7 @@ class _CreateEventStep3ScreenState extends State<CreateEventStep3Screen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
             child: GlossyButton(
-              label: 'Next',
+              label: loc.next,
               onPressed: _selected.isNotEmpty
                   ? () {
                       final selectedCategories = _categories

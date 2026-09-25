@@ -1,32 +1,108 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/mock/mock_data.dart';
 import '../../../core/router/app_routes.dart';
+import '../../../core/services/booking_service.dart';
+import '../../../core/services/listing_service.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../core/utils/formatters.dart';
+import '../../../shared/models/booking_model.dart';
+import '../../../shared/models/listing_model.dart';
+import '../../../l10n/app_localizations.dart';
 
-class OrderDetailScreen extends StatelessWidget {
+class OrderDetailScreen extends StatefulWidget {
+  final String bookingId;
   final String listingId;
   final String status;
 
   const OrderDetailScreen({
     super.key,
+    this.bookingId = '',
     required this.listingId,
     required this.status,
   });
 
   @override
+  State<OrderDetailScreen> createState() => _OrderDetailScreenState();
+}
+
+class _OrderDetailScreenState extends State<OrderDetailScreen> {
+  final _bookingService = BookingService();
+  final _listingService = ListingService();
+
+  BookingModel? _booking;
+  ListingModel? _listing;
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      BookingModel? booking;
+      if (widget.bookingId.isNotEmpty) {
+        booking = await _bookingService.getBooking(widget.bookingId);
+      }
+      // The booking's nested listing carries no media, so fetch the full
+      // listing (real image/title) by id.
+      final listingId = booking?.listingId.isNotEmpty == true
+          ? booking!.listingId
+          : widget.listingId;
+      ListingModel? listing;
+      if (listingId.isNotEmpty) {
+        listing = await _listingService.getListing(listingId);
+      }
+      if (!mounted) return;
+      setState(() {
+        _booking = booking;
+        _listing = listing;
+        _loading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final listing = MockData.listings.firstWhere(
-      (l) => l.id == listingId,
-      orElse: () => MockData.listings.first,
-    );
+    final t = AppLocalizations.of(context);
+    if (_loading) {
+      return Scaffold(
+        backgroundColor: context.c.background,
+        appBar: AppBar(title: Text(t.orderDetails)),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+    final booking = _booking;
+    final listing = _listing;
+    if (booking == null && listing == null) {
+      return Scaffold(
+        backgroundColor: context.c.background,
+        appBar: AppBar(title: Text(t.orderDetails)),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(
+              t.orderCouldNotLoad,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.urbanist(
+                fontSize: 15,
+                color: context.c.textSecondary,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Real status: prefer the booking's, fall back to the routed label.
+    final status = booking?.status ?? widget.status;
     final isCompleted = status == 'completed';
-    final isPending = status.toLowerCase().contains('pending') ||
-        status == 'Order placed' ||
-        status == 'Order Confirmed' ||
-        status == 'In Production' ||
-        status == 'Out for Delivery';
+    final isCancelled = status == 'cancelled';
 
     return Scaffold(
       backgroundColor: context.c.background,
@@ -68,7 +144,7 @@ class OrderDetailScreen extends StatelessWidget {
                 ),
                 Expanded(
                   child: Text(
-                    'Order Details',
+                    t.orderDetails,
                     textAlign: TextAlign.center,
                     style: GoogleFonts.urbanist(
                       fontSize: 18,
@@ -88,17 +164,23 @@ class OrderDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ── Order Summary Card ──────────────────────────────────
-                  _buildOrderSummaryCard(context, listing),
+                  _buildOrderSummaryCard(context, booking, listing),
                   const SizedBox(height: 16),
-                  // ── Booking Timeline Card ───────────────────────────────
-                  _buildTimelineCard(context, isCompleted),
-                  const SizedBox(height: 16),
-                  // ── Banner ─────────────────────────────────────────────
-                  _buildBanner(context, isPending, isCompleted),
+                  _buildStatusCard(context, status),
+                  if (booking != null) ...[
+                    const SizedBox(height: 16),
+                    _buildFeeBreakdownCard(context, booking),
+                  ],
+                  if (booking != null && booking.milestones.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    _buildPaymentHistoryCard(context, booking),
+                  ],
+                  if (booking?.requirements?.isNotEmpty == true) ...[
+                    const SizedBox(height: 16),
+                    _buildRequirementsCard(context, booking!.requirements!),
+                  ],
                   const SizedBox(height: 24),
-                  // ── Bottom Button ──────────────────────────────────────
-                  _buildBottomButton(context, isCompleted, isPending),
+                  _buildBottomButton(context, isCompleted, isCancelled),
                   const SizedBox(height: 32),
                 ],
               ),
@@ -109,7 +191,20 @@ class OrderDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildOrderSummaryCard(BuildContext context, dynamic listing) {
+  Widget _buildOrderSummaryCard(
+    BuildContext context,
+    BookingModel? booking,
+    ListingModel? listing,
+  ) {
+    final t = AppLocalizations.of(context);
+    final title = listing?.title ?? booking?.listing?.title ?? t.orderFallback;
+    final media = listing?.media ?? const <String>[];
+    final vendorName = booking?.vendor?.businessName ??
+        listing?.vendor?.businessName ??
+        t.vendorLabel;
+    final eventDate = booking?.eventDate;
+    final amount = booking?.finalAmount ?? booking?.quoteAmount;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -132,9 +227,9 @@ class OrderDetailScreen extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                child: listing.media.isNotEmpty
+                child: media.isNotEmpty
                     ? Image.network(
-                        listing.media.first,
+                        media.first,
                         width: 80,
                         height: 80,
                         fit: BoxFit.cover,
@@ -148,7 +243,7 @@ class OrderDetailScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      listing.title,
+                      title,
                       style: GoogleFonts.urbanist(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -157,17 +252,19 @@ class OrderDetailScreen extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '13 Mar 2026',
-                      style: GoogleFonts.urbanist(
-                        fontSize: 12,
-                        color: context.c.textSecondary,
+                    if (eventDate != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        Formatters.date(eventDate),
+                        style: GoogleFonts.urbanist(
+                          fontSize: 12,
+                          color: context.c.textSecondary,
+                        ),
                       ),
-                    ),
+                    ],
                     const SizedBox(height: 3),
                     Text(
-                      listing.vendor?.businessName ?? 'Vendor',
+                      vendorName,
                       style: GoogleFonts.urbanist(
                         fontSize: 12,
                         color: context.c.textSecondary,
@@ -178,129 +275,108 @@ class OrderDetailScreen extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          // Status row
-          Row(
-            children: [
-              Text(
-                'Status',
-                style: GoogleFonts.urbanist(
-                  fontSize: 13,
-                  color: context.c.textSecondary,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD1FAE5),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  'Order placed',
-                  style: GoogleFonts.urbanist(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: const Color(0xFF065F46),
+          if (booking?.eventLocation?.isNotEmpty == true) ...[
+            const SizedBox(height: 14),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.location_on_outlined,
+                    size: 16, color: context.c.textSecondary),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    booking!.eventLocation!,
+                    style: GoogleFonts.urbanist(
+                      fontSize: 13,
+                      color: context.c.textSecondary,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          // Fee rows
-          _feeRow(context, 'Platform Fee', '₦2,300'),
-          _feeRow(context, 'Delivery (Lagos Island → Lekki)', '₦5,000'),
-          _feeRow(context, 'Sub-total', '₦307,300'),
-          const Divider(height: 24),
-          // Total
-          Row(
-            children: [
-              Text(
-                'Total',
-                style: GoogleFonts.urbanist(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: context.c.textPrimary,
+              ],
+            ),
+          ],
+          if (amount != null) ...[
+            const Divider(height: 24),
+            Row(
+              children: [
+                Text(
+                  t.total,
+                  style: GoogleFonts.urbanist(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: context.c.textPrimary,
+                  ),
                 ),
-              ),
-              const Spacer(),
-              Text(
-                '₦ 302,300',
-                style: GoogleFonts.urbanist(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: context.c.textPrimary,
+                const Spacer(),
+                Text(
+                  Formatters.currency(amount),
+                  style: GoogleFonts.urbanist(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                    color: context.c.textPrimary,
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );
   }
 
-  Widget _feeRow(BuildContext context, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+  /// Current-status indicator driven purely by the real booking status —
+  /// no fabricated dates or amounts.
+  Widget _buildStatusCard(BuildContext context, String status) {
+    final t = AppLocalizations.of(context);
+    final (label, bg, fg) = _statusStyle(status);
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: context.c.surface,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
       child: Row(
         children: [
           Text(
-            label,
+            t.statusHeading,
             style: GoogleFonts.urbanist(
-              fontSize: 13,
-              color: context.c.textSecondary,
-            ),
-          ),
-          const Spacer(),
-          Text(
-            value,
-            style: GoogleFonts.urbanist(
-              fontSize: 13,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               color: context.c.textPrimary,
             ),
           ),
+          const Spacer(),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: bg,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              label,
+              style: GoogleFonts.urbanist(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: fg,
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildTimelineCard(BuildContext context, bool isCompleted) {
-    final steps = [
-      _OrderTimelineStep(
-        number: 1,
-        title: 'Order placed',
-        subtitle: '12 May 2026, 10:47 AM · Paid ₦91,700',
-        isComplete: true,
-      ),
-      _OrderTimelineStep(
-        number: 2,
-        title: 'Vendor confirmed',
-        subtitle: '12 May 2026, 11:15 AM · Sugared Dreams accepted',
-        isComplete: true,
-      ),
-      _OrderTimelineStep(
-        number: 3,
-        title: 'In Production',
-        subtitle: 'Your cake is being crafted · Est. ready 16 May',
-        isComplete: isCompleted,
-      ),
-      _OrderTimelineStep(
-        number: 4,
-        title: 'Ready for Pick up',
-        subtitle: 'Ready for pick up at 23 Afe way Lagos',
-        isComplete: isCompleted,
-      ),
-      _OrderTimelineStep(
-        number: 5,
-        title: 'Picked Up',
-        subtitle: '15 Admiralty Way, Lekki Phase 1',
-        isComplete: isCompleted,
-      ),
-    ];
-
+  Widget _buildRequirementsCard(BuildContext context, String requirements) {
+    final t = AppLocalizations.of(context);
     return Container(
+      width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: context.c.surface,
@@ -317,241 +393,222 @@ class OrderDetailScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Booking Timeline',
+            t.requirements,
             style: GoogleFonts.urbanist(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: context.c.textPrimary,
             ),
           ),
-          const SizedBox(height: 20),
-          ...steps.asMap().entries.map((entry) {
-            final i = entry.key;
-            final step = entry.value;
-            final isLast = i == steps.length - 1;
-            return _buildTimelineStep(context, step, isLast);
-          }),
+          const SizedBox(height: 8),
+          Text(
+            requirements,
+            style: GoogleFonts.urbanist(
+              fontSize: 13,
+              height: 1.5,
+              color: context.c.textSecondary,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildTimelineStep(
-      BuildContext context, _OrderTimelineStep step, bool isLast) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          children: [
-            Container(
-              width: 30,
-              height: 30,
-              decoration: BoxDecoration(
-                color: step.isComplete ? AppColors.primary : Colors.transparent,
-                shape: BoxShape.circle,
-                border: step.isComplete
-                    ? null
-                    : Border.all(color: AppColors.primary, width: 2),
-              ),
-              child: Center(
-                child: Text(
-                  '${step.number}',
-                  style: GoogleFonts.urbanist(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: step.isComplete ? Colors.white : AppColors.primary,
-                  ),
-                ),
-              ),
-            ),
-            if (!isLast)
-              Container(
-                width: 2,
-                height: 44,
-                margin: const EdgeInsets.symmetric(vertical: 2),
-                decoration: BoxDecoration(
-                  border: Border(
-                    left: BorderSide(
-                      color: context.c.border,
-                      width: 1,
-                      style: BorderStyle.solid,
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.only(bottom: isLast ? 0 : 28, top: 4),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        step.title,
-                        style: GoogleFonts.urbanist(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: context.c.textPrimary,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        step.subtitle,
-                        style: GoogleFonts.urbanist(
-                          fontSize: 12,
-                          color: context.c.textHint,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: step.isComplete
-                        ? const Color(0xFFD1FAE5)
-                        : const Color(0xFFFEF3C7),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    step.isComplete ? 'Complete' : 'Pending',
-                    style: GoogleFonts.urbanist(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: step.isComplete
-                          ? const Color(0xFF065F46)
-                          : const Color(0xFFB45309),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+  Widget _card(BuildContext context, {required List<Widget> children}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: context.c.surface,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
-        ),
-      ],
+        ],
+      ),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children),
     );
   }
 
-  Widget _buildBanner(BuildContext context, bool isPending, bool isCompleted) {
-    if (isCompleted) {
-      return Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: context.c.primaryLight,
-          borderRadius: BorderRadius.circular(12),
+  Widget _cardTitle(BuildContext context, String text) => Text(
+        text,
+        style: GoogleFonts.urbanist(
+          fontSize: 16,
+          fontWeight: FontWeight.w700,
+          color: context.c.textPrimary,
         ),
-        child: Row(
-          children: [
-            const Icon(Icons.local_shipping_rounded,
-                color: AppColors.primary, size: 20),
-            const SizedBox(width: 10),
-            Expanded(
-              child: RichText(
-                text: TextSpan(
+      );
+
+  Widget _feeRow(BuildContext context, String label, String value,
+      {bool bold = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              label,
+              style: GoogleFonts.urbanist(
+                fontSize: 13,
+                fontWeight: bold ? FontWeight.w800 : FontWeight.w500,
+                color: bold ? context.c.textPrimary : context.c.textSecondary,
+              ),
+            ),
+          ),
+          Text(
+            value,
+            style: GoogleFonts.urbanist(
+              fontSize: 13,
+              fontWeight: bold ? FontWeight.w800 : FontWeight.w600,
+              color: context.c.textPrimary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeeBreakdownCard(BuildContext context, BookingModel b) {
+    final t = AppLocalizations.of(context);
+    final rows = <Widget>[];
+    if (b.feeLines.isNotEmpty) {
+      for (final line in b.feeLines) {
+        rows.add(_feeRow(context, line.label, Formatters.currency(line.amount)));
+      }
+    } else {
+      final subtotal = b.invoiceSubtotal;
+      if (subtotal != null) {
+        rows.add(_feeRow(context, t.orderSubtotal, Formatters.currency(subtotal)));
+      }
+      if ((b.deliveryFee ?? 0) > 0) {
+        rows.add(_feeRow(context, t.orderDeliveryFee, Formatters.currency(b.deliveryFee!)));
+      }
+      if ((b.platformFee ?? 0) > 0) {
+        rows.add(_feeRow(context, t.orderPlatformFee, Formatters.currency(b.platformFee!)));
+      }
+      if ((b.depositAmount ?? 0) > 0) {
+        rows.add(_feeRow(context, t.orderDeposit, Formatters.currency(b.depositAmount!)));
+      }
+    }
+    final total = b.invoiceTotal ?? b.finalAmount ?? b.quoteAmount;
+    if (rows.isEmpty && total == null) return const SizedBox.shrink();
+    return _card(context, children: [
+      _cardTitle(context, t.orderFeeBreakdown),
+      const SizedBox(height: 8),
+      ...rows,
+      if (total != null) ...[
+        Divider(color: context.c.border, height: 20),
+        _feeRow(context, t.orderTotal, Formatters.currency(total), bold: true),
+      ],
+    ]);
+  }
+
+  Widget _buildPaymentHistoryCard(BuildContext context, BookingModel b) {
+    final t = AppLocalizations.of(context);
+    return _card(context, children: [
+      _cardTitle(context, t.orderPaymentHistory),
+      const SizedBox(height: 4),
+      ...b.milestones.map((m) {
+        final paid = m.isPaid;
+        final sub = paid && m.paidAt != null
+            ? '${t.orderPaid} · ${Formatters.date(m.paidAt!)}'
+            : (m.dueAt != null
+                ? '${t.orderDue} · ${Formatters.date(m.dueAt!)}'
+                : t.orderPending);
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            children: [
+              Icon(
+                paid ? Icons.check_circle_rounded : Icons.schedule_rounded,
+                size: 20,
+                color: paid ? const Color(0xFF10B981) : context.c.textHint,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    TextSpan(
-                      text: 'Order Delivered: You have ',
+                    Text(
+                      m.label,
                       style: GoogleFonts.urbanist(
                         fontSize: 13,
+                        fontWeight: FontWeight.w600,
                         color: context.c.textPrimary,
                       ),
                     ),
-                    TextSpan(
-                      text: 'a 3 day',
+                    Text(
+                      sub,
                       style: GoogleFonts.urbanist(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primary,
-                      ),
-                    ),
-                    TextSpan(
-                      text: ' window for return/refund',
-                      style: GoogleFonts.urbanist(
-                        fontSize: 13,
-                        color: context.c.textPrimary,
+                        fontSize: 11,
+                        color: context.c.textHint,
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: context.c.primaryLight,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          const Icon(Icons.local_shipping_outlined,
-              color: AppColors.primary, size: 20),
-          const SizedBox(width: 10),
-          Expanded(
-            child: RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: 'Estimated delivery: ',
-                    style: GoogleFonts.urbanist(
-                      fontSize: 13,
-                      color: context.c.textPrimary,
-                    ),
-                  ),
-                  TextSpan(
-                    text: '3–5 business days',
-                    style: GoogleFonts.urbanist(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.primary,
-                    ),
-                  ),
-                  TextSpan(
-                    text: ' from order confirmation',
-                    style: GoogleFonts.urbanist(
-                      fontSize: 13,
-                      color: context.c.textPrimary,
-                    ),
-                  ),
-                ],
+              Text(
+                Formatters.currency(m.amount),
+                style: GoogleFonts.urbanist(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: context.c.textPrimary,
+                ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
-    );
+        );
+      }),
+    ]);
+  }
+
+  (String, Color, Color) _statusStyle(String status) {
+    final t = AppLocalizations.of(context);
+    switch (status) {
+      case 'completed':
+        return (t.statusDelivered, const Color(0xFFD1FAE5), const Color(0xFF065F46));
+      case 'confirmed':
+        return (
+          t.statusOrderConfirmed,
+          const Color(0xFFD1FAE5),
+          const Color(0xFF065F46)
+        );
+      case 'active':
+        return (
+          t.statusOutForDelivery,
+          const Color(0xFFEDE9FE),
+          AppColors.primary
+        );
+      case 'cancelled':
+        return (t.cancelledLabel, const Color(0xFFFFE4E6), const Color(0xFFEF4444));
+      default:
+        return (
+          t.statusOrderPlaced,
+          const Color(0xFFFEF3C7),
+          const Color(0xFFB45309)
+        );
+    }
   }
 
   Widget _buildBottomButton(
-      BuildContext context, bool isCompleted, bool isPending) {
+      BuildContext context, bool isCompleted, bool isCancelled) {
+    final t = AppLocalizations.of(context);
+    if (isCancelled) {
+      return const SizedBox.shrink();
+    }
     if (isCompleted) {
-      return _OutlineButton(
-        label: '↻ Re Order',
-        color: AppColors.primary,
-        onTap: () {},
-      );
-    }
-    if (isPending) {
       return _RedOutlineButton(
-        label: '⚠ Cancel Order',
-        onPressed: () => context.push(AppRoutes.cancelOrder),
+        label: t.requestRefundWarn,
+        onPressed: () => context.push(AppRoutes.requestRefund),
       );
     }
-    // delivered
     return _RedOutlineButton(
-      label: '⚠ Request Refund',
-      onPressed: () => context.push(AppRoutes.requestRefund),
+      label: t.cancelOrderWarn,
+      onPressed: () => context.push(AppRoutes.cancelOrder),
     );
   }
 
@@ -599,55 +656,4 @@ class _RedOutlineButton extends StatelessWidget {
       ),
     );
   }
-}
-
-class _OutlineButton extends StatelessWidget {
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _OutlineButton({
-    required this.label,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 52,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: color, width: 1.5),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: GoogleFonts.urbanist(
-              fontSize: 15,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _OrderTimelineStep {
-  final int number;
-  final String title;
-  final String subtitle;
-  final bool isComplete;
-
-  const _OrderTimelineStep({
-    required this.number,
-    required this.title,
-    required this.subtitle,
-    required this.isComplete,
-  });
 }

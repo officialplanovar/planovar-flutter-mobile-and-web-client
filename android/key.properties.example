@@ -1,0 +1,14 @@
+# Release signing for Android — copy to `key.properties` (git-ignored) and fill in.
+#
+# Create a keystore once (keep the .jks OUTSIDE the repo, back it up securely):
+#   keytool -genkey -v -keystore ~/planovar-client-upload.jks \
+#     -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+#
+# Then set the values below. Without key.properties the release build falls back
+# to the debug keystore and is NOT shippable to the Play Store.
+
+storePassword=changeme
+keyPassword=changeme
+keyAlias=upload
+# Absolute path to the keystore (or relative to the android/app directory).
+storeFile=/Users/you/planovar-client-upload.jks

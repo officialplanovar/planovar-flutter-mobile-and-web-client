@@ -18,6 +18,7 @@ import '../../../shared/models/quote_model.dart';
 import '../../../shared/widgets/chat_order_cards.dart';
 import '../../auth/bloc/auth_bloc.dart';
 import '../../auth/bloc/auth_state.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ChatScreen extends StatefulWidget {
   final String conversationId;
@@ -121,7 +122,7 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       await _orders.acceptQuote(quoteId);
       await _load();
-      _snack('Quote accepted — invoice created 🎉');
+      _snack(AppLocalizations.of(context).quoteAcceptedInvoiceCreated);
     } catch (e) {
       _snack(_err(e));
     }
@@ -131,7 +132,7 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       await _orders.declineQuote(quoteId);
       await _load();
-      _snack('Quote declined');
+      _snack(AppLocalizations.of(context).quoteDeclined);
     } catch (e) {
       _snack(_err(e));
     }
@@ -157,6 +158,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _showQuoteDetail(QuoteModel q) {
+    final loc = AppLocalizations.of(context);
     Widget row(String label, String value, {bool bold = false}) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 3),
           child: Row(children: [
@@ -199,27 +201,27 @@ class _ChatScreenState extends State<ChatScreen> {
                         borderRadius: BorderRadius.circular(2)),
                   ),
                 ),
-                Text(q.quoteNumber ?? 'Quote',
+                Text(q.quoteNumber ?? loc.quoteLabel,
                     style: GoogleFonts.urbanist(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
                         color: context.c.textPrimary)),
                 const SizedBox(height: 2),
                 Text(
-                  'Version ${q.version} · valid till ${q.validUntil.day}/${q.validUntil.month}/${q.validUntil.year}',
+                  loc.quoteVersionValid(q.version, '${q.validUntil.day}/${q.validUntil.month}/${q.validUntil.year}'),
                   style: GoogleFonts.urbanist(fontSize: 12.5, color: context.c.textSecondary),
                 ),
                 const SizedBox(height: 16),
-                Text('Line items',
+                Text(loc.lineItems,
                     style: GoogleFonts.urbanist(
                         fontSize: 13, fontWeight: FontWeight.w700, color: context.c.textSecondary)),
                 const SizedBox(height: 4),
                 ...q.lineItems.map((li) => row(li.label, _money(li.amount))),
                 const Divider(height: 20),
-                row('Total', _money(q.amount), bold: true),
+                row(loc.total, _money(q.amount), bold: true),
                 if (q.paymentTerms.isNotEmpty) ...[
                   const SizedBox(height: 14),
-                  Text('Payment terms',
+                  Text(loc.paymentTerms,
                       style: GoogleFonts.urbanist(
                           fontSize: 13, fontWeight: FontWeight.w700, color: context.c.textSecondary)),
                   const SizedBox(height: 4),
@@ -230,7 +232,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ],
                 if (((q.notes ?? q.description) ?? '').isNotEmpty) ...[
                   const SizedBox(height: 14),
-                  Text('Note from the vendor',
+                  Text(loc.noteFromVendor,
                       style: GoogleFonts.urbanist(
                           fontSize: 13, fontWeight: FontWeight.w700, color: context.c.textSecondary)),
                   const SizedBox(height: 4),
@@ -246,6 +248,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _showReviewSheet(String bookingId) {
+    final loc = AppLocalizations.of(context);
     var rating = 5;
     var submitting = false;
     final ctrl = TextEditingController();
@@ -274,7 +277,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         borderRadius: BorderRadius.circular(2)),
                   ),
                 ),
-                Text('Leave a review',
+                Text(loc.leaveAReview,
                     style: GoogleFonts.urbanist(
                         fontSize: 18, fontWeight: FontWeight.w800, color: context.c.textPrimary)),
                 const SizedBox(height: 12),
@@ -299,7 +302,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   maxLines: 3,
                   style: GoogleFonts.urbanist(color: context.c.textPrimary),
                   decoration: InputDecoration(
-                    hintText: 'Share your experience…',
+                    hintText: loc.shareYourExperience,
                     hintStyle: GoogleFonts.urbanist(color: context.c.textHint),
                     filled: true,
                     fillColor: context.c.background,
@@ -316,7 +319,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         : () async {
                             if (ctrl.text.trim().isEmpty) {
                               ScaffoldMessenger.of(ctx).showSnackBar(
-                                const SnackBar(content: Text('Add a short comment')),
+                                SnackBar(content: Text(loc.addShortComment)),
                               );
                               return;
                             }
@@ -326,7 +329,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   rating: rating, body: ctrl.text.trim());
                               if (ctx.mounted) Navigator.pop(ctx);
                               await _load();
-                              _snack('Review submitted ⭐');
+                              _snack(loc.reviewSubmittedStar);
                             } catch (e) {
                               setSheet(() => submitting = false);
                               ScaffoldMessenger.of(ctx).showSnackBar(
@@ -339,7 +342,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       minimumSize: const Size(double.infinity, 50),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: Text(submitting ? 'Submitting…' : 'Submit review'),
+                    child: Text(submitting ? loc.submitting : loc.submitReviewBtn),
                   ),
                 ),
               ],
@@ -364,22 +367,22 @@ class _ChatScreenState extends State<ChatScreen> {
     );
     if (!mounted) return;
     if (!launched) {
-      _snack('Could not open the payment page');
+      _snack(AppLocalizations.of(context).couldNotOpenPayment);
       return;
     }
+    final loc = AppLocalizations.of(context);
     final done = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Finish payment',
+        title: Text(loc.finishPayment,
             style: GoogleFonts.urbanist(fontWeight: FontWeight.w800)),
         content: Text(
-          'Tap "I\'ve paid" once you\'ve completed the ₦${checkout.chargeAmount.toStringAsFixed(0)} '
-          'payment (incl. ₦${checkout.feeAmount.toStringAsFixed(0)} transaction fee) on Paystack.',
+          loc.finishPaymentBody(checkout.chargeAmount.toStringAsFixed(0), checkout.feeAmount.toStringAsFixed(0)),
           style: GoogleFonts.urbanist(),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Not yet')),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text("I've paid")),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(loc.notYet)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(loc.ivePaid)),
         ],
       ),
     );
@@ -388,8 +391,8 @@ class _ChatScreenState extends State<ChatScreen> {
       final confirmed = await _orders.verifyPayment(checkout.reference);
       await _load();
       _snack(confirmed
-          ? 'Payment received 🎉'
-          : 'Payment is still processing — we\'ll update it shortly');
+          ? loc.paymentReceived
+          : loc.paymentStillProcessing);
     } catch (e) {
       _snack(_err(e));
     }
@@ -406,7 +409,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _openCall() {
-    final name = _conversation?.vendor?.businessName ?? 'Vendor';
+    final name = _conversation?.vendor?.businessName ?? AppLocalizations.of(context).vendorLabel;
     Navigator.of(context).push(MaterialPageRoute(
       builder: (_) => CallScreen(
         conversationId: widget.conversationId,
@@ -437,7 +440,7 @@ class _ChatScreenState extends State<ChatScreen> {
     final isToday = date.year == now.year &&
         date.month == now.month &&
         date.day == now.day;
-    final label = isToday ? 'Today' : '${date.day}/${date.month}/${date.year}';
+    final label = isToday ? AppLocalizations.of(context).today : '${date.day}/${date.month}/${date.year}';
     return Center(
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 10),
@@ -456,8 +459,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final vendor = _conversation?.vendor;
-    final name = vendor?.businessName ?? 'Chat';
+    final name = vendor?.businessName ?? loc.chatFallback;
     return Scaffold(
       backgroundColor: context.c.background,
       body: SafeArea(
@@ -469,7 +473,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ? const Center(child: CircularProgressIndicator())
                   : _messages.isEmpty
                       ? Center(
-                          child: Text('Say hello 👋',
+                          child: Text(loc.sayHello,
                               style: GoogleFonts.urbanist(color: context.c.textHint)),
                         )
                       : ListView.builder(
@@ -545,6 +549,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildMessage(MessageModel msg) {
+    final loc = AppLocalizations.of(context);
     final isMe = msg.senderId == _currentUserId;
 
     // ── Chat-order structured cards ──
@@ -571,15 +576,15 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     }
     if (msg.type == 'quote_accepted') {
-      return const ChatSystemBanner(
-          label: 'Quote accepted', color: Color(0xFF047857), bg: Color(0xFFF0FDF4));
+      return ChatSystemBanner(
+          label: loc.quoteAcceptedBanner, color: const Color(0xFF047857), bg: const Color(0xFFF0FDF4));
     }
     if (msg.type == 'quote_declined' ||
         msg.type == 'quote_expired' ||
         msg.type == 'invoice_declined' ||
         msg.type == 'order_declined') {
       return ChatSystemBanner(
-        label: msg.type == 'quote_expired' ? 'Quote expired' : 'Declined',
+        label: msg.type == 'quote_expired' ? loc.quoteExpired : loc.declinedBanner,
         color: const Color(0xFFDC2626),
         bg: const Color(0xFFFEF2F2),
         icon: Icons.cancel_rounded,
@@ -588,15 +593,15 @@ class _ChatScreenState extends State<ChatScreen> {
     if (msg.type == 'invoice_accepted' ||
         msg.type == 'order_accepted' ||
         msg.type == 'booking_confirmed') {
-      return const ChatSystemBanner(
-          label: 'Confirmed', color: Color(0xFF047857), bg: Color(0xFFF0FDF4));
+      return ChatSystemBanner(
+          label: loc.confirmedBanner, color: const Color(0xFF047857), bg: const Color(0xFFF0FDF4));
     }
     if (msg.type == 'milestone_paid' || msg.type == 'deposit_refunded') {
       final amt = msg.metadata['amount'];
       return ChatSystemBanner(
         label: msg.type == 'deposit_refunded'
-            ? (amt != null ? 'Deposit refunded · ₦$amt' : 'Deposit refunded')
-            : (amt != null ? 'Payment received · ₦$amt' : 'Payment received'),
+            ? (amt != null ? loc.depositRefundedAmount('$amt') : loc.depositRefunded)
+            : (amt != null ? loc.paymentReceivedAmount('$amt') : loc.paymentReceivedBanner),
         color: const Color(0xFF047857),
         bg: const Color(0xFFF0FDF4),
         icon: Icons.payments_rounded,
@@ -604,7 +609,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
     if (msg.type == 'timeline_update') {
       return _buildStatusChip(
-        label: msg.content ?? 'Order update',
+        label: msg.content ?? loc.orderUpdate,
         color: AppColors.primary,
         bg: context.c.primaryLight,
       );
@@ -618,7 +623,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (msg.type == 'review_submitted') {
       final r = msg.metadata['rating'];
       return ChatSystemBanner(
-        label: r != null ? 'Review submitted · $r★' : 'Review submitted ⭐',
+        label: r != null ? loc.reviewSubmittedRating('$r') : loc.reviewSubmittedStar,
         color: const Color(0xFFB45309),
         bg: const Color(0xFFFFFBEB),
         icon: Icons.star_rounded,
@@ -626,35 +631,35 @@ class _ChatScreenState extends State<ChatScreen> {
     }
 
     if (msg.type == 'payment_confirmed') {
-      return _buildPaymentConfirmed(msg.content ?? 'Payment confirmed');
+      return _buildPaymentConfirmed(msg.content ?? loc.paymentConfirmedFallback);
     }
 
     if (msg.type == 'payment_pending') {
-      return _buildPaymentPending(msg.content ?? 'Payment processing…');
+      return _buildPaymentPending(msg.content ?? loc.paymentProcessingFallback);
     }
 
     if (msg.type == 'booking_cancelled') {
-      return _buildBookingCancelled(msg.content ?? 'This booking has been cancelled.');
+      return _buildBookingCancelled(msg.content ?? loc.bookingCancelledFallback);
     }
 
     if (msg.type == 'dispute_raised') {
-      return _buildDisputeRaised(msg.content ?? 'A dispute has been raised.');
+      return _buildDisputeRaised(msg.content ?? loc.disputeRaisedFallback);
     }
 
     if (msg.type == 'review_requested') {
-      return _buildReviewRequested(msg.content ?? 'How did it go?');
+      return _buildReviewRequested(msg.content ?? loc.howDidItGo);
     }
 
     if (msg.type == 'review_submitted') {
       return _buildStatusChip(
-        label: 'Review submitted ⭐',
+        label: loc.reviewSubmittedStar,
         color: const Color(0xFF4CAF50),
         bg: const Color(0xFFF0FDF4),
       );
     }
 
     if (msg.type == 'refund_requested') {
-      return _buildRefundRequested(msg.content ?? 'Refund request submitted.');
+      return _buildRefundRequested(msg.content ?? loc.refundRequestedFallback);
     }
 
     return Padding(
@@ -739,6 +744,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildPaymentConfirmed(String content) {
+    final loc = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       padding: const EdgeInsets.all(16),
@@ -762,7 +768,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Payment Confirmed',
+                Text(loc.paymentConfirmedTitle,
                   style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700,
                     color: const Color(0xFF15803D))),
                 const SizedBox(height: 2),
@@ -777,6 +783,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildPaymentPending(String content) {
+    final loc = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       padding: const EdgeInsets.all(16),
@@ -800,7 +807,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Payment Processing',
+                Text(loc.paymentProcessingTitle,
                   style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700,
                     color: const Color(0xFFD97706))),
                 const SizedBox(height: 2),
@@ -815,6 +822,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildBookingCancelled(String content) {
+    final loc = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       padding: const EdgeInsets.all(16),
@@ -838,7 +846,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Booking Cancelled',
+                Text(loc.bookingCancelledTitle,
                   style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700,
                     color: const Color(0xFFEF4444))),
                 const SizedBox(height: 2),
@@ -853,6 +861,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildDisputeRaised(String content) {
+    final loc = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       padding: const EdgeInsets.all(16),
@@ -875,7 +884,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: const Icon(Icons.gavel_rounded, color: Color(0xFFD97706), size: 20),
               ),
               const SizedBox(width: 10),
-              Text('Dispute Raised',
+              Text(loc.disputeRaisedTitle,
                 style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700,
                   color: const Color(0xFFD97706))),
             ],
@@ -884,7 +893,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Text(content,
             style: GoogleFonts.urbanist(fontSize: 13, color: const Color(0xFF374151))),
           const SizedBox(height: 8),
-          Text('Our team will review this dispute within 24 hours.',
+          Text(loc.disputeReviewNote,
             style: GoogleFonts.urbanist(fontSize: 12, color: context.c.textHint)),
         ],
       ),
@@ -892,6 +901,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildReviewRequested(String content) {
+    final loc = AppLocalizations.of(context);
     final vendor = _conversation?.vendor;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -915,7 +925,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          Text('How was your experience?',
+          Text(loc.howWasExperience,
             style: GoogleFonts.urbanist(fontSize: 16, fontWeight: FontWeight.w800,
               color: context.c.textPrimary),
             textAlign: TextAlign.center),
@@ -939,7 +949,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
-                child: Text('Leave a Review',
+                child: Text(loc.leaveReviewPlain,
                   style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w600,
                     color: Colors.white)),
               ),
@@ -951,6 +961,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildRefundRequested(String content) {
+    final loc = AppLocalizations.of(context);
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       padding: const EdgeInsets.all(16),
@@ -974,7 +985,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   color: Color(0xFFD97706), size: 20),
               ),
               const SizedBox(width: 10),
-              Text('Refund Requested',
+              Text(loc.refundRequestedTitle,
                 style: GoogleFonts.urbanist(fontSize: 14, fontWeight: FontWeight.w700,
                   color: const Color(0xFFD97706))),
             ],
@@ -983,7 +994,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Text(content,
             style: GoogleFonts.urbanist(fontSize: 13, color: const Color(0xFF374151))),
           const SizedBox(height: 8),
-          Text('Refund will be processed within 5–7 business days.',
+          Text(loc.refundProcessNote,
             style: GoogleFonts.urbanist(fontSize: 12, color: context.c.textHint)),
         ],
       ),
@@ -991,6 +1002,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildInputBar() {
+    final loc = AppLocalizations.of(context);
     return Container(
       color: context.c.surface,
       padding: EdgeInsets.only(
@@ -1031,7 +1043,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   maxLines: null,
                   style: GoogleFonts.urbanist(fontSize: 14),
                   decoration: InputDecoration(
-                    hintText: 'Type a message',
+                    hintText: loc.typeAMessage,
                     hintStyle: GoogleFonts.urbanist(
                       fontSize: 14,
                       color: Colors.grey,

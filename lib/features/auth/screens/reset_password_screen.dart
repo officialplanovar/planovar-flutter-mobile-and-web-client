@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/auth_step_bar.dart';
 import '../../../shared/widgets/glossy_button.dart';
 import '../bloc/auth_bloc.dart';
@@ -64,12 +65,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthUnauthenticated) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Password reset successfully. Please log in.')),
+            SnackBar(
+                content: Text(t.passwordResetSuccess)),
           );
           context.go(AppRoutes.login);
         } else if (state is AuthError) {
@@ -95,7 +97,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       const SizedBox(height: 40),
                       Center(
                         child: Text(
-                          'Reset your Password',
+                          t.resetYourPassword,
                           textAlign: TextAlign.center,
                           style: GoogleFonts.urbanist(
                             fontSize: 26,
@@ -105,13 +107,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         ),
                       ),
                       const SizedBox(height: 36),
-                      _FieldLabel('New Password'),
+                      _FieldLabel(t.newPassword),
                       TextFormField(
                         controller: _passwordCtrl,
                         obscureText: _obscure1,
                         onChanged: (_) => setState(() {}),
                         decoration: InputDecoration(
-                          hintText: 'Enter Password',
+                          hintText: t.passwordHint,
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscure1
@@ -126,13 +128,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      _FieldLabel('Confirm Password'),
+                      _FieldLabel(t.confirmPassword),
                       TextFormField(
                         controller: _confirmCtrl,
                         obscureText: _obscure2,
                         onChanged: (_) => setState(() {}),
                         decoration: InputDecoration(
-                          hintText: 'Confirm Password',
+                          hintText: t.confirmPassword,
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscure2
@@ -146,7 +148,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                           ),
                           errorText:
                               _confirmCtrl.text.isNotEmpty && !_passwordsMatch
-                                  ? 'Passwords do not match'
+                                  ? t.passwordsDoNotMatch
                                   : null,
                         ),
                       ),
@@ -156,25 +158,24 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                         const SizedBox(height: 20),
                         _CriteriaRow(
                           met: _hasCapital,
-                          label: 'Should have a Capital Letter',
+                          label: t.criteriaCapital,
                         ),
                         const SizedBox(height: 10),
                         _CriteriaRow(
                           met: _hasNumber,
-                          label: 'Should have a Number e.g 1,2,4,etc',
+                          label: t.criteriaNumber,
                         ),
                         const SizedBox(height: 10),
                         _CriteriaRow(
                           met: _hasSpecial,
-                          label:
-                              'Should have a Special Character e.g @,\$,%,etc',
+                          label: t.criteriaSpecial,
                         ),
                       ],
                       const SizedBox(height: 36),
                       BlocBuilder<AuthBloc, AuthState>(
                         builder: (context, state) {
                           return GlossyButton(
-                            label: 'Reset Password',
+                            label: t.resetPassword,
                             onPressed: (_passwordsMatch &&
                                     _strengthLevel >= 3 &&
                                     state is! AuthLoading)

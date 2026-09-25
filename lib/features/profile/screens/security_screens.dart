@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../../../l10n/app_localizations.dart';
 
 Widget _buildLavenderHeader(
   BuildContext context, {
@@ -115,14 +116,15 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: context.c.background,
       body: Column(
         children: [
           _buildLavenderHeader(
             context,
-            title: 'Change Password',
-            subtitle: 'Create a new strong password',
+            title: t.changePassword,
+            subtitle: t.changePasswordSubtitle,
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -131,7 +133,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'New Password',
+                    t.newPassword,
                     style: GoogleFonts.urbanist(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -155,7 +157,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             style: GoogleFonts.urbanist(fontSize: 15),
                             decoration: InputDecoration(
                               border: InputBorder.none,
-                              hintText: 'Enter new password',
+                              hintText: t.enterNewPassword,
                               hintStyle: GoogleFonts.urbanist(
                                 color: context.c.textHint,
                                 fontSize: 15,
@@ -175,7 +177,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    'Confirm Password',
+                    t.confirmPassword,
                     style: GoogleFonts.urbanist(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
@@ -198,7 +200,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             style: GoogleFonts.urbanist(fontSize: 15),
                             decoration: InputDecoration(
                               border: InputBorder.none,
-                              hintText: 'Confirm new password',
+                              hintText: t.confirmNewPassword,
                               hintStyle: GoogleFonts.urbanist(
                                 color: context.c.textHint,
                                 fontSize: 15,
@@ -236,21 +238,21 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   // Requirements
                   _RequirementRow(
                     met: _hasCapital(),
-                    label: 'Has capital letter',
+                    label: t.hasCapital,
                   ),
                   const SizedBox(height: 8),
                   _RequirementRow(
                     met: _hasNumber(),
-                    label: 'Has number',
+                    label: t.hasNumber,
                   ),
                   const SizedBox(height: 8),
                   _RequirementRow(
                     met: _hasSpecial(),
-                    label: 'Has special character',
+                    label: t.hasSpecial,
                   ),
                   const SizedBox(height: 32),
                   GlossyButton(
-                    label: 'Save Password',
+                    label: t.savePassword,
                     onPressed: () {},
                     height: 52,
                     radius: 14,
@@ -307,14 +309,15 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: context.c.background,
       body: Column(
         children: [
           _buildLavenderHeader(
             context,
-            title: 'Two factor authentication',
-            subtitle: 'add an extra layer of security',
+            title: t.twoFactorAuth,
+            subtitle: t.twoFactorSubtitle,
           ),
           Expanded(
             child: Padding(
@@ -323,23 +326,21 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _TwoFactorToggle(
-                    title: 'Email Address',
-                    subtitle:
-                        'Authentication code will be sent to your email for verification',
+                    title: t.emailAddress,
+                    subtitle: t.twoFactorEmailDesc,
                     value: _emailEnabled,
                     onChanged: (v) => setState(() => _emailEnabled = v),
                   ),
                   const SizedBox(height: 24),
                   _TwoFactorToggle(
-                    title: 'Phone Number',
-                    subtitle:
-                        'Authentication code will be sent to your phone for verification',
+                    title: t.phoneNumber,
+                    subtitle: t.twoFactorPhoneDesc,
                     value: _phoneEnabled,
                     onChanged: (v) => setState(() => _phoneEnabled = v),
                   ),
                   const Spacer(),
                   GlossyButton(
-                    label: 'Save Preferences',
+                    label: t.savePreferences,
                     onPressed: () {},
                     height: 52,
                     radius: 14,
@@ -432,6 +433,7 @@ class SupportChatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final configured = _kCrispWebsiteId.isNotEmpty;
     return Scaffold(
       backgroundColor: context.c.surface,
@@ -444,7 +446,7 @@ class SupportChatScreen extends StatelessWidget {
               color: context.c.textPrimary, size: 20),
           onPressed: () => context.pop(),
         ),
-        title: Text('Support',
+        title: Text(t.support,
             style: GoogleFonts.urbanist(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -464,7 +466,7 @@ class SupportChatScreen extends StatelessWidget {
                   size: 56,
                   color: AppColors.primary),
               const SizedBox(height: 16),
-              Text(configured ? 'Chat with our team' : 'Support is being set up',
+              Text(configured ? t.chatWithTeam : t.supportBeingSetup,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.urbanist(
                       fontSize: 18,
@@ -473,9 +475,8 @@ class SupportChatScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                   configured
-                      ? 'Open our live chat to talk to a support agent.'
-                      : "Our live chat isn't connected yet — email us and we'll "
-                          "get right back to you.",
+                      ? t.openLiveChatDesc
+                      : t.supportEmailDesc,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.urbanist(
                       fontSize: 14,
@@ -483,7 +484,7 @@ class SupportChatScreen extends StatelessWidget {
                       height: 1.5)),
               const SizedBox(height: 28),
               GlossyButton(
-                label: configured ? 'Open live chat' : 'Email support',
+                label: configured ? t.openLiveChat : t.emailSupport,
                 onPressed: _open,
               ),
             ],

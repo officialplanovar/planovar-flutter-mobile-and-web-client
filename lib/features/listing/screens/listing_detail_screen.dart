@@ -11,6 +11,7 @@ import '../../../shared/widgets/add_to_event_sheet.dart';
 import '../../../shared/widgets/glass_circle_button.dart';
 import '../../../shared/widgets/glossy_button.dart';
 import '../../../shared/widgets/request_order_sheet.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ListingDetailScreen extends StatefulWidget {
   final String listingId;
@@ -115,20 +116,21 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
   bool get _isProduct => listing.pricingType == 'fixed';
 
   List<String> _policyTerms(String policy) {
+    final loc = AppLocalizations.of(context);
     switch (policy) {
       case 'Flexible':
         return [
-          'Full refund if cancelled up to 24 hours before the event.',
-          'A small processing fee may apply.',
+          loc.policyFlexible1,
+          loc.policyFlexible2,
         ];
       case 'Strict':
-        return ['No refund once the booking is confirmed.'];
+        return [loc.policyStrict1];
       case 'Moderate':
       default:
         return [
-          '100% refund if cancelled 7+ days before the event.',
-          '50% refund if cancelled 3–6 days before the event.',
-          'No refund within 48 hours of the event.',
+          loc.policyModerate1,
+          loc.policyModerate2,
+          loc.policyModerate3,
         ];
     }
   }
@@ -142,9 +144,9 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
           : '${f(prices.first)} - ${f(prices.last)}';
     }
     if (listing.basePrice != null && listing.basePrice! > 0) {
-      return 'From ₦ ${_fmt(listing.basePrice!)}';
+      return AppLocalizations.of(context).fromPrice(_fmt(listing.basePrice!));
     }
-    return 'Quote on request';
+    return AppLocalizations.of(context).quoteOnRequest;
   }
 
   void _showAddToEventSheet() {
@@ -165,6 +167,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     if (_loadFailed) {
       return Scaffold(
         backgroundColor: context.c.surface,
@@ -175,7 +178,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
         ),
         body: Center(
           child: Text(
-            'Listing not found',
+            loc.listingNotFound,
             style: GoogleFonts.urbanist(color: context.c.textSecondary),
           ),
         ),
@@ -424,7 +427,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                             ],
                             const SizedBox(height: 16),
                             Text(
-                              'Description',
+                              loc.description,
                               style: GoogleFonts.urbanist(
                                 fontSize: 13,
                                 color: context.c.textHint,
@@ -470,7 +473,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                   }),
                                   const SizedBox(width: 6),
                                   Text(
-                                    '(${listing.reviewCount}) Reviews',
+                                    loc.reviewsCountParen(listing.reviewCount),
                                     style: GoogleFonts.urbanist(
                                       fontSize: 13,
                                       color: context.c.textSecondary,
@@ -512,8 +515,8 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                     const SizedBox(height: 4),
                                     Text(
                                       _descExpanded
-                                          ? 'Read less'
-                                          : 'Read more',
+                                          ? loc.readLess
+                                          : loc.readMore,
                                       style: GoogleFonts.urbanist(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w600,
@@ -536,7 +539,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                         child: Row(
                           children: [
                             Text(
-                              'Quantity',
+                              loc.quantity,
                               style: GoogleFonts.urbanist(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w700,
@@ -587,7 +590,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
-                          'Sizes',
+                          loc.sizes,
                           style: GoogleFonts.urbanist(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
@@ -644,7 +647,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
-                          'Color',
+                          loc.colorLabel,
                           style: GoogleFonts.urbanist(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
@@ -708,7 +711,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                               Row(
                                 children: [
                                   Text(
-                                    'Cancellation Policy:',
+                                    loc.cancellationPolicy,
                                     style: GoogleFonts.urbanist(
                                       fontSize: 13,
                                       color: context.c.textSecondary,
@@ -752,7 +755,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        '${listing.cancellationPolicy!} Cancellation Policy',
+                                        loc.policyTitle(listing.cancellationPolicy!),
                                         style: GoogleFonts.urbanist(
                                           fontSize: 13,
                                           fontWeight: FontWeight.w700,
@@ -773,7 +776,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                               Row(
                                 children: [
                                   Text(
-                                    'Service Duration:',
+                                    loc.serviceDuration,
                                     style: GoogleFonts.urbanist(
                                       fontSize: 13,
                                       color: context.c.textSecondary,
@@ -802,7 +805,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
-                          'Vendor Details',
+                          loc.vendorDetails,
                           style: GoogleFonts.urbanist(
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
@@ -890,7 +893,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                                     size: 14),
                                                 const SizedBox(width: 3),
                                                 Text(
-                                                  'Verified',
+                                                  loc.verified,
                                                   style: GoogleFonts.urbanist(
                                                     fontSize: 12,
                                                     fontWeight:
@@ -949,7 +952,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                             size: 16),
                                         const SizedBox(width: 8),
                                         Text(
-                                          'Message Vendor',
+                                          loc.messageVendorPlain,
                                           style: GoogleFonts.urbanist(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600,
@@ -990,10 +993,10 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                     children: [
                       GlossyButton(
                         label: listing.isRentable
-                            ? 'Rent for your Event'
+                            ? loc.rentForYourEvent
                             : _isProduct
-                                ? '+ Add to Event'
-                                : 'Add to Event',
+                                ? loc.addToEventPlusIcon
+                                : loc.addToEvent,
                         onPressed: _showAddToEventSheet,
                       ),
                       if (_isProduct || listing.isRentable) ...[
@@ -1014,7 +1017,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
                                   borderRadius: BorderRadius.circular(14)),
                             ),
                             child: Text(
-                              listing.isRentable ? 'Rent now' : 'Order now',
+                              listing.isRentable ? loc.rentNow : loc.orderNow,
                               style: GoogleFonts.urbanist(
                                   fontSize: 15, fontWeight: FontWeight.w700),
                             ),

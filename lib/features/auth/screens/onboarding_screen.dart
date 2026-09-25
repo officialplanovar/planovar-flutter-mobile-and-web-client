@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../shared/widgets/glossy_button.dart';
 
 // ─── Slide data ───────────────────────────────────────────────────────────────
@@ -26,28 +27,27 @@ class _Slide {
   final Widget? belowDotsWidget; // widget shown between dots and title
 }
 
-final _slides = [
+const _slideCount = 3;
+
+List<_Slide> _buildSlides(AppLocalizations t) => [
   _Slide(
     assetPath: 'assets/images/onboarding_1.png',
-    titleBlack: 'Tired of chasing endless',
-    titlePurple: 'referrals?',
-    body:
-        'Planning an event shouldn\'t feel like a second job. Stop the fragmentation and discover quality vendors in seconds.',
+    titleBlack: t.onboard1TitleBlack,
+    titlePurple: t.onboard1TitlePurple,
+    body: t.onboard1Body,
   ),
   _Slide(
     assetPath: 'assets/images/onboarding_2.png',
-    titleBlack: 'The finest talent, at your',
-    titlePurple: 'fingertips.',
-    body:
-        'Access our curated network of top-tier caterers, decorators, and photographers. Verified quality, every time.'
+    titleBlack: t.onboard2TitleBlack,
+    titlePurple: t.onboard2TitlePurple,
+    body: t.onboard2Body,
     // overlay: const _VendorCardOverlay(),
   ),
   _Slide(
     assetPath: 'assets/images/onboarding_3.png',
-    titleBlack: 'Join the community of pro',
-    titlePurple: 'planners.',
-    body:
-        'Don\'t miss out on exclusive vendor rates. Join over 50,000 users hosting unforgettable moments.',
+    titleBlack: t.onboard3TitleBlack,
+    titlePurple: t.onboard3TitlePurple,
+    body: t.onboard3Body,
     // overlay: const _EventsPlannedBadge(),
     belowDotsWidget: const _CommunityAvatars(),
   ),
@@ -73,7 +73,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _next() async {
-    if (_current < _slides.length - 1) {
+    if (_current < _slideCount - 1) {
       debugPrint('next');
       _controller.nextPage(
         duration: const Duration(milliseconds: 380),
@@ -95,6 +95,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final slides = _buildSlides(t);
     return Scaffold(
       backgroundColor: context.c.surface,
       body: SafeArea(
@@ -109,8 +111,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: PageView.builder(
                 controller: _controller,
                 onPageChanged: (i) => setState(() => _current = i),
-                itemCount: _slides.length,
-                itemBuilder: (_, i) => _ImageCard(slide: _slides[i]),
+                itemCount: slides.length,
+                itemBuilder: (_, i) => _ImageCard(slide: slides[i]),
               ),
             ),
 
@@ -119,7 +121,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             // ── Dot indicator ──────────────────────────────────────────────
             SmoothPageIndicator(
               controller: _controller,
-              count: _slides.length,
+              count: slides.length,
               effect: const ExpandingDotsEffect(
                 dotHeight: 8,
                 dotWidth: 8,
@@ -133,11 +135,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             // ── Optional widget between dots and title (slide 3 avatars) ──
             AnimatedSwitcher(
               duration: const Duration(milliseconds: 300),
-              child: _slides[_current].belowDotsWidget != null
+              child: slides[_current].belowDotsWidget != null
                   ? Padding(
                       key: ValueKey('below_$_current'),
                       padding: const EdgeInsets.only(top: 16),
-                      child: _slides[_current].belowDotsWidget,
+                      child: slides[_current].belowDotsWidget,
                     )
                   : const SizedBox(key: ValueKey('none'), height: 0),
             ),
@@ -153,9 +155,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   duration: const Duration(milliseconds: 300),
                   child: _TitleText(
                     key: ValueKey(_current),
-                    blackPart: _slides[_current].titleBlack,
-                    purplePart: _slides[_current].titlePurple,
-                    body: _slides[_current].body,
+                    blackPart: slides[_current].titleBlack,
+                    purplePart: slides[_current].titlePurple,
+                    body: slides[_current].body,
                   ),
                 ),
               ),
@@ -165,7 +167,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Padding(
               padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
               child: GlossyButton(
-                label: _current == _slides.length - 1 ? 'Get Started' : 'Next',
+                label: _current == slides.length - 1 ? t.getStarted : t.next,
                 onPressed: _next,
               ),
             ),

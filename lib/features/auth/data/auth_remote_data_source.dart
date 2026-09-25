@@ -49,7 +49,8 @@ class AuthRemoteDataSource {
     // the callback fails with state_mismatch. /oauth/start redirects to Google,
     // and after consent the token relay returns us to `redirect` with a bearer
     // token: the web app origin, or the app's deep link on native.
-    final appTarget = kIsWeb ? Uri.base.origin : 'planovar://auth';
+    final appTarget =
+        kIsWeb ? Uri.base.origin : '${AppConstants.oauthScheme}://auth';
     final startUrl =
         '${AppConstants.apiBaseUrl}/oauth/start?intent=client&redirect=${Uri.encodeComponent(appTarget)}';
     await launchUrl(
@@ -112,6 +113,14 @@ class AuthRemoteDataSource {
     ensureOk(res);
   }
 
+  /// Permanently delete (anonymize) the account server-side, then clear the
+  /// local session so the app returns to a signed-out state.
+  Future<void> deleteAccount() async {
+    final res = await _dio.delete('/users/me');
+    ensureOk(res);
+    await _api.tokenStore.clear();
+  }
+
   Future<void> signOut() async {
     try {
       await _dio.post('/api/auth/sign-out');
@@ -125,6 +134,18 @@ class AuthRemoteDataSource {
     final res = await _dio.get('/users/me');
     ensureOk(res);
     return _asMap(res.data);
+  }
+
+  /// Current notification preferences (free-form JSON stored on the user).
+  Future<Map<String, dynamic>> getNotificationPrefs() async {
+    final data = await getMe();
+    final prefs = data['notificationPrefs'];
+    return prefs is Map ? Map<String, dynamic>.from(prefs) : <String, dynamic>{};
+  }
+
+  Future<void> updateNotificationPrefs(Map<String, dynamic> prefs) async {
+    final res = await _dio.patch('/users/me/notification-prefs', data: prefs);
+    ensureOk(res);
   }
 
   Future<Map<String, dynamic>> updateProfile(Map<String, dynamic> changes) async {

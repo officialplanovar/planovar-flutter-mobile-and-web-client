@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../../core/mock/mock_data.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../auth/data/auth_repository.dart';
 import '../../../core/theme/theme_cubit.dart';
+import '../../../l10n/app_localizations.dart';
 
 // ─── Shared header builder ────────────────────────────────────────────────────
 
@@ -117,6 +118,7 @@ class ThemeSettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeCubit, ThemeMode>(
       builder: (context, current) {
+        final t = AppLocalizations.of(context);
         final cubit = context.read<ThemeCubit>();
         return Scaffold(
           backgroundColor: context.c.background,
@@ -124,8 +126,8 @@ class ThemeSettingsScreen extends StatelessWidget {
             children: [
               _buildLavenderHeader(
                 context,
-                title: 'Theme',
-                subtitle: 'Select your preferred theme appearance',
+                title: t.theme,
+                subtitle: t.themeScreenSubtitle,
               ),
               Expanded(
                 child: SingleChildScrollView(
@@ -138,14 +140,14 @@ class ThemeSettingsScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           _ThemePreviewBox(
-                            label: 'Light',
+                            label: t.lightLabel,
                             isDark: false,
                             selected: current == ThemeMode.light,
                             onTap: cubit.setLight,
                           ),
                           const SizedBox(width: 20),
                           _ThemePreviewBox(
-                            label: 'Dark',
+                            label: t.darkLabel,
                             isDark: true,
                             selected: current == ThemeMode.dark,
                             onTap: cubit.setDark,
@@ -174,7 +176,7 @@ class ThemeSettingsScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'System',
+                                    t.systemLabel,
                                     style: GoogleFonts.urbanist(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -183,7 +185,7 @@ class ThemeSettingsScreen extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 2),
                                   Text(
-                                    'Use your default system preference',
+                                    t.systemSubtitle,
                                     style: GoogleFonts.urbanist(
                                       fontSize: 13,
                                       color: context.c.textHint,
@@ -340,19 +342,57 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   bool _quoteInvoice = false;
   bool _vendorMatch = false;
 
-  final _channels = ['None', 'In app', 'Email', 'Both'];
   final _channelKeys = ['none', 'inapp', 'email', 'both'];
 
   @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final p = await AuthRepository().getNotificationPrefs();
+      if (!mounted) return;
+      setState(() {
+        _channel = p['channel'] as String? ?? _channel;
+        _allMessages = p['allMessages'] as bool? ?? _allMessages;
+        _orderDelivery = p['orderDelivery'] as bool? ?? _orderDelivery;
+        _eventTimeline = p['eventTimeline'] as bool? ?? _eventTimeline;
+        _paymentAlerts = p['paymentAlerts'] as bool? ?? _paymentAlerts;
+        _quoteInvoice = p['quoteInvoice'] as bool? ?? _quoteInvoice;
+        _vendorMatch = p['vendorMatch'] as bool? ?? _vendorMatch;
+      });
+    } catch (_) {
+      // Keep defaults if prefs can't be loaded.
+    }
+  }
+
+  /// Persist current prefs (fire-and-forget; UI already updated optimistically).
+  void _save() {
+    AuthRepository().updateNotificationPrefs({
+      'channel': _channel,
+      'allMessages': _allMessages,
+      'orderDelivery': _orderDelivery,
+      'eventTimeline': _eventTimeline,
+      'paymentAlerts': _paymentAlerts,
+      'quoteInvoice': _quoteInvoice,
+      'vendorMatch': _vendorMatch,
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final channels = [t.channelNone, t.channelInApp, t.channelEmail, t.channelBoth];
     return Scaffold(
       backgroundColor: context.c.background,
       body: Column(
         children: [
           _buildLavenderHeader(
             context,
-            title: 'Notifications',
-            subtitle: 'Manage when you\'ll receive notifications',
+            title: t.notificationsTitle,
+            subtitle: t.notifSettingsSubtitle,
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -361,7 +401,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'All notifications',
+                    t.allNotifications,
                     style: GoogleFonts.urbanist(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -370,7 +410,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Choose where you want to receive notifications',
+                    t.notifChannelDesc,
                     style: GoogleFonts.urbanist(
                       fontSize: 13,
                       color: context.c.textHint,
@@ -386,11 +426,11 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                       border: Border.all(color: context.c.border),
                     ),
                     child: Row(
-                      children: List.generate(_channels.length, (i) {
+                      children: List.generate(channels.length, (i) {
                         final isActive = _channel == _channelKeys[i];
                         return Expanded(
                           child: GestureDetector(
-                            onTap: () => setState(() => _channel = _channelKeys[i]),
+                            onTap: () { setState(() => _channel = _channelKeys[i]); _save(); },
                             child: Container(
                               margin: const EdgeInsets.all(4),
                               decoration: BoxDecoration(
@@ -399,7 +439,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                               ),
                               child: Center(
                                 child: Text(
-                                  _channels[i],
+                                  channels[i],
                                   style: GoogleFonts.urbanist(
                                     fontSize: 12,
                                     fontWeight: isActive ? FontWeight.bold : FontWeight.w500,
@@ -430,45 +470,45 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                     child: Column(
                       children: [
                         _NotifToggle(
-                          title: 'All messages',
-                          subtitle: 'someone replies your message',
+                          title: t.notifAllMessages,
+                          subtitle: t.notifAllMessagesSub,
                           value: _allMessages,
-                          onChanged: (v) => setState(() => _allMessages = v),
+                          onChanged: (v) { setState(() => _allMessages = v); _save(); },
                         ),
                         Divider(height: 1, thickness: 1, color: context.c.divider),
                         _NotifToggle(
-                          title: 'Order/Delivery Timeline',
-                          subtitle: 'get notified when there\'s a new delivery status',
+                          title: t.notifOrderDelivery,
+                          subtitle: t.notifOrderDeliverySub,
                           value: _orderDelivery,
-                          onChanged: (v) => setState(() => _orderDelivery = v),
+                          onChanged: (v) { setState(() => _orderDelivery = v); _save(); },
                         ),
                         Divider(height: 1, thickness: 1, color: context.c.divider),
                         _NotifToggle(
-                          title: 'Event Timeline',
-                          subtitle: 'get notified when there\'s a new event timeline',
+                          title: t.notifEventTimeline,
+                          subtitle: t.notifEventTimelineSub,
                           value: _eventTimeline,
-                          onChanged: (v) => setState(() => _eventTimeline = v),
+                          onChanged: (v) { setState(() => _eventTimeline = v); _save(); },
                         ),
                         Divider(height: 1, thickness: 1, color: context.c.divider),
                         _NotifToggle(
-                          title: 'Payment alerts',
-                          subtitle: 'get notified when a payment is successful',
+                          title: t.notifPayment,
+                          subtitle: t.notifPaymentSub,
                           value: _paymentAlerts,
-                          onChanged: (v) => setState(() => _paymentAlerts = v),
+                          onChanged: (v) { setState(() => _paymentAlerts = v); _save(); },
                         ),
                         Divider(height: 1, thickness: 1, color: context.c.divider),
                         _NotifToggle(
-                          title: 'Quote / Invoice alerts',
-                          subtitle: 'get notified when you get a quote',
+                          title: t.notifQuote,
+                          subtitle: t.notifQuoteSub,
                           value: _quoteInvoice,
-                          onChanged: (v) => setState(() => _quoteInvoice = v),
+                          onChanged: (v) { setState(() => _quoteInvoice = v); _save(); },
                         ),
                         Divider(height: 1, thickness: 1, color: context.c.divider),
                         _NotifToggle(
-                          title: 'Vendor Match',
-                          subtitle: 'get alerts for recommended vendors',
+                          title: t.notifVendorMatch,
+                          subtitle: t.notifVendorMatchSub,
                           value: _vendorMatch,
-                          onChanged: (v) => setState(() => _vendorMatch = v),
+                          onChanged: (v) { setState(() => _vendorMatch = v); _save(); },
                         ),
                       ],
                     ),
@@ -543,14 +583,15 @@ class PrivacyScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: context.c.background,
       body: Column(
         children: [
           _buildLavenderHeader(
             context,
-            title: 'Privacy and Security',
-            subtitle: 'manage your password and 2 factor authentications',
+            title: t.privacySecurity,
+            subtitle: t.privacyScreenSubtitle,
           ),
           Expanded(
             child: Padding(
@@ -571,14 +612,14 @@ class PrivacyScreen extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     _PrivacyRow(
-                      title: 'Change your password',
-                      subtitle: 'Update your login credentials',
+                      title: t.changeYourPassword,
+                      subtitle: t.changePasswordRowSub,
                       onTap: () => context.push(AppRoutes.changePassword),
                     ),
                     Divider(height: 1, thickness: 1, color: context.c.divider),
                     _PrivacyRow(
-                      title: '2 factor authentication',
-                      subtitle: 'add extra layer of security',
+                      title: t.twoFactorRow,
+                      subtitle: t.twoFactorRowSub,
                       onTap: () => context.push(AppRoutes.twoFactor),
                     ),
                   ],
@@ -647,43 +688,23 @@ class _PrivacyRow extends StatelessWidget {
 class HelpScreen extends StatelessWidget {
   const HelpScreen({super.key});
 
-  static const _helpItems = [
-    {
-      'icon': Icons.email_rounded,
-      'title': 'Email Support',
-      'subtitle': 'contactplanovar@gmail.com',
-      'route': '',
-    },
-    {
-      'icon': Icons.chat_rounded,
-      'title': 'Live Chat',
-      'subtitle': 'chat with our support team available Mon - Fri 8am - 5pm',
-      'route': AppRoutes.supportChat,
-    },
-    {
-      'icon': Icons.phone_rounded,
-      'title': 'Phone Support',
-      'subtitle': '+2348488383\nMon - Fri 8am - 5pm',
-      'route': '',
-    },
-    {
-      'icon': Icons.help_outline_rounded,
-      'title': 'FAQ',
-      'subtitle': 'Get answers to your burning questions',
-      'route': AppRoutes.faq,
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
+    final helpItems = <Map<String, dynamic>>[
+      {'icon': Icons.email_rounded, 'title': t.emailSupportTitle, 'subtitle': 'contactplanovar@gmail.com', 'route': ''},
+      {'icon': Icons.chat_rounded, 'title': t.liveChat, 'subtitle': t.liveChatSub, 'route': AppRoutes.supportChat},
+      {'icon': Icons.phone_rounded, 'title': t.phoneSupport, 'subtitle': '+2348488383\nMon - Fri 8am - 5pm', 'route': ''},
+      {'icon': Icons.help_outline_rounded, 'title': t.faqTitle, 'subtitle': t.faqSub, 'route': AppRoutes.faq},
+    ];
     return Scaffold(
       backgroundColor: context.c.background,
       body: Column(
         children: [
           _buildLavenderHeader(
             context,
-            title: 'Help & Support',
-            subtitle: 'Get real time help for all your inquires',
+            title: t.helpAndSupport,
+            subtitle: t.helpScreenSubtitle,
             centerTitle: true,
           ),
           Expanded(
@@ -712,7 +733,7 @@ class HelpScreen extends StatelessWidget {
                           child: TextField(
                             style: GoogleFonts.urbanist(fontSize: 14),
                             decoration: InputDecoration(
-                              hintText: 'Search for help',
+                              hintText: t.searchForHelp,
                               hintStyle: GoogleFonts.urbanist(
                                 fontSize: 14,
                                 color: context.c.textHint,
@@ -736,7 +757,7 @@ class HelpScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  ...(_helpItems as List<Map<String, dynamic>>).map((item) {
+                  ...helpItems.map((item) {
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
                       decoration: BoxDecoration(
@@ -846,15 +867,23 @@ class _FaqScreenState extends State<FaqScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final faqs = MockData.faqs;
+    final t = AppLocalizations.of(context);
+    final faqs = [
+      (t.faqQ1, t.faqA1),
+      (t.faqQ2, t.faqA2),
+      (t.faqQ3, t.faqA3),
+      (t.faqQ4, t.faqA4),
+      (t.faqQ5, t.faqA5),
+      (t.faqQ6, t.faqA6),
+    ];
     return Scaffold(
       backgroundColor: context.c.background,
       body: Column(
         children: [
           _buildLavenderHeader(
             context,
-            title: 'Frequently Asked Questions',
-            subtitle: 'Answers to your burning questions',
+            title: t.faqScreenTitle,
+            subtitle: t.faqScreenSubtitle,
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -883,7 +912,7 @@ class _FaqScreenState extends State<FaqScreen> {
                             controller: _searchCtrl,
                             style: GoogleFonts.urbanist(fontSize: 14),
                             decoration: InputDecoration(
-                              hintText: 'Search FAQs',
+                              hintText: t.searchFaqs,
                               hintStyle: GoogleFonts.urbanist(
                                 fontSize: 14,
                                 color: context.c.textHint,
@@ -935,7 +964,7 @@ class _FaqScreenState extends State<FaqScreen> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      faqs[i]['question']!,
+                                      faqs[i].$1,
                                       style: GoogleFonts.urbanist(
                                         fontSize: 15,
                                         fontWeight: FontWeight.bold,
@@ -954,7 +983,7 @@ class _FaqScreenState extends State<FaqScreen> {
                               if (isExpanded) ...[
                                 const SizedBox(height: 10),
                                 Text(
-                                  faqs[i]['answer']!,
+                                  faqs[i].$2,
                                   style: GoogleFonts.urbanist(
                                     fontSize: 13,
                                     color: context.c.textSecondary,
@@ -1006,16 +1035,36 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     super.dispose();
   }
 
+  String _reasonLabel(AppLocalizations t, String reason) {
+    switch (reason) {
+      case 'No longer using the platform/service':
+        return t.deleteReason1;
+      case 'Found a better alternative':
+        return t.deleteReason2;
+      case 'Privacy Concerns':
+        return t.deleteReason3;
+      case 'Too many emails/notifications':
+        return t.deleteReason4;
+      case 'Difficulty navigating the platform':
+        return t.deleteReason5;
+      case 'Personal Reasons':
+        return t.deleteReason6;
+      default:
+        return t.deleteReason7;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: context.c.background,
       body: Column(
         children: [
           _buildLavenderHeader(
             context,
-            title: 'We\'re sad to see you go',
-            subtitle: 'Let us know what went wrong',
+            title: t.sadToSeeYouGo,
+            subtitle: t.letUsKnow,
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -1072,7 +1121,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                                         const SizedBox(width: 12),
                                         Expanded(
                                           child: Text(
-                                            reason,
+                                            _reasonLabel(t, reason),
                                             style: GoogleFonts.urbanist(
                                               fontSize: 14,
                                               fontWeight: FontWeight.w500,
@@ -1094,7 +1143,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                                           maxLines: 3,
                                           style: GoogleFonts.urbanist(fontSize: 14),
                                           decoration: InputDecoration(
-                                            hintText: 'Tell us more...',
+                                            hintText: t.tellUsMore,
                                             hintStyle: GoogleFonts.urbanist(
                                               fontSize: 14,
                                               color: context.c.textHint,
@@ -1128,7 +1177,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                       ),
                       child: Center(
                         child: Text(
-                          'Delete Account',
+                          t.deleteAccountBtn,
                           style: GoogleFonts.urbanist(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -1148,7 +1197,23 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     );
   }
 
+  Future<void> _performDelete() async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await AuthRepository().deleteAccount();
+      if (!mounted) return;
+      context.go(AppRoutes.login);
+    } catch (e) {
+      if (!mounted) return;
+      messenger.showSnackBar(SnackBar(
+        content: Text(e.toString().replaceFirst('Exception: ', '')),
+        backgroundColor: AppColors.error,
+      ));
+    }
+  }
+
   void _showDeleteConfirmDialog(BuildContext context) {
+    final t = AppLocalizations.of(context);
     showDialog(
       context: context,
       builder: (dialogCtx) => Dialog(
@@ -1176,12 +1241,12 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               const Text('⚠️', style: TextStyle(fontSize: 48)),
               const SizedBox(height: 12),
               Text(
-                'Are you sure?',
+                t.areYouSure,
                 style: GoogleFonts.urbanist(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
-                'by deleting your account you will lose the following',
+                t.deleteAccountWarning,
                 style: GoogleFonts.urbanist(fontSize: 14, color: context.c.textSecondary),
                 textAlign: TextAlign.center,
               ),
@@ -1196,10 +1261,10 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    '• Access to your active events',
-                    '• Access to your account records and credentials',
-                    '• Login details',
-                    '• All Vendor contacts via message and call',
+                    t.deleteLoss1,
+                    t.deleteLoss2,
+                    t.deleteLoss3,
+                    t.deleteLoss4,
                   ].map((line) => Padding(
                     padding: const EdgeInsets.only(bottom: 4),
                     child: Text(
@@ -1228,7 +1293,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            'Cancel',
+                            t.cancel,
                             style: GoogleFonts.urbanist(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
@@ -1242,7 +1307,10 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: GestureDetector(
-                      onTap: () => Navigator.pop(dialogCtx),
+                      onTap: () {
+                        Navigator.pop(dialogCtx);
+                        _performDelete();
+                      },
                       child: Container(
                         height: 48,
                         decoration: BoxDecoration(
@@ -1251,7 +1319,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                         ),
                         child: Center(
                           child: Text(
-                            'Proceed',
+                            t.proceed,
                             style: GoogleFonts.urbanist(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
@@ -1279,8 +1347,8 @@ class EventsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('My Events'), automaticallyImplyLeading: false),
-      body: const Center(child: Text('Events')),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).segMyEvents), automaticallyImplyLeading: false),
+      body: Center(child: Text(AppLocalizations.of(context).navEvents)),
     );
   }
 }

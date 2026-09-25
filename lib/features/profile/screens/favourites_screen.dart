@@ -7,6 +7,7 @@ import '../../../core/services/vendor_service.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/listing_model.dart';
 import '../../../shared/models/vendor_model.dart';
+import '../../../l10n/app_localizations.dart';
 
 class FavouritesScreen extends StatefulWidget {
   const FavouritesScreen({super.key});
@@ -55,6 +56,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context);
     final q = _searchCtrl.text.trim().toLowerCase();
     final products = _favourites
         .where((l) => q.isEmpty || l.title.toLowerCase().contains(q))
@@ -89,8 +91,8 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
               ),
               child: Row(
                 children: [
-                  _tabPill(context, 'Vendors', 0),
-                  _tabPill(context, 'Products', 1),
+                  _tabPill(context, t.tabVendors, 0),
+                  _tabPill(context, t.products, 1),
                 ],
               ),
             ),
@@ -121,7 +123,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                       controller: _searchCtrl,
                       style: GoogleFonts.urbanist(fontSize: 14),
                       decoration: InputDecoration(
-                        hintText: 'Search for a vendor or location',
+                        hintText: t.searchVendorOrLocation,
                         hintStyle: GoogleFonts.urbanist(
                           fontSize: 14,
                           color: context.c.textHint,
@@ -165,15 +167,15 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                     ? (vendors.isEmpty
                         ? _buildEmptyState(
                             context,
-                            'No saved vendors yet',
-                            'Tap the heart on any vendor to save it here.',
+                            t.noSavedVendors,
+                            t.noSavedVendorsSub,
                           )
                         : _buildVendorGrid(context, vendors))
                     : products.isEmpty
                         ? _buildEmptyState(
                             context,
-                            'No saved products yet',
-                            'Tap the heart on any product to save it here.',
+                            t.noSavedProducts,
+                            t.noSavedProductsSub,
                           )
                         : _buildProductGrid(context, products),
           ),
@@ -218,6 +220,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
   }
 
   Widget _buildHeader(BuildContext context) {
+    final t = AppLocalizations.of(context);
     return Container(
       color: context.c.primaryLight,
       child: SafeArea(
@@ -250,7 +253,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Your Favourites',
+                    t.yourFavourites,
                     style: GoogleFonts.urbanist(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
@@ -258,7 +261,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                     ),
                   ),
                   Text(
-                    'View all your saved vendors and products',
+                    t.favouritesSubtitle,
                     style: GoogleFonts.urbanist(
                       fontSize: 13,
                       color: context.c.textHint,
@@ -319,7 +322,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
       itemCount: vendors.length,
       itemBuilder: (context, i) {
         final v = vendors[i];
-        final category = v.categories.isNotEmpty ? v.categories.first : 'Vendor';
+        final category = v.categories.isNotEmpty ? v.categories.first : AppLocalizations.of(context).vendorLabel;
         return GestureDetector(
           onTap: () => context.push(AppRoutes.vendorProfilePath(v.id)),
           child: Container(
@@ -527,7 +530,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                       ),
                       child: Center(
                         child: Text(
-                          l.isRentable ? 'Rent for your event' : 'Add to Event +',
+                          l.isRentable ? AppLocalizations.of(context).rentForEvent : AppLocalizations.of(context).addToEventPlus,
                           style: GoogleFonts.urbanist(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,

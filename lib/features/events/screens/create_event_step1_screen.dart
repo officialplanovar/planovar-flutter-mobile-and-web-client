@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/widgets/glossy_button.dart';
+import '../../../l10n/app_localizations.dart';
 
 class CreateEventStep1Screen extends StatefulWidget {
   /// When launched from a listing's "Add to Event" sheet, these carry the
@@ -38,6 +39,21 @@ class _CreateEventStep1ScreenState extends State<CreateEventStep1Screen> {
     super.dispose();
   }
 
+  String _typeLabel(AppLocalizations loc, String value) {
+    switch (value) {
+      case 'Wedding':
+        return loc.typeWedding;
+      case 'Birthday':
+        return loc.typeBirthday;
+      case 'Corporate':
+        return loc.typeCorporate;
+      case 'Graduation':
+        return loc.typeGraduation;
+      default:
+        return value;
+    }
+  }
+
   void _proceed() {
     final type = _selectedType == 'Other' && _otherCtrl.text.isNotEmpty
         ? _otherCtrl.text.trim()
@@ -51,6 +67,7 @@ class _CreateEventStep1ScreenState extends State<CreateEventStep1Screen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: context.c.surface,
       body: Column(
@@ -59,9 +76,9 @@ class _CreateEventStep1ScreenState extends State<CreateEventStep1Screen> {
           EventStepHeader(
             currentStep: 1,
             onBack: () => context.pop(),
-            titlePrefix: 'Create an ',
-            titleHighlight: 'Event',
-            subtitle: 'Step one, Choose the Event Type',
+            titlePrefix: loc.createAnPrefix,
+            titleHighlight: loc.eventChip,
+            subtitle: loc.step1Subtitle,
           ),
 
           Expanded(
@@ -71,7 +88,7 @@ class _CreateEventStep1ScreenState extends State<CreateEventStep1Screen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Event Type',
+                    loc.eventType,
                     style: GoogleFonts.urbanist(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -87,10 +104,10 @@ class _CreateEventStep1ScreenState extends State<CreateEventStep1Screen> {
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
                     childAspectRatio: 1.1,
-                    children: _types.map((t) {
-                      final selected = _selectedType == t.label;
+                    children: _types.map((ty) {
+                      final selected = _selectedType == ty.label;
                       return GestureDetector(
-                        onTap: () => setState(() => _selectedType = t.label),
+                        onTap: () => setState(() => _selectedType = ty.label),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 180),
                           decoration: BoxDecoration(
@@ -108,11 +125,11 @@ class _CreateEventStep1ScreenState extends State<CreateEventStep1Screen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(t.emoji,
+                              Text(ty.emoji,
                                   style: const TextStyle(fontSize: 42)),
                               const SizedBox(height: 10),
                               Text(
-                                t.label,
+                                _typeLabel(loc, ty.label),
                                 style: GoogleFonts.urbanist(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
@@ -130,7 +147,7 @@ class _CreateEventStep1ScreenState extends State<CreateEventStep1Screen> {
                   const SizedBox(height: 20),
                   // Other
                   Text(
-                    'Other',
+                    loc.otherLabel,
                     style: GoogleFonts.urbanist(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -161,7 +178,7 @@ class _CreateEventStep1ScreenState extends State<CreateEventStep1Screen> {
                           color: context.c.textPrimary,
                         ),
                         decoration: InputDecoration(
-                          hintText: 'Please Specify',
+                          hintText: loc.pleaseSpecify,
                           hintStyle: GoogleFonts.urbanist(
                             fontSize: 14,
                             color: const Color(0xFFB0B7C3),
@@ -181,7 +198,7 @@ class _CreateEventStep1ScreenState extends State<CreateEventStep1Screen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 32),
             child: GlossyButton(
-              label: 'Proceed',
+              label: loc.proceed,
               onPressed: _proceed,
             ),
           ),
