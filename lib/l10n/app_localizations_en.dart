@@ -217,6 +217,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterPhoneNumber => 'Enter Phone Number';
 
   @override
+  String get dialCodeHint => 'Code';
+
+  @override
   String get saving => 'Saving…';
 
   @override
@@ -681,6 +684,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get typeGraduation => 'Graduation';
 
   @override
+  String get eventTypeWedding => 'Wedding';
+
+  @override
+  String get eventTypeFuneral => 'Funeral';
+
+  @override
+  String get eventTypeBirthday => 'Birthday';
+
+  @override
+  String get eventTypeCorporate => 'Corporate';
+
+  @override
+  String get eventTypeSocialParty => 'Social party';
+
+  @override
+  String get eventTypeAll => 'All';
+
+  @override
   String get otherLabel => 'Other';
 
   @override
@@ -729,10 +750,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get venueHint => 'Enter venue address';
 
   @override
-  String get budgetMinLabel => 'Budget Min (₦)';
+  String get budgetMinLabel => 'Budget Min (\$)';
 
   @override
-  String get budgetMaxLabel => 'Budget Max (₦)';
+  String get budgetMaxLabel => 'Budget Max (\$)';
 
   @override
   String get eventThumbnail => 'Event Thumbnail';
@@ -1168,7 +1189,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eventLocation => 'Event Location';
 
   @override
-  String get eventLocationHint => 'e.g. Eko Hotel, Victoria Island, Lagos';
+  String get eventLocationHint => 'e.g. Grand Hotel, Downtown';
 
   @override
   String get requirementsHint =>
@@ -1249,7 +1270,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quoteAcceptedInvoice =>
-      'Quote accepted — an invoice has been added to your chat.';
+      'Quote accepted — arrange payment directly with the vendor.';
 
   @override
   String couldNotAcceptQuote(String error) {
@@ -1313,7 +1334,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String fromPrice(String price) {
-    return 'From ₦ $price';
+    return 'From \$$price';
   }
 
   @override
@@ -1400,7 +1421,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String quoteSentAmount(String amount) {
-    return 'Quote sent - ₦$amount · ';
+    return 'Quote sent - \$$amount · ';
   }
 
   @override
@@ -1413,7 +1434,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quoteAcceptedInvoiceCreated =>
-      'Quote accepted — invoice created 🎉';
+      'Quote accepted — arrange payment directly with the vendor 🎉';
 
   @override
   String get quoteDeclined => 'Quote declined';
@@ -1451,28 +1472,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get submitReviewBtn => 'Submit review';
 
   @override
-  String get couldNotOpenPayment => 'Could not open the payment page';
-
-  @override
-  String get finishPayment => 'Finish payment';
-
-  @override
-  String finishPaymentBody(String charge, String fee) {
-    return 'Tap \"I\'ve paid\" once you\'ve completed the ₦$charge payment (incl. ₦$fee transaction fee) on Paystack.';
-  }
-
-  @override
   String get notYet => 'Not yet';
-
-  @override
-  String get ivePaid => 'I\'ve paid';
-
-  @override
-  String get paymentReceived => 'Payment received 🎉';
-
-  @override
-  String get paymentStillProcessing =>
-      'Payment is still processing — we\'ll update it shortly';
 
   @override
   String get today => 'Today';
@@ -1494,7 +1494,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String depositRefundedAmount(String amount) {
-    return 'Deposit refunded · ₦$amount';
+    return 'Deposit refunded · \$$amount';
   }
 
   @override
@@ -1502,7 +1502,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String paymentReceivedAmount(String amount) {
-    return 'Payment received · ₦$amount';
+    return 'Payment received · \$$amount';
   }
 
   @override
@@ -1996,9 +1996,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get orderDeliveryFee => 'Delivery Fee';
 
   @override
-  String get orderPlatformFee => 'Platform Fee';
-
-  @override
   String get orderDeposit => 'Refundable Deposit';
 
   @override
@@ -2015,4 +2012,81 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get orderPending => 'Pending';
+
+  @override
+  String get currentPassword => 'Current Password';
+
+  @override
+  String get enterCurrentPassword => 'Enter current password';
+
+  @override
+  String get passwordChanged => 'Password changed successfully';
+
+  @override
+  String get twofaConfirmPasswordTitle => 'Confirm your password';
+
+  @override
+  String get twofaContinue => 'Continue';
+
+  @override
+  String get twofaEnable => 'Enable';
+
+  @override
+  String get twofaDisable => 'Disable';
+
+  @override
+  String get twofaStatusOn => 'Two-factor authentication is on';
+
+  @override
+  String get twofaStatusOff => 'Two-factor authentication is off';
+
+  @override
+  String get twofaOnDesc =>
+      'Your account is protected with an authenticator app.';
+
+  @override
+  String get twofaOffDesc =>
+      'Add an extra layer of security using an authenticator app.';
+
+  @override
+  String get twofaEnabledMsg => 'Two-factor authentication enabled';
+
+  @override
+  String get twofaDisabledMsg => 'Two-factor authentication disabled';
+
+  @override
+  String get twofaSetupTitle => 'Set up authenticator';
+
+  @override
+  String get twofaSetupHint =>
+      'Scan this QR code with your authenticator app, then enter the 6-digit code to finish.';
+
+  @override
+  String get twofaCantScan => 'Can\'t scan? Enter this key manually:';
+
+  @override
+  String get twofaSecretCopied => 'Secret copied';
+
+  @override
+  String get twofaBackupCodesTitle => 'Backup codes';
+
+  @override
+  String get twofaBackupCodesHint =>
+      'Save these somewhere safe. Each can be used once.';
+
+  @override
+  String get twofaEnterCode => 'Enter the 6-digit code';
+
+  @override
+  String get twofaVerifyEnable => 'Verify & Enable';
+
+  @override
+  String get tfaChallengeTitle => 'Two-Factor Verification';
+
+  @override
+  String get tfaChallengeSubtitle =>
+      'Enter the 6-digit code from your authenticator app to continue.';
+
+  @override
+  String get tfaVerify => 'Verify';
 }

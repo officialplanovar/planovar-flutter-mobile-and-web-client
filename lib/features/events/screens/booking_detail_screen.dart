@@ -394,9 +394,8 @@ class _EventBookingDetailScreenState extends State<EventBookingDetailScreen> {
     final t = AppLocalizations.of(context);
     final steps = [
       _TimelineStep(number: 1, title: t.tlQuoteAccepted, date: '14 Feb 2026', status: 'Complete'),
-      _TimelineStep(number: 2, title: t.tlPaymentConfirmed, date: '14 Feb 2026', status: 'Complete'),
-      _TimelineStep(number: 3, title: t.tlEventDayShort, date: '14 Feb 2026', status: 'Pending'),
-      _TimelineStep(number: 4, title: t.reviewTitle, date: '14 Feb 2026', status: 'Pending'),
+      _TimelineStep(number: 2, title: t.tlEventDayShort, date: '14 Feb 2026', status: 'Pending'),
+      _TimelineStep(number: 3, title: t.reviewTitle, date: '14 Feb 2026', status: 'Pending'),
     ];
 
     final completedSteps = steps.where((s) => s.status == 'Complete').length;

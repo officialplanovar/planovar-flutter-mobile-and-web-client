@@ -220,6 +220,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get enterPhoneNumber => 'Saisissez le numéro de téléphone';
 
   @override
+  String get dialCodeHint => 'Indicatif';
+
+  @override
   String get saving => 'Enregistrement…';
 
   @override
@@ -692,6 +695,24 @@ class AppLocalizationsFr extends AppLocalizations {
   String get typeGraduation => 'Remise de diplôme';
 
   @override
+  String get eventTypeWedding => 'Mariage';
+
+  @override
+  String get eventTypeFuneral => 'Funérailles';
+
+  @override
+  String get eventTypeBirthday => 'Anniversaire';
+
+  @override
+  String get eventTypeCorporate => 'Entreprise';
+
+  @override
+  String get eventTypeSocialParty => 'Fête sociale';
+
+  @override
+  String get eventTypeAll => 'Tous';
+
+  @override
   String get otherLabel => 'Autre';
 
   @override
@@ -741,10 +762,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get venueHint => 'Saisissez l\'adresse du lieu';
 
   @override
-  String get budgetMinLabel => 'Budget min (₦)';
+  String get budgetMinLabel => 'Budget min (\$)';
 
   @override
-  String get budgetMaxLabel => 'Budget max (₦)';
+  String get budgetMaxLabel => 'Budget max (\$)';
 
   @override
   String get eventThumbnail => 'Vignette de l\'événement';
@@ -1191,7 +1212,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get eventLocation => 'Lieu de l\'événement';
 
   @override
-  String get eventLocationHint => 'ex. Eko Hotel, Victoria Island, Lagos';
+  String get eventLocationHint => 'ex. Grand Hôtel, Centre-ville';
 
   @override
   String get requirementsHint =>
@@ -1272,7 +1293,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quoteAcceptedInvoice =>
-      'Devis accepté — une facture a été ajoutée à votre discussion.';
+      'Devis accepté — organisez le paiement directement avec le prestataire.';
 
   @override
   String couldNotAcceptQuote(String error) {
@@ -1336,7 +1357,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String fromPrice(String price) {
-    return 'À partir de ₦ $price';
+    return 'À partir de \$$price';
   }
 
   @override
@@ -1426,7 +1447,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String quoteSentAmount(String amount) {
-    return 'Devis envoyé - ₦$amount · ';
+    return 'Devis envoyé - \$$amount · ';
   }
 
   @override
@@ -1438,7 +1459,8 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get quoteAcceptedInvoiceCreated => 'Devis accepté — facture créée 🎉';
+  String get quoteAcceptedInvoiceCreated =>
+      'Devis accepté — organisez le paiement directement avec le prestataire 🎉';
 
   @override
   String get quoteDeclined => 'Devis refusé';
@@ -1476,28 +1498,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get submitReviewBtn => 'Envoyer l\'avis';
 
   @override
-  String get couldNotOpenPayment => 'Impossible d\'ouvrir la page de paiement';
-
-  @override
-  String get finishPayment => 'Finaliser le paiement';
-
-  @override
-  String finishPaymentBody(String charge, String fee) {
-    return 'Appuyez sur « J\'ai payé » une fois le paiement de ₦$charge effectué (frais de transaction de ₦$fee inclus) sur Paystack.';
-  }
-
-  @override
   String get notYet => 'Pas encore';
-
-  @override
-  String get ivePaid => 'J\'ai payé';
-
-  @override
-  String get paymentReceived => 'Paiement reçu 🎉';
-
-  @override
-  String get paymentStillProcessing =>
-      'Le paiement est en cours de traitement — nous le mettrons à jour sous peu';
 
   @override
   String get today => 'Aujourd\'hui';
@@ -1519,7 +1520,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String depositRefundedAmount(String amount) {
-    return 'Caution remboursée · ₦$amount';
+    return 'Caution remboursée · \$$amount';
   }
 
   @override
@@ -1527,7 +1528,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String paymentReceivedAmount(String amount) {
-    return 'Paiement reçu · ₦$amount';
+    return 'Paiement reçu · \$$amount';
   }
 
   @override
@@ -2034,9 +2035,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get orderDeliveryFee => 'Frais de livraison';
 
   @override
-  String get orderPlatformFee => 'Frais de plateforme';
-
-  @override
   String get orderDeposit => 'Caution remboursable';
 
   @override
@@ -2053,4 +2051,83 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get orderPending => 'En attente';
+
+  @override
+  String get currentPassword => 'Mot de passe actuel';
+
+  @override
+  String get enterCurrentPassword => 'Saisissez le mot de passe actuel';
+
+  @override
+  String get passwordChanged => 'Mot de passe modifié avec succès';
+
+  @override
+  String get twofaConfirmPasswordTitle => 'Confirmez votre mot de passe';
+
+  @override
+  String get twofaContinue => 'Continuer';
+
+  @override
+  String get twofaEnable => 'Activer';
+
+  @override
+  String get twofaDisable => 'Désactiver';
+
+  @override
+  String get twofaStatusOn => 'L\'authentification à deux facteurs est activée';
+
+  @override
+  String get twofaStatusOff =>
+      'L\'authentification à deux facteurs est désactivée';
+
+  @override
+  String get twofaOnDesc =>
+      'Votre compte est protégé par une application d\'authentification.';
+
+  @override
+  String get twofaOffDesc =>
+      'Ajoutez une couche de sécurité supplémentaire avec une application d\'authentification.';
+
+  @override
+  String get twofaEnabledMsg => 'Authentification à deux facteurs activée';
+
+  @override
+  String get twofaDisabledMsg => 'Authentification à deux facteurs désactivée';
+
+  @override
+  String get twofaSetupTitle => 'Configurer l\'authentificateur';
+
+  @override
+  String get twofaSetupHint =>
+      'Scannez ce code QR avec votre application d\'authentification, puis saisissez le code à 6 chiffres pour terminer.';
+
+  @override
+  String get twofaCantScan =>
+      'Impossible de scanner ? Saisissez cette clé manuellement :';
+
+  @override
+  String get twofaSecretCopied => 'Clé copiée';
+
+  @override
+  String get twofaBackupCodesTitle => 'Codes de secours';
+
+  @override
+  String get twofaBackupCodesHint =>
+      'Conservez-les en lieu sûr. Chacun ne peut servir qu\'une fois.';
+
+  @override
+  String get twofaEnterCode => 'Saisissez le code à 6 chiffres';
+
+  @override
+  String get twofaVerifyEnable => 'Vérifier et activer';
+
+  @override
+  String get tfaChallengeTitle => 'Vérification à deux facteurs';
+
+  @override
+  String get tfaChallengeSubtitle =>
+      'Saisissez le code à 6 chiffres de votre application d\'authentification pour continuer.';
+
+  @override
+  String get tfaVerify => 'Vérifier';
 }

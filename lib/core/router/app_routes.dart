@@ -10,6 +10,7 @@ class AppRoutes {
   static const createPassword = '/create-password';
   static const forgotPassword = '/forgot-password';
   static const resetPassword = '/reset-password';
+  static const twoFactorChallenge = '/two-factor-challenge';
 
   static const homeFeed = '/home/feed';
   static const explore = '/home/explore';
@@ -51,7 +52,6 @@ class AppRoutes {
   static const orderDetail = '/orders/detail';
   static const rentalDetail = '/orders/rental-detail';
   static const cancelOrder = '/orders/cancel';
-  static const requestRefund = '/orders/refund';
 
   static const notifications = '/notifications';
   static const favourites = '/favourites';

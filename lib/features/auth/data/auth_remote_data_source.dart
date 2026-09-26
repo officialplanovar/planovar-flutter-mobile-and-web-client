@@ -36,8 +36,45 @@ class AuthRemoteDataSource {
     final res = await _dio.post('/api/auth/sign-in/email',
         data: {'email': email, 'password': password});
     ensureOk(res);
+    final data = _asMap(res.data);
+    // Accounts with 2FA enabled get a challenge instead of a session — the
+    // caller must complete /two-factor/verify-totp before a token is issued.
+    if (data['twoFactorRedirect'] == true) return data;
     await _captureTokenOrThrow(res);
+    return data;
+  }
+
+  // ── Two-factor auth (TOTP) ─────────────────────────────────────────────────
+
+  /// Begin enabling 2FA — returns { totpURI, backupCodes }. 2FA is not active
+  /// until a TOTP code is confirmed via [verifyTotp].
+  Future<Map<String, dynamic>> enableTwoFactor(String password) async {
+    final res = await _dio
+        .post('/api/auth/two-factor/enable', data: {'password': password});
+    ensureOk(res);
     return _asMap(res.data);
+  }
+
+  /// Verify a TOTP code — completes enabling 2FA (when authenticated) or the
+  /// sign-in challenge (issuing a session token, captured best-effort).
+  Future<void> verifyTotp(String code) async {
+    final res = await _dio
+        .post('/api/auth/two-factor/verify-totp', data: {'code': code});
+    ensureOk(res);
+    await _captureToken(res);
+  }
+
+  Future<void> disableTwoFactor(String password) async {
+    final res = await _dio
+        .post('/api/auth/two-factor/disable', data: {'password': password});
+    ensureOk(res);
+  }
+
+  Future<bool> isTwoFactorEnabled() async {
+    final res = await _dio.get('/users/me');
+    ensureOk(res);
+    final data = _asMap(res.data);
+    return data['twoFactorEnabled'] == true;
   }
 
   /// Starts the Google OAuth flow. Asks Better Auth for the provider consent

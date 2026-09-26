@@ -5,10 +5,11 @@ import '../models/invoice_model.dart';
 import '../models/message_model.dart';
 import '../models/quote_model.dart';
 import '../models/todo_model.dart';
+import 'off_platform_notice.dart';
 
 String _money(double v) {
   final s = v.toInt().toString();
-  final b = StringBuffer('₦');
+  final b = StringBuffer('\$');
   for (var i = 0; i < s.length; i++) {
     if (i > 0 && (s.length - i) % 3 == 0) b.write(',');
     b.write(s[i]);
@@ -233,35 +234,17 @@ class _QuoteCardState extends State<QuoteCard> {
   }
 }
 
-// ─── Invoice card (with per-milestone pay) ────────────────────────────────────
+// ─── Invoice card (display-only record) ───────────────────────────────────────
 
-class InvoiceCard extends StatefulWidget {
+class InvoiceCard extends StatelessWidget {
   final InvoiceModel invoice;
-  final Future<void> Function(PaymentMilestone milestone)? onPay;
   final VoidCallback? onView;
 
-  const InvoiceCard({super.key, required this.invoice, this.onPay, this.onView});
-
-  @override
-  State<InvoiceCard> createState() => _InvoiceCardState();
-}
-
-class _InvoiceCardState extends State<InvoiceCard> {
-  String? _payingId;
-
-  Future<void> _pay(PaymentMilestone m) async {
-    if (widget.onPay == null || _payingId != null) return;
-    setState(() => _payingId = m.id);
-    try {
-      await widget.onPay!(m);
-    } finally {
-      if (mounted) setState(() => _payingId = null);
-    }
-  }
+  const InvoiceCard({super.key, required this.invoice, this.onView});
 
   @override
   Widget build(BuildContext context) {
-    final inv = widget.invoice;
+    final inv = invoice;
     const green = Color(0xFF047857);
     return _CardShell(
       accent: green,
@@ -311,6 +294,8 @@ class _InvoiceCardState extends State<InvoiceCard> {
             const SizedBox(height: 6),
             ...inv.milestones.map((m) => _milestoneRow(context, m, green)),
           ],
+          const SizedBox(height: 10),
+          const OffPlatformPaymentNotice(),
         ],
       ),
     );
@@ -347,24 +332,7 @@ class _InvoiceCardState extends State<InvoiceCard> {
               SizedBox(width: 4),
               Text('Paid',
                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF047857))),
-            ])
-          else if (widget.onPay != null)
-            SizedBox(
-              height: 34,
-              child: FilledButton(
-                onPressed: _payingId != null ? null : () => _pay(m),
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(9)),
-                ),
-                child: _payingId == m.id
-                    ? const SizedBox(
-                        width: 14, height: 14,
-                        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : const Text('Pay'),
-              ),
-            ),
+            ]),
         ],
       ),
     );

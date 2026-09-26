@@ -12,6 +12,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         super(const AuthInitial()) {
     on<AuthCheckRequested>(_onCheckRequested);
     on<AuthSignInRequested>(_onSignIn);
+    on<AuthTwoFactorSubmitted>(_onTwoFactorSubmitted);
     on<AuthSignUpRequested>(_onSignUp);
     on<AuthOtpVerifyRequested>(_onVerifyOtp);
     on<AuthForgotPasswordRequested>(_onForgotPassword);
@@ -36,7 +37,24 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _onSignIn(AuthSignInRequested event, Emitter<AuthState> emit) async {
     emit(const AuthLoading());
     try {
-      final user = await _authService.signIn(email: event.email, password: event.password);
+      final result = await _authService.signIn(email: event.email, password: event.password);
+      if (result.twoFactorRequired) {
+        emit(const AuthTwoFactorRequired());
+        return;
+      }
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', true);
+      emit(AuthAuthenticated(user: result.user!));
+    } catch (e) {
+      emit(AuthError(message: e.toString()));
+    }
+  }
+
+  Future<void> _onTwoFactorSubmitted(
+      AuthTwoFactorSubmitted event, Emitter<AuthState> emit) async {
+    emit(const AuthLoading());
+    try {
+      final user = await _authService.completeTwoFactorSignIn(event.code);
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
       emit(AuthAuthenticated(user: user));

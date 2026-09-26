@@ -30,7 +30,7 @@ class _PhoneScreenState extends State<PhoneScreen> {
     }
     setState(() => _saving = true);
     try {
-      await AuthRepository().updateProfile(phone: '$_dialCode$raw');
+      await AuthRepository().updateProfile(phone: '${_dialCode ?? ''}$raw');
       if (mounted) context.go(AppRoutes.locationPref);
     } catch (e) {
       if (!mounted) return;
@@ -43,8 +43,9 @@ class _PhoneScreenState extends State<PhoneScreen> {
 
   static const _dialCodes = kDialCodes;
 
-  String _dialCode = '+234';
-  String _flagEmoji = '🇳🇬';
+  // Global platform: no default country — the user selects a dial code.
+  String? _dialCode;
+  String? _flagEmoji;
 
   @override
   void dispose() {
@@ -116,11 +117,13 @@ class _PhoneScreenState extends State<PhoneScreen> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(_dialCode,
+                                Text(_dialCode ?? t.dialCodeHint,
                                     style: GoogleFonts.urbanist(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w600,
-                                      color: context.c.textPrimary,
+                                      color: _dialCode == null
+                                          ? context.c.textHint
+                                          : context.c.textPrimary,
                                     )),
                                 const SizedBox(width: 6),
                                 Icon(Icons.keyboard_arrow_down_rounded,
@@ -166,13 +169,14 @@ class _PhoneScreenState extends State<PhoneScreen> {
                                     ),
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 14),
-                                  child: Text(
-                                    _flagEmoji,
-                                    style: const TextStyle(fontSize: 20),
+                                if (_flagEmoji != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 14),
+                                    child: Text(
+                                      _flagEmoji!,
+                                      style: const TextStyle(fontSize: 20),
+                                    ),
                                   ),
-                                ),
                               ],
                             ),
                           ),

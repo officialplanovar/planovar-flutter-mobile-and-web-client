@@ -19,7 +19,6 @@ class BookingModel extends Equatable {
   final String? fulfilmentType;
 
   // ── Fee breakdown (booking-level) ──────────────────────────────────────────
-  final double? platformFee;
   final double? deliveryFee;
   final double? depositAmount; // rental refundable deposit
   final double? lateFeePerDay;
@@ -47,7 +46,6 @@ class BookingModel extends Equatable {
     this.quoteAmount,
     this.finalAmount,
     this.fulfilmentType,
-    this.platformFee,
     this.deliveryFee,
     this.depositAmount,
     this.lateFeePerDay,
@@ -80,7 +78,6 @@ class BookingModel extends Equatable {
       quoteAmount: d(json['quoteAmount']),
       finalAmount: d(json['finalAmount']),
       fulfilmentType: (json['fulfilmentType'] as String?)?.toUpperCase(),
-      platformFee: d(json['platformFee']),
       deliveryFee: d(json['deliveryFee']),
       depositAmount: d(json['depositAmount']),
       lateFeePerDay: d(json['lateFeePerDay']),

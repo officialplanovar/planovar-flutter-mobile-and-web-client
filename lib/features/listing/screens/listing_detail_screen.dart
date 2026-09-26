@@ -138,7 +138,7 @@ class _ListingDetailScreenState extends State<ListingDetailScreen> {
   String get _servicePriceRange {
     if (listing.packages.isNotEmpty) {
       final prices = listing.packages.map((p) => p.price).toList()..sort();
-      String f(double n) => '₦ ${_fmt(n)}';
+      String f(double n) => '\$${_fmt(n)}';
       return prices.length == 1
           ? f(prices.first)
           : '${f(prices.first)} - ${f(prices.last)}';

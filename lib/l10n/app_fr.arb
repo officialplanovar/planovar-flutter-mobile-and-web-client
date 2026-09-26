@@ -80,6 +80,7 @@
   "addPhoneTitle": "Ajoutez votre numéro de téléphone",
   "addPhoneSubtitle": "Cela nous aide à personnaliser un peu plus votre expérience",
   "enterPhoneNumber": "Saisissez le numéro de téléphone",
+  "dialCodeHint": "Indicatif",
   "saving": "Enregistrement…",
   "skipForNow": "Passer pour l'instant",
   "createStrongPassword": "Créez un mot de passe fort",
@@ -332,6 +333,12 @@
   "typeBirthday": "Anniversaire",
   "typeCorporate": "Entreprise",
   "typeGraduation": "Remise de diplôme",
+  "eventTypeWedding": "Mariage",
+  "eventTypeFuneral": "Funérailles",
+  "eventTypeBirthday": "Anniversaire",
+  "eventTypeCorporate": "Entreprise",
+  "eventTypeSocialParty": "Fête sociale",
+  "eventTypeAll": "Tous",
   "otherLabel": "Autre",
   "pleaseSpecify": "Veuillez préciser",
   "eventPrefix": "Événement ",
@@ -348,8 +355,8 @@
   "endTime": "Heure de fin",
   "venue": "Lieu",
   "venueHint": "Saisissez l'adresse du lieu",
-  "budgetMinLabel": "Budget min (₦)",
-  "budgetMaxLabel": "Budget max (₦)",
+  "budgetMinLabel": "Budget min ($)",
+  "budgetMaxLabel": "Budget max ($)",
   "eventThumbnail": "Vignette de l'événement",
   "uploadThumbnail": "Téléverser une vignette",
   "categoriesHighlight": "Catégories",
@@ -525,7 +532,7 @@
   "eventDetailsHeading": "Détails de l'événement",
   "selectEventDate": "Sélectionner la date de l'événement",
   "eventLocation": "Lieu de l'événement",
-  "eventLocationHint": "ex. Eko Hotel, Victoria Island, Lagos",
+  "eventLocationHint": "ex. Grand Hôtel, Centre-ville",
   "requirementsHint": "Décrivez votre événement, le nombre d'invités, les demandes spéciales...",
   "selectPackage": "Sélectionner une formule",
   "submitRequest": "Envoyer la demande",
@@ -576,7 +583,7 @@
       }
     }
   },
-  "quoteAcceptedInvoice": "Devis accepté — une facture a été ajoutée à votre discussion.",
+  "quoteAcceptedInvoice": "Devis accepté — organisez le paiement directement avec le prestataire.",
   "couldNotAcceptQuote": "Impossible d'accepter le devis : {error}",
   "@couldNotAcceptQuote": {
     "placeholders": {
@@ -616,7 +623,7 @@
   "messageVendorPlain": "Contacter le prestataire",
   "rentForYourEvent": "Louer pour votre événement",
   "addToEventPlusIcon": "+ Ajouter à l'événement",
-  "fromPrice": "À partir de ₦ {price}",
+  "fromPrice": "À partir de ${price}",
   "@fromPrice": {
     "placeholders": {
       "price": {
@@ -659,7 +666,7 @@
       }
     }
   },
-  "quoteSentAmount": "Devis envoyé - ₦{amount} · ",
+  "quoteSentAmount": "Devis envoyé - ${amount} · ",
   "@quoteSentAmount": {
     "placeholders": {
       "amount": {
@@ -676,7 +683,7 @@
       }
     }
   },
-  "quoteAcceptedInvoiceCreated": "Devis accepté — facture créée 🎉",
+  "quoteAcceptedInvoiceCreated": "Devis accepté — organisez le paiement directement avec le prestataire 🎉",
   "quoteDeclined": "Devis refusé",
   "quoteVersionValid": "Version {version} · valable jusqu'au {date}",
   "@quoteVersionValid": {
@@ -698,30 +705,14 @@
   "reviewSubmittedStar": "Avis envoyé ⭐",
   "submitting": "Envoi…",
   "submitReviewBtn": "Envoyer l'avis",
-  "couldNotOpenPayment": "Impossible d'ouvrir la page de paiement",
-  "finishPayment": "Finaliser le paiement",
-  "finishPaymentBody": "Appuyez sur « J'ai payé » une fois le paiement de ₦{charge} effectué (frais de transaction de ₦{fee} inclus) sur Paystack.",
-  "@finishPaymentBody": {
-    "placeholders": {
-      "charge": {
-        "type": "String"
-      },
-      "fee": {
-        "type": "String"
-      }
-    }
-  },
   "notYet": "Pas encore",
-  "ivePaid": "J'ai payé",
-  "paymentReceived": "Paiement reçu 🎉",
-  "paymentStillProcessing": "Le paiement est en cours de traitement — nous le mettrons à jour sous peu",
   "today": "Aujourd'hui",
   "chatFallback": "Discussion",
   "sayHello": "Dites bonjour 👋",
   "quoteAcceptedBanner": "Devis accepté",
   "quoteExpired": "Devis expiré",
   "declinedBanner": "Refusé",
-  "depositRefundedAmount": "Caution remboursée · ₦{amount}",
+  "depositRefundedAmount": "Caution remboursée · ${amount}",
   "@depositRefundedAmount": {
     "placeholders": {
       "amount": {
@@ -730,7 +721,7 @@
     }
   },
   "depositRefunded": "Caution remboursée",
-  "paymentReceivedAmount": "Paiement reçu · ₦{amount}",
+  "paymentReceivedAmount": "Paiement reçu · ${amount}",
   "@paymentReceivedAmount": {
     "placeholders": {
       "amount": {
@@ -913,11 +904,34 @@
   "orderFeeBreakdown": "Détail des frais",
   "orderSubtotal": "Sous-total",
   "orderDeliveryFee": "Frais de livraison",
-  "orderPlatformFee": "Frais de plateforme",
   "orderDeposit": "Caution remboursable",
   "orderTotal": "Total",
   "orderPaymentHistory": "Historique des paiements",
   "orderPaid": "Payé",
   "orderDue": "À payer",
-  "orderPending": "En attente"
+  "orderPending": "En attente",
+  "currentPassword": "Mot de passe actuel",
+  "enterCurrentPassword": "Saisissez le mot de passe actuel",
+  "passwordChanged": "Mot de passe modifié avec succès",
+  "twofaConfirmPasswordTitle": "Confirmez votre mot de passe",
+  "twofaContinue": "Continuer",
+  "twofaEnable": "Activer",
+  "twofaDisable": "Désactiver",
+  "twofaStatusOn": "L'authentification à deux facteurs est activée",
+  "twofaStatusOff": "L'authentification à deux facteurs est désactivée",
+  "twofaOnDesc": "Votre compte est protégé par une application d'authentification.",
+  "twofaOffDesc": "Ajoutez une couche de sécurité supplémentaire avec une application d'authentification.",
+  "twofaEnabledMsg": "Authentification à deux facteurs activée",
+  "twofaDisabledMsg": "Authentification à deux facteurs désactivée",
+  "twofaSetupTitle": "Configurer l'authentificateur",
+  "twofaSetupHint": "Scannez ce code QR avec votre application d'authentification, puis saisissez le code à 6 chiffres pour terminer.",
+  "twofaCantScan": "Impossible de scanner ? Saisissez cette clé manuellement :",
+  "twofaSecretCopied": "Clé copiée",
+  "twofaBackupCodesTitle": "Codes de secours",
+  "twofaBackupCodesHint": "Conservez-les en lieu sûr. Chacun ne peut servir qu'une fois.",
+  "twofaEnterCode": "Saisissez le code à 6 chiffres",
+  "twofaVerifyEnable": "Vérifier et activer",
+  "tfaChallengeTitle": "Vérification à deux facteurs",
+  "tfaChallengeSubtitle": "Saisissez le code à 6 chiffres de votre application d'authentification pour continuer.",
+  "tfaVerify": "Vérifier"
 }

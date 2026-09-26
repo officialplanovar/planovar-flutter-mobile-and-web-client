@@ -26,11 +26,14 @@ class _CreateEventStep1ScreenState extends State<CreateEventStep1Screen> {
   String? _selectedType;
   final _otherCtrl = TextEditingController();
 
+  // UI label ↔ API EventType enum value. OTHER is intentionally not offered as
+  // a normal choice — it is the fallback the API applies when no `type` is sent.
   static const _types = [
-    (label: 'Wedding', emoji: '💍'),
-    (label: 'Birthday', emoji: '🎂'),
-    (label: 'Corporate', emoji: '💼'),
-    (label: 'Graduation', emoji: '🎓'),
+    (label: 'Wedding', emoji: '💍', value: 'WEDDING'),
+    (label: 'Funeral', emoji: '🕊️', value: 'FUNERAL'),
+    (label: 'Birthday', emoji: '🎂', value: 'BIRTHDAY'),
+    (label: 'Corporate', emoji: '💼', value: 'CORPORATE'),
+    (label: 'Social party', emoji: '🎉', value: 'SOCIAL_PARTY'),
   ];
 
   @override
@@ -42,24 +45,38 @@ class _CreateEventStep1ScreenState extends State<CreateEventStep1Screen> {
   String _typeLabel(AppLocalizations loc, String value) {
     switch (value) {
       case 'Wedding':
-        return loc.typeWedding;
+        return loc.eventTypeWedding;
+      case 'Funeral':
+        return loc.eventTypeFuneral;
       case 'Birthday':
-        return loc.typeBirthday;
+        return loc.eventTypeBirthday;
       case 'Corporate':
-        return loc.typeCorporate;
-      case 'Graduation':
-        return loc.typeGraduation;
+        return loc.eventTypeCorporate;
+      case 'Social party':
+        return loc.eventTypeSocialParty;
       default:
         return value;
     }
   }
 
   void _proceed() {
-    final type = _selectedType == 'Other' && _otherCtrl.text.isNotEmpty
+    final isOther = _selectedType == 'Other';
+    // Free-text display label for the event (used for the title/description).
+    final displayType = isOther && _otherCtrl.text.trim().isNotEmpty
         ? _otherCtrl.text.trim()
         : (_selectedType ?? '');
+    // Map the picked label to its API EventType enum value. Omitted when the
+    // "Other"/free-text path is used or nothing is picked (API defaults it).
+    String? enumType;
+    for (final ty in _types) {
+      if (ty.label == _selectedType) {
+        enumType = ty.value;
+        break;
+      }
+    }
     context.push(AppRoutes.createEventStep2, extra: {
-      'eventType': type,
+      'eventType': displayType,
+      if (enumType != null) 'type': enumType,
       if (widget.fromListingId != null) 'fromListingId': widget.fromListingId,
       if (widget.fromVendorId != null) 'fromVendorId': widget.fromVendorId,
     });

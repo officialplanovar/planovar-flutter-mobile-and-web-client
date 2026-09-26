@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
+import 'app_localizations_es.dart';
 import 'app_localizations_fr.dart';
 
 // ignore_for_file: type=lint
@@ -95,6 +96,7 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
+    Locale('es'),
     Locale('fr'),
   ];
 
@@ -493,6 +495,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter Phone Number'**
   String get enterPhoneNumber;
+
+  /// No description provided for @dialCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get dialCodeHint;
 
   /// No description provided for @saving.
   ///
@@ -1328,6 +1336,42 @@ abstract class AppLocalizations {
   /// **'Graduation'**
   String get typeGraduation;
 
+  /// No description provided for @eventTypeWedding.
+  ///
+  /// In en, this message translates to:
+  /// **'Wedding'**
+  String get eventTypeWedding;
+
+  /// No description provided for @eventTypeFuneral.
+  ///
+  /// In en, this message translates to:
+  /// **'Funeral'**
+  String get eventTypeFuneral;
+
+  /// No description provided for @eventTypeBirthday.
+  ///
+  /// In en, this message translates to:
+  /// **'Birthday'**
+  String get eventTypeBirthday;
+
+  /// No description provided for @eventTypeCorporate.
+  ///
+  /// In en, this message translates to:
+  /// **'Corporate'**
+  String get eventTypeCorporate;
+
+  /// No description provided for @eventTypeSocialParty.
+  ///
+  /// In en, this message translates to:
+  /// **'Social party'**
+  String get eventTypeSocialParty;
+
+  /// No description provided for @eventTypeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get eventTypeAll;
+
   /// No description provided for @otherLabel.
   ///
   /// In en, this message translates to:
@@ -1427,13 +1471,13 @@ abstract class AppLocalizations {
   /// No description provided for @budgetMinLabel.
   ///
   /// In en, this message translates to:
-  /// **'Budget Min (₦)'**
+  /// **'Budget Min (\$)'**
   String get budgetMinLabel;
 
   /// No description provided for @budgetMaxLabel.
   ///
   /// In en, this message translates to:
-  /// **'Budget Max (₦)'**
+  /// **'Budget Max (\$)'**
   String get budgetMaxLabel;
 
   /// No description provided for @eventThumbnail.
@@ -2261,7 +2305,7 @@ abstract class AppLocalizations {
   /// No description provided for @eventLocationHint.
   ///
   /// In en, this message translates to:
-  /// **'e.g. Eko Hotel, Victoria Island, Lagos'**
+  /// **'e.g. Grand Hotel, Downtown'**
   String get eventLocationHint;
 
   /// No description provided for @requirementsHint.
@@ -2399,7 +2443,7 @@ abstract class AppLocalizations {
   /// No description provided for @quoteAcceptedInvoice.
   ///
   /// In en, this message translates to:
-  /// **'Quote accepted — an invoice has been added to your chat.'**
+  /// **'Quote accepted — arrange payment directly with the vendor.'**
   String get quoteAcceptedInvoice;
 
   /// No description provided for @couldNotAcceptQuote.
@@ -2513,7 +2557,7 @@ abstract class AppLocalizations {
   /// No description provided for @fromPrice.
   ///
   /// In en, this message translates to:
-  /// **'From ₦ {price}'**
+  /// **'From \${price}'**
   String fromPrice(String price);
 
   /// No description provided for @quoteOnRequest.
@@ -2645,7 +2689,7 @@ abstract class AppLocalizations {
   /// No description provided for @quoteSentAmount.
   ///
   /// In en, this message translates to:
-  /// **'Quote sent - ₦{amount} · '**
+  /// **'Quote sent - \${amount} · '**
   String quoteSentAmount(String amount);
 
   /// No description provided for @tapToReview.
@@ -2663,7 +2707,7 @@ abstract class AppLocalizations {
   /// No description provided for @quoteAcceptedInvoiceCreated.
   ///
   /// In en, this message translates to:
-  /// **'Quote accepted — invoice created 🎉'**
+  /// **'Quote accepted — arrange payment directly with the vendor 🎉'**
   String get quoteAcceptedInvoiceCreated;
 
   /// No description provided for @quoteDeclined.
@@ -2732,47 +2776,11 @@ abstract class AppLocalizations {
   /// **'Submit review'**
   String get submitReviewBtn;
 
-  /// No description provided for @couldNotOpenPayment.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not open the payment page'**
-  String get couldNotOpenPayment;
-
-  /// No description provided for @finishPayment.
-  ///
-  /// In en, this message translates to:
-  /// **'Finish payment'**
-  String get finishPayment;
-
-  /// No description provided for @finishPaymentBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Tap \"I\'ve paid\" once you\'ve completed the ₦{charge} payment (incl. ₦{fee} transaction fee) on Paystack.'**
-  String finishPaymentBody(String charge, String fee);
-
   /// No description provided for @notYet.
   ///
   /// In en, this message translates to:
   /// **'Not yet'**
   String get notYet;
-
-  /// No description provided for @ivePaid.
-  ///
-  /// In en, this message translates to:
-  /// **'I\'ve paid'**
-  String get ivePaid;
-
-  /// No description provided for @paymentReceived.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment received 🎉'**
-  String get paymentReceived;
-
-  /// No description provided for @paymentStillProcessing.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment is still processing — we\'ll update it shortly'**
-  String get paymentStillProcessing;
 
   /// No description provided for @today.
   ///
@@ -2813,7 +2821,7 @@ abstract class AppLocalizations {
   /// No description provided for @depositRefundedAmount.
   ///
   /// In en, this message translates to:
-  /// **'Deposit refunded · ₦{amount}'**
+  /// **'Deposit refunded · \${amount}'**
   String depositRefundedAmount(String amount);
 
   /// No description provided for @depositRefunded.
@@ -2825,7 +2833,7 @@ abstract class AppLocalizations {
   /// No description provided for @paymentReceivedAmount.
   ///
   /// In en, this message translates to:
-  /// **'Payment received · ₦{amount}'**
+  /// **'Payment received · \${amount}'**
   String paymentReceivedAmount(String amount);
 
   /// No description provided for @paymentReceivedBanner.
@@ -3752,12 +3760,6 @@ abstract class AppLocalizations {
   /// **'Delivery Fee'**
   String get orderDeliveryFee;
 
-  /// No description provided for @orderPlatformFee.
-  ///
-  /// In en, this message translates to:
-  /// **'Platform Fee'**
-  String get orderPlatformFee;
-
   /// No description provided for @orderDeposit.
   ///
   /// In en, this message translates to:
@@ -3793,6 +3795,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pending'**
   String get orderPending;
+
+  /// No description provided for @currentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Password'**
+  String get currentPassword;
+
+  /// No description provided for @enterCurrentPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter current password'**
+  String get enterCurrentPassword;
+
+  /// No description provided for @passwordChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed successfully'**
+  String get passwordChanged;
+
+  /// No description provided for @twofaConfirmPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your password'**
+  String get twofaConfirmPasswordTitle;
+
+  /// No description provided for @twofaContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get twofaContinue;
+
+  /// No description provided for @twofaEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Enable'**
+  String get twofaEnable;
+
+  /// No description provided for @twofaDisable.
+  ///
+  /// In en, this message translates to:
+  /// **'Disable'**
+  String get twofaDisable;
+
+  /// No description provided for @twofaStatusOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Two-factor authentication is on'**
+  String get twofaStatusOn;
+
+  /// No description provided for @twofaStatusOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Two-factor authentication is off'**
+  String get twofaStatusOff;
+
+  /// No description provided for @twofaOnDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Your account is protected with an authenticator app.'**
+  String get twofaOnDesc;
+
+  /// No description provided for @twofaOffDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an extra layer of security using an authenticator app.'**
+  String get twofaOffDesc;
+
+  /// No description provided for @twofaEnabledMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Two-factor authentication enabled'**
+  String get twofaEnabledMsg;
+
+  /// No description provided for @twofaDisabledMsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Two-factor authentication disabled'**
+  String get twofaDisabledMsg;
+
+  /// No description provided for @twofaSetupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up authenticator'**
+  String get twofaSetupTitle;
+
+  /// No description provided for @twofaSetupHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan this QR code with your authenticator app, then enter the 6-digit code to finish.'**
+  String get twofaSetupHint;
+
+  /// No description provided for @twofaCantScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Can\'t scan? Enter this key manually:'**
+  String get twofaCantScan;
+
+  /// No description provided for @twofaSecretCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Secret copied'**
+  String get twofaSecretCopied;
+
+  /// No description provided for @twofaBackupCodesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup codes'**
+  String get twofaBackupCodesTitle;
+
+  /// No description provided for @twofaBackupCodesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Save these somewhere safe. Each can be used once.'**
+  String get twofaBackupCodesHint;
+
+  /// No description provided for @twofaEnterCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 6-digit code'**
+  String get twofaEnterCode;
+
+  /// No description provided for @twofaVerifyEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify & Enable'**
+  String get twofaVerifyEnable;
+
+  /// No description provided for @tfaChallengeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Two-Factor Verification'**
+  String get tfaChallengeTitle;
+
+  /// No description provided for @tfaChallengeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the 6-digit code from your authenticator app to continue.'**
+  String get tfaChallengeSubtitle;
+
+  /// No description provided for @tfaVerify.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify'**
+  String get tfaVerify;
 }
 
 class _AppLocalizationsDelegate
@@ -3806,7 +3952,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en', 'fr'].contains(locale.languageCode);
+      <String>['en', 'es', 'fr'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -3817,6 +3963,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'en':
       return AppLocalizationsEn();
+    case 'es':
+      return AppLocalizationsEs();
     case 'fr':
       return AppLocalizationsFr();
   }

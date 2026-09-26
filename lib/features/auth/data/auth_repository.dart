@@ -3,6 +3,14 @@ import '../../../core/api/api_client.dart';
 import '../../../shared/models/user_model.dart';
 import 'auth_remote_data_source.dart';
 
+/// Result of a sign-in attempt: either an authenticated user, or a 2FA challenge
+/// that must be completed with a TOTP code before a session is issued.
+class SignInResult {
+  final UserModel? user;
+  final bool twoFactorRequired;
+  const SignInResult({this.user, this.twoFactorRequired = false});
+}
+
 /// Real auth backed by the Planovar API. Mirrors the old MockAuthService
 /// method shapes so AuthBloc can use it as a drop-in replacement.
 ///
@@ -21,10 +29,42 @@ class AuthRepository {
   /// Held in memory only, for the change-password call at the password step.
   static String? _tempPassword;
 
-  Future<UserModel> signIn({required String email, required String password}) async {
+  Future<SignInResult> signIn({required String email, required String password}) async {
     final data = await _remote.signInEmail(email: email, password: password);
-    return UserModel.fromJson(_extractUser(data));
+    if (data['twoFactorRedirect'] == true) {
+      return const SignInResult(twoFactorRequired: true);
+    }
+    return SignInResult(user: UserModel.fromJson(_extractUser(data)));
   }
+
+  // ── Two-factor auth (TOTP) ─────────────────────────────────────────────────
+  Future<Map<String, dynamic>> enableTwoFactor(String password) =>
+      _remote.enableTwoFactor(password);
+
+  Future<void> disableTwoFactor(String password) =>
+      _remote.disableTwoFactor(password);
+
+  /// Verify a TOTP code (finishes enabling, or the sign-in challenge).
+  Future<void> verifyTotp(String code) => _remote.verifyTotp(code);
+
+  Future<bool> isTwoFactorEnabled() => _remote.isTwoFactorEnabled();
+
+  /// Complete a 2FA sign-in challenge: verify the code, then load the user.
+  Future<UserModel> completeTwoFactorSignIn(String code) async {
+    await _remote.verifyTotp(code);
+    return getMe();
+  }
+
+  /// Change the signed-in user's password (Settings → Security). Requires the
+  /// current password.
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) =>
+      _remote.changePassword(
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
 
   /// Launches the Google OAuth flow (redirects the browser to Google).
   Future<void> signInWithGoogle() => _remote.signInWithGoogle();
@@ -100,6 +140,7 @@ class AuthRepository {
       if (firstName != null) 'firstName': firstName,
       if (lastName != null) 'lastName': lastName,
       if (phone != null) 'phone': phone,
+      if (image != null) 'image': image,
     });
     return UserModel.fromJson(_extractUser(data));
   }

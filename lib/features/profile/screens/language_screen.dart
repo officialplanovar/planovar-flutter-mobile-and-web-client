@@ -15,6 +15,7 @@ class LanguageScreen extends StatelessWidget {
   static const _languages = [
     ('en', 'English'),
     ('fr', 'Français'),
+    ('es', 'Español'),
     ('pcm', 'Nigerian Pidgin'),
     ('ha', 'Hausa'),
     ('yo', 'Yoruba'),

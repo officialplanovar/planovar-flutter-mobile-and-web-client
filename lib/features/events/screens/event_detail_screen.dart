@@ -145,7 +145,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   String _fmtBudget(double? val) {
     if (val == null) return '—';
     final s = val.toInt().toString();
-    final buf = StringBuffer('₦');
+    final buf = StringBuffer('\$');
     for (var i = 0; i < s.length; i++) {
       if (i > 0 && (s.length - i) % 3 == 0) buf.write(',');
       buf.write(s[i]);
@@ -1114,7 +1114,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
   Widget _productBrowseCard(ListingModel p, {EventModel? event}) {
     final t = AppLocalizations.of(context);
     final price = p.basePrice != null
-        ? '₦${p.basePrice!.toInt()}'
+        ? '\$${p.basePrice!.toInt()}'
         : t.contactForPrice;
     return GestureDetector(
       onTap: () => context.push(

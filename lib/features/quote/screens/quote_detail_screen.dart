@@ -162,7 +162,19 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                     context: context,
                     builder: (ctx) => AlertDialog(
                       title: Text(t.acceptQuoteTitle),
-                      content: Text(t.acceptQuoteBody(Formatters.currency(quote.amount))),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(t.acceptQuoteBody(Formatters.currency(quote.amount))),
+                          const SizedBox(height: 12),
+                          Text(
+                            t.paymentArrangedNotice,
+                            style: const TextStyle(
+                                fontSize: 12.5, color: Color(0xFF92400E), height: 1.4),
+                          ),
+                        ],
+                      ),
                       actions: [
                         TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
                         ElevatedButton(
@@ -174,9 +186,9 @@ class _QuoteDetailScreenState extends State<QuoteDetailScreen> {
                   );
                   if (confirm == true) {
                     try {
-                      // Real flow: accepting the quote creates the invoice +
-                      // booking server-side; the invoice card and its Paystack
-                      // milestone payment then appear in the DM conversation.
+                      // Off-platform model: accepting the quote records the
+                      // agreement + a display-only invoice server-side. Payment
+                      // is arranged directly with the vendor, not on Planovar.
                       await ChatOrdersService().acceptQuote(quote.id);
                       if (!mounted) return;
                       // ignore: use_build_context_synchronously

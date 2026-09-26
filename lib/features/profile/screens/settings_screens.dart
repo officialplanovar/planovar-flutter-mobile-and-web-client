@@ -694,7 +694,7 @@ class HelpScreen extends StatelessWidget {
     final helpItems = <Map<String, dynamic>>[
       {'icon': Icons.email_rounded, 'title': t.emailSupportTitle, 'subtitle': 'contactplanovar@gmail.com', 'route': ''},
       {'icon': Icons.chat_rounded, 'title': t.liveChat, 'subtitle': t.liveChatSub, 'route': AppRoutes.supportChat},
-      {'icon': Icons.phone_rounded, 'title': t.phoneSupport, 'subtitle': '+2348488383\nMon - Fri 8am - 5pm', 'route': ''},
+      {'icon': Icons.phone_rounded, 'title': t.phoneSupport, 'subtitle': '+1 800 000 0000\nMon - Fri 8am - 5pm', 'route': ''},
       {'icon': Icons.help_outline_rounded, 'title': t.faqTitle, 'subtitle': t.faqSub, 'route': AppRoutes.faq},
     ];
     return Scaffold(

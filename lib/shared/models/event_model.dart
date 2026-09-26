@@ -19,6 +19,8 @@ class EventModel extends Equatable {
   final String id;
   final String clientId;
   final String name;
+  /// API EventType: WEDDING, FUNERAL, BIRTHDAY, CORPORATE, SOCIAL_PARTY, OTHER.
+  final String? type;
   final DateTime date;
   final String? location;
   final int? guestCount;
@@ -41,6 +43,7 @@ class EventModel extends Equatable {
     required this.id,
     required this.clientId,
     required this.name,
+    this.type,
     required this.date,
     this.location,
     this.guestCount,
@@ -70,7 +73,7 @@ class EventModel extends Equatable {
 
   static String _fmt(double n) {
     final s = n.toInt().toString();
-    final buf = StringBuffer('₦ ');
+    final buf = StringBuffer('\$');
     for (var i = 0; i < s.length; i++) {
       if (i > 0 && (s.length - i) % 3 == 0) buf.write(',');
       buf.write(s[i]);
