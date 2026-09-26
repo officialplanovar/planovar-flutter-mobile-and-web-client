@@ -1,14 +1,16 @@
 import 'package:intl/intl.dart';
 
 class Formatters {
-  static final _currencyFormat = NumberFormat('#,###', 'en_NG');
+  static final _currencyFormat =
+      NumberFormat.currency(locale: 'en_US', symbol: '\$', decimalDigits: 2);
   static final _dateFormat = DateFormat('d MMM yyyy');
   static final _shortDateFormat = DateFormat('d MMM');
   static final _timeFormat = DateFormat('h:mm a');
   static final _monthYearFormat = DateFormat('MMM yyyy');
 
   static String currency(double amount) {
-    return '₦${_currencyFormat.format(amount.toInt())}';
+    // USD, e.g. $1,234.50 — 2 decimals so cents render.
+    return _currencyFormat.format(amount);
   }
 
   static String date(DateTime date) {

@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
+import 'app_localizations_es.dart';
 import 'app_localizations_fr.dart';
 
 // ignore_for_file: type=lint
@@ -95,6 +96,7 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
+    Locale('es'),
     Locale('fr'),
   ];
 
@@ -493,6 +495,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter Phone Number'**
   String get enterPhoneNumber;
+
+  /// No description provided for @dialCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get dialCodeHint;
 
   /// No description provided for @saving.
   ///
@@ -1427,13 +1435,13 @@ abstract class AppLocalizations {
   /// No description provided for @budgetMinLabel.
   ///
   /// In en, this message translates to:
-  /// **'Budget Min (₦)'**
+  /// **'Budget Min (\$)'**
   String get budgetMinLabel;
 
   /// No description provided for @budgetMaxLabel.
   ///
   /// In en, this message translates to:
-  /// **'Budget Max (₦)'**
+  /// **'Budget Max (\$)'**
   String get budgetMaxLabel;
 
   /// No description provided for @eventThumbnail.
@@ -2261,7 +2269,7 @@ abstract class AppLocalizations {
   /// No description provided for @eventLocationHint.
   ///
   /// In en, this message translates to:
-  /// **'e.g. Eko Hotel, Victoria Island, Lagos'**
+  /// **'e.g. Grand Hotel, Downtown'**
   String get eventLocationHint;
 
   /// No description provided for @requirementsHint.
@@ -2513,7 +2521,7 @@ abstract class AppLocalizations {
   /// No description provided for @fromPrice.
   ///
   /// In en, this message translates to:
-  /// **'From ₦ {price}'**
+  /// **'From \${price}'**
   String fromPrice(String price);
 
   /// No description provided for @quoteOnRequest.
@@ -2645,7 +2653,7 @@ abstract class AppLocalizations {
   /// No description provided for @quoteSentAmount.
   ///
   /// In en, this message translates to:
-  /// **'Quote sent - ₦{amount} · '**
+  /// **'Quote sent - \${amount} · '**
   String quoteSentAmount(String amount);
 
   /// No description provided for @tapToReview.
@@ -2777,7 +2785,7 @@ abstract class AppLocalizations {
   /// No description provided for @depositRefundedAmount.
   ///
   /// In en, this message translates to:
-  /// **'Deposit refunded · ₦{amount}'**
+  /// **'Deposit refunded · \${amount}'**
   String depositRefundedAmount(String amount);
 
   /// No description provided for @depositRefunded.
@@ -2789,7 +2797,7 @@ abstract class AppLocalizations {
   /// No description provided for @paymentReceivedAmount.
   ///
   /// In en, this message translates to:
-  /// **'Payment received · ₦{amount}'**
+  /// **'Payment received · \${amount}'**
   String paymentReceivedAmount(String amount);
 
   /// No description provided for @paymentReceivedBanner.
@@ -3764,7 +3772,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en', 'fr'].contains(locale.languageCode);
+      <String>['en', 'es', 'fr'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -3775,6 +3783,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'en':
       return AppLocalizationsEn();
+    case 'es':
+      return AppLocalizationsEs();
     case 'fr':
       return AppLocalizationsFr();
   }

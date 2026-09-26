@@ -220,6 +220,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get enterPhoneNumber => 'Saisissez le numéro de téléphone';
 
   @override
+  String get dialCodeHint => 'Indicatif';
+
+  @override
   String get saving => 'Enregistrement…';
 
   @override
@@ -741,10 +744,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get venueHint => 'Saisissez l\'adresse du lieu';
 
   @override
-  String get budgetMinLabel => 'Budget min (₦)';
+  String get budgetMinLabel => 'Budget min (\$)';
 
   @override
-  String get budgetMaxLabel => 'Budget max (₦)';
+  String get budgetMaxLabel => 'Budget max (\$)';
 
   @override
   String get eventThumbnail => 'Vignette de l\'événement';
@@ -1191,7 +1194,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get eventLocation => 'Lieu de l\'événement';
 
   @override
-  String get eventLocationHint => 'ex. Eko Hotel, Victoria Island, Lagos';
+  String get eventLocationHint => 'ex. Grand Hôtel, Centre-ville';
 
   @override
   String get requirementsHint =>
@@ -1336,7 +1339,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String fromPrice(String price) {
-    return 'À partir de ₦ $price';
+    return 'À partir de \$$price';
   }
 
   @override
@@ -1426,7 +1429,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String quoteSentAmount(String amount) {
-    return 'Devis envoyé - ₦$amount · ';
+    return 'Devis envoyé - \$$amount · ';
   }
 
   @override
@@ -1499,7 +1502,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String depositRefundedAmount(String amount) {
-    return 'Caution remboursée · ₦$amount';
+    return 'Caution remboursée · \$$amount';
   }
 
   @override
@@ -1507,7 +1510,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String paymentReceivedAmount(String amount) {
-    return 'Paiement reçu · ₦$amount';
+    return 'Paiement reçu · \$$amount';
   }
 
   @override

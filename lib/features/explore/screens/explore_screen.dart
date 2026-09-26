@@ -20,7 +20,7 @@ String _fmtPrice(num n) {
     if (i != 0 && (i - offset) % 3 == 0) buf.write(',');
     buf.write(s[i]);
   }
-  return '₦${buf.toString()}';
+  return '\$${buf.toString()}';
 }
 
 class ExploreScreen extends StatefulWidget {

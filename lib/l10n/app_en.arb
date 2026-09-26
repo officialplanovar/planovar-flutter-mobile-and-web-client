@@ -80,6 +80,7 @@
   "addPhoneTitle": "Add your phone number",
   "addPhoneSubtitle": "This helps us personalize your experience a little more",
   "enterPhoneNumber": "Enter Phone Number",
+  "dialCodeHint": "Code",
   "saving": "Saving…",
   "skipForNow": "Skip for now",
   "createStrongPassword": "Create a Strong Password",
@@ -348,8 +349,8 @@
   "endTime": "End time",
   "venue": "Venue",
   "venueHint": "Enter venue address",
-  "budgetMinLabel": "Budget Min (₦)",
-  "budgetMaxLabel": "Budget Max (₦)",
+  "budgetMinLabel": "Budget Min ($)",
+  "budgetMaxLabel": "Budget Max ($)",
   "eventThumbnail": "Event Thumbnail",
   "uploadThumbnail": "Upload thumbnail",
   "categoriesHighlight": "Categories",
@@ -525,7 +526,7 @@
   "eventDetailsHeading": "Event Details",
   "selectEventDate": "Select event date",
   "eventLocation": "Event Location",
-  "eventLocationHint": "e.g. Eko Hotel, Victoria Island, Lagos",
+  "eventLocationHint": "e.g. Grand Hotel, Downtown",
   "requirementsHint": "Describe your event, guest count, special requests...",
   "selectPackage": "Select Package",
   "submitRequest": "Submit Request",
@@ -616,7 +617,7 @@
   "messageVendorPlain": "Message Vendor",
   "rentForYourEvent": "Rent for your Event",
   "addToEventPlusIcon": "+ Add to Event",
-  "fromPrice": "From ₦ {price}",
+  "fromPrice": "From ${price}",
   "@fromPrice": {
     "placeholders": {
       "price": {
@@ -659,7 +660,7 @@
       }
     }
   },
-  "quoteSentAmount": "Quote sent - ₦{amount} · ",
+  "quoteSentAmount": "Quote sent - ${amount} · ",
   "@quoteSentAmount": {
     "placeholders": {
       "amount": {
@@ -705,7 +706,7 @@
   "quoteAcceptedBanner": "Quote accepted",
   "quoteExpired": "Quote expired",
   "declinedBanner": "Declined",
-  "depositRefundedAmount": "Deposit refunded · ₦{amount}",
+  "depositRefundedAmount": "Deposit refunded · ${amount}",
   "@depositRefundedAmount": {
     "placeholders": {
       "amount": {
@@ -714,7 +715,7 @@
     }
   },
   "depositRefunded": "Deposit refunded",
-  "paymentReceivedAmount": "Payment received · ₦{amount}",
+  "paymentReceivedAmount": "Payment received · ${amount}",
   "@paymentReceivedAmount": {
     "placeholders": {
       "amount": {

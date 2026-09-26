@@ -288,7 +288,7 @@ class _RequestOrderSheetState extends State<RequestOrderSheet> {
                   fontWeight: bold ? FontWeight.w800 : FontWeight.w500,
                   color: bold ? context.c.textPrimary : context.c.textSecondary)),
           const Spacer(),
-          Text('₦${amount.toInt()}',
+          Text('\$${amount.toInt()}',
               style: GoogleFonts.urbanist(
                   fontSize: bold ? 16 : 13,
                   fontWeight: bold ? FontWeight.w800 : FontWeight.w600,

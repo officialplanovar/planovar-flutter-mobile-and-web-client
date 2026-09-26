@@ -80,6 +80,7 @@
   "addPhoneTitle": "Ajoutez votre numéro de téléphone",
   "addPhoneSubtitle": "Cela nous aide à personnaliser un peu plus votre expérience",
   "enterPhoneNumber": "Saisissez le numéro de téléphone",
+  "dialCodeHint": "Indicatif",
   "saving": "Enregistrement…",
   "skipForNow": "Passer pour l'instant",
   "createStrongPassword": "Créez un mot de passe fort",
@@ -348,8 +349,8 @@
   "endTime": "Heure de fin",
   "venue": "Lieu",
   "venueHint": "Saisissez l'adresse du lieu",
-  "budgetMinLabel": "Budget min (₦)",
-  "budgetMaxLabel": "Budget max (₦)",
+  "budgetMinLabel": "Budget min ($)",
+  "budgetMaxLabel": "Budget max ($)",
   "eventThumbnail": "Vignette de l'événement",
   "uploadThumbnail": "Téléverser une vignette",
   "categoriesHighlight": "Catégories",
@@ -525,7 +526,7 @@
   "eventDetailsHeading": "Détails de l'événement",
   "selectEventDate": "Sélectionner la date de l'événement",
   "eventLocation": "Lieu de l'événement",
-  "eventLocationHint": "ex. Eko Hotel, Victoria Island, Lagos",
+  "eventLocationHint": "ex. Grand Hôtel, Centre-ville",
   "requirementsHint": "Décrivez votre événement, le nombre d'invités, les demandes spéciales...",
   "selectPackage": "Sélectionner une formule",
   "submitRequest": "Envoyer la demande",
@@ -616,7 +617,7 @@
   "messageVendorPlain": "Contacter le prestataire",
   "rentForYourEvent": "Louer pour votre événement",
   "addToEventPlusIcon": "+ Ajouter à l'événement",
-  "fromPrice": "À partir de ₦ {price}",
+  "fromPrice": "À partir de ${price}",
   "@fromPrice": {
     "placeholders": {
       "price": {
@@ -659,7 +660,7 @@
       }
     }
   },
-  "quoteSentAmount": "Devis envoyé - ₦{amount} · ",
+  "quoteSentAmount": "Devis envoyé - ${amount} · ",
   "@quoteSentAmount": {
     "placeholders": {
       "amount": {
@@ -705,7 +706,7 @@
   "quoteAcceptedBanner": "Devis accepté",
   "quoteExpired": "Devis expiré",
   "declinedBanner": "Refusé",
-  "depositRefundedAmount": "Caution remboursée · ₦{amount}",
+  "depositRefundedAmount": "Caution remboursée · ${amount}",
   "@depositRefundedAmount": {
     "placeholders": {
       "amount": {
@@ -714,7 +715,7 @@
     }
   },
   "depositRefunded": "Caution remboursée",
-  "paymentReceivedAmount": "Paiement reçu · ₦{amount}",
+  "paymentReceivedAmount": "Paiement reçu · ${amount}",
   "@paymentReceivedAmount": {
     "placeholders": {
       "amount": {

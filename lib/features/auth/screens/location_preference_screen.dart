@@ -63,10 +63,9 @@ class _LocationPreferenceScreenState extends State<LocationPreferenceScreen> {
     final countries = await _locationService.getCountries();
     setState(() {
       _countries = countries;
-      _selectedCountry = countries.firstWhere(
-        (c) => c.code == 'NG',
-        orElse: () => countries.first,
-      );
+      // Global platform: default to the first country returned rather than
+      // hard-defaulting to Nigeria.
+      _selectedCountry = countries.isNotEmpty ? countries.first : null;
       _loading = false;
     });
     if (_selectedCountry != null) await _loadCities(_selectedCountry!.id);

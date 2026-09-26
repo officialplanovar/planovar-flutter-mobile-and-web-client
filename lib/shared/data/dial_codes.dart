@@ -1,5 +1,5 @@
-/// International dialing codes for the phone-number pickers. Nigeria first
-/// (the default region); a broad set so users abroad can register too.
+/// International dialing codes for the phone-number pickers. A broad,
+/// global set — no country is treated as the default region.
 typedef DialCode = ({String code, String flag, String label});
 
 const List<DialCode> kDialCodes = [

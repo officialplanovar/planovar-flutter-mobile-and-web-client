@@ -508,7 +508,7 @@ class _FavouritesScreenState extends State<FavouritesScreen> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(10, 4, 10, 0),
                   child: Text(
-                    '₦${l.basePrice?.toStringAsFixed(0) ?? '0'}',
+                    '\$${l.basePrice?.toStringAsFixed(0) ?? '0'}',
                     style: GoogleFonts.urbanist(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,

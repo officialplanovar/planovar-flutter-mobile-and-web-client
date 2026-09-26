@@ -733,7 +733,7 @@ class _VendorDetailSheetState extends State<_VendorDetailSheet> {
                               color: context.c.textSecondary, size: 13),
                           const SizedBox(width: 3),
                           Text(
-                            widget.vendor.location ?? 'Abuja, Nigeria',
+                            widget.vendor.location ?? '',
                             style: GoogleFonts.urbanist(
                                 fontSize: 13,
                                 color: context.c.textSecondary),
@@ -746,7 +746,7 @@ class _VendorDetailSheetState extends State<_VendorDetailSheet> {
                   // Description
                   Text(
                     widget.vendor.description ??
-                        'Award-winning custom cakes for every occasion in Lagos. We bring your vision to life with edible artistry, from classic tiers to sculpted showpieces.',
+                        'Award-winning custom services for every occasion. We bring your vision to life with creative artistry, from classic to bespoke showpieces.',
                     style: GoogleFonts.urbanist(
                       fontSize: 13,
                       color: context.c.textSecondary,
@@ -757,7 +757,7 @@ class _VendorDetailSheetState extends State<_VendorDetailSheet> {
                   // Info rows
                   _InfoRow(
                     icon: Icons.location_on_outlined,
-                    text: loc.serviceRadiusInfo(widget.vendor.location ?? 'Lagos Island'),
+                    text: loc.serviceRadiusInfo(widget.vendor.location ?? ''),
                   ),
                   const SizedBox(height: 8),
                   _InfoRow(
@@ -875,11 +875,11 @@ class _ListingRow extends StatelessWidget {
       final prices = listing.packages.map((p) => p.price).toList()..sort();
       final min = prices.first;
       final max = prices.last;
-      if (min == max) return '₦${_fmt(min)}';
-      return '₦${_fmt(min)} – ₦${_fmt(max)}';
+      if (min == max) return '\$${_fmt(min)}';
+      return '\$${_fmt(min)} – \$${_fmt(max)}';
     }
-    if (listing.basePrice != null) return '₦${_fmt(listing.basePrice!)}';
-    return '₦ —';
+    if (listing.basePrice != null) return '\$${_fmt(listing.basePrice!)}';
+    return '\$ —';
   }
 
   String _fmt(double v) {
@@ -995,11 +995,11 @@ class _ServiceDetailSheet extends StatelessWidget {
       final prices = listing.packages.map((p) => p.price).toList()..sort();
       final min = prices.first;
       final max = prices.last;
-      if (min == max) return '₦ ${_fmt(min)}';
-      return '₦ ${_fmt(min)} - ₦ ${_fmt(max)}';
+      if (min == max) return '\$${_fmt(min)}';
+      return '\$${_fmt(min)} - \$${_fmt(max)}';
     }
-    if (listing.basePrice != null) return '₦ ${_fmt(listing.basePrice!)}';
-    return '₦ —';
+    if (listing.basePrice != null) return '\$${_fmt(listing.basePrice!)}';
+    return '\$ —';
   }
 
   String _fmt(double v) {
@@ -1131,7 +1131,7 @@ class _ServiceDetailSheet extends StatelessWidget {
                         const SizedBox(height: 6),
                         Text(
                           listing.description ??
-                              'Award-winning custom cakes for every occasion in Lagos. We bring your vision to life with edible artistry, from classic tiers to sculpted showpieces.',
+                              'Award-winning custom services for every occasion. We bring your vision to life with creative artistry, from classic to bespoke showpieces.',
                           style: GoogleFonts.urbanist(
                             fontSize: 13,
                             color: context.c.textSecondary,
@@ -1306,7 +1306,7 @@ class _SourcedVendorCard extends StatelessWidget {
                         const SizedBox(width: 2),
                         Flexible(
                           child: Text(
-                            vendor.location ?? 'Abuja, Nigeria',
+                            vendor.location ?? '',
                             style: GoogleFonts.urbanist(
                                 fontSize: 11,
                                 color: context.c.textSecondary),

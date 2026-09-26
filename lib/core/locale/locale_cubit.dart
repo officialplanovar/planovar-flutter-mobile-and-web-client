@@ -10,7 +10,7 @@ class LocaleCubit extends Cubit<Locale> {
   static const _key = 'preferred_language';
 
   /// Languages with actual translations available today.
-  static const supported = ['en', 'fr'];
+  static const supported = ['en', 'fr', 'es'];
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
