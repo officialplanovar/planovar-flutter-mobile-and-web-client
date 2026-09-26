@@ -100,6 +100,7 @@ class AuthRepository {
       if (firstName != null) 'firstName': firstName,
       if (lastName != null) 'lastName': lastName,
       if (phone != null) 'phone': phone,
+      if (image != null) 'image': image,
     });
     return UserModel.fromJson(_extractUser(data));
   }
