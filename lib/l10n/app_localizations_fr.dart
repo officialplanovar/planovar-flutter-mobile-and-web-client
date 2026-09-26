@@ -695,6 +695,24 @@ class AppLocalizationsFr extends AppLocalizations {
   String get typeGraduation => 'Remise de diplôme';
 
   @override
+  String get eventTypeWedding => 'Mariage';
+
+  @override
+  String get eventTypeFuneral => 'Funérailles';
+
+  @override
+  String get eventTypeBirthday => 'Anniversaire';
+
+  @override
+  String get eventTypeCorporate => 'Entreprise';
+
+  @override
+  String get eventTypeSocialParty => 'Fête sociale';
+
+  @override
+  String get eventTypeAll => 'Tous';
+
+  @override
   String get otherLabel => 'Autre';
 
   @override

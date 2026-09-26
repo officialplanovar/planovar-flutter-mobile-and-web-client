@@ -36,6 +36,10 @@ class EventService {
       if (d['eventType'] != null)
         'description':
             '${d['eventType']}${categories.isNotEmpty ? ' — needs: ${categories.join(', ')}' : ''}',
+      // API EventType enum (WEDDING/FUNERAL/BIRTHDAY/CORPORATE/SOCIAL_PARTY);
+      // omitted when the wizard's "Other"/free-text path is used so the API
+      // defaults it to OTHER.
+      if (d['type'] != null) 'type': d['type'],
       'eventDate': (date is DateTime ? date : DateTime.now())
           .toUtc()
           .toIso8601String(),
@@ -92,6 +96,7 @@ class EventService {
       id: e['id'] as String,
       clientId: e['clientId'] as String? ?? '',
       name: e['name'] as String? ?? 'Event',
+      type: e['type'] as String?,
       date: e['eventDate'] != null
           ? DateTime.parse(e['eventDate'] as String)
           : DateTime.now(),

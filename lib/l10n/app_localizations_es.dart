@@ -690,6 +690,24 @@ class AppLocalizationsEs extends AppLocalizations {
   String get typeGraduation => 'Graduación';
 
   @override
+  String get eventTypeWedding => 'Boda';
+
+  @override
+  String get eventTypeFuneral => 'Funeral';
+
+  @override
+  String get eventTypeBirthday => 'Cumpleaños';
+
+  @override
+  String get eventTypeCorporate => 'Corporativo';
+
+  @override
+  String get eventTypeSocialParty => 'Fiesta social';
+
+  @override
+  String get eventTypeAll => 'Todos';
+
+  @override
   String get otherLabel => 'Otro';
 
   @override

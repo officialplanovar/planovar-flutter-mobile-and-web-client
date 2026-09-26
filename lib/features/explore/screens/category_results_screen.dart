@@ -32,6 +32,18 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
   final _searchCtrl = TextEditingController();
   String _activeFilter = 'all';
 
+  /// Selected API EventType enum filter for vendor browsing (null = all).
+  String? _eventTypeFilter;
+
+  /// Vendor-mode event-type filter chips (label ↔ API EventType enum value).
+  static const _eventTypeOptions = [
+    (label: 'Wedding', value: 'WEDDING'),
+    (label: 'Funeral', value: 'FUNERAL'),
+    (label: 'Birthday', value: 'BIRTHDAY'),
+    (label: 'Corporate', value: 'CORPORATE'),
+    (label: 'Social party', value: 'SOCIAL_PARTY'),
+  ];
+
   final _vendorService = VendorService();
   final _listingService = ListingService();
 
@@ -69,6 +81,7 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
       } else {
         _allVendors = await _vendorService.getVendors(
           category: widget.categorySlug == 'all' ? null : widget.categorySlug,
+          eventType: _eventTypeFilter,
         );
         // Which of these vendors the user has already saved (best-effort).
         try {
@@ -108,6 +121,30 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
       if (_activeFilter == 'rent') return l.isRentable;
       return true;
     }).toList();
+  }
+
+  String _eventTypeLabel(AppLocalizations t, String label) {
+    switch (label) {
+      case 'Wedding':
+        return t.eventTypeWedding;
+      case 'Funeral':
+        return t.eventTypeFuneral;
+      case 'Birthday':
+        return t.eventTypeBirthday;
+      case 'Corporate':
+        return t.eventTypeCorporate;
+      case 'Social party':
+        return t.eventTypeSocialParty;
+      default:
+        return label;
+    }
+  }
+
+  /// Applies (or clears) the event-type filter and reloads vendors.
+  void _selectEventType(String? value) {
+    if (_eventTypeFilter == value) return;
+    setState(() => _eventTypeFilter = value);
+    _load();
   }
 
   void _openFilters() {
@@ -270,6 +307,33 @@ class _CategoryResultsScreenState extends State<CategoryResultsScreen> {
                     onTap: () => setState(() => _activeFilter = 'rent'),
                   ),
                   const SizedBox(width: 16),
+                ],
+              ),
+            ),
+
+          // Event-type filter chips — vendor categories only.
+          if (!_isProductsCategory)
+            SizedBox(
+              height: 40,
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(left: 16, bottom: 8),
+                children: [
+                  _FilterChip(
+                    label: t.eventTypeAll,
+                    selected: _eventTypeFilter == null,
+                    onTap: () => _selectEventType(null),
+                  ),
+                  const SizedBox(width: 8),
+                  for (final opt in _eventTypeOptions) ...[
+                    _FilterChip(
+                      label: _eventTypeLabel(t, opt.label),
+                      selected: _eventTypeFilter == opt.value,
+                      onTap: () => _selectEventType(opt.value),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  const SizedBox(width: 8),
                 ],
               ),
             ),

@@ -15,11 +15,14 @@ class VendorService {
     String? query,
     String? category,
     String? city,
+    String? eventType,
   }) async {
     // DB-backed browse (not search) — reliable regardless of Typesense, and
     // returns coverUrl straight from Postgres so tiles show images.
     final res = await _api.dio.get('/vendors/browse', queryParameters: {
       'take': 60,
+      // API EventType enum filter — vendors tagged with this event type.
+      if (eventType != null && eventType.isNotEmpty) 'eventType': eventType,
     });
     ensureOk(res);
     final items = (res.data as List? ?? const [])

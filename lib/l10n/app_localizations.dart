@@ -1336,6 +1336,42 @@ abstract class AppLocalizations {
   /// **'Graduation'**
   String get typeGraduation;
 
+  /// No description provided for @eventTypeWedding.
+  ///
+  /// In en, this message translates to:
+  /// **'Wedding'**
+  String get eventTypeWedding;
+
+  /// No description provided for @eventTypeFuneral.
+  ///
+  /// In en, this message translates to:
+  /// **'Funeral'**
+  String get eventTypeFuneral;
+
+  /// No description provided for @eventTypeBirthday.
+  ///
+  /// In en, this message translates to:
+  /// **'Birthday'**
+  String get eventTypeBirthday;
+
+  /// No description provided for @eventTypeCorporate.
+  ///
+  /// In en, this message translates to:
+  /// **'Corporate'**
+  String get eventTypeCorporate;
+
+  /// No description provided for @eventTypeSocialParty.
+  ///
+  /// In en, this message translates to:
+  /// **'Social party'**
+  String get eventTypeSocialParty;
+
+  /// No description provided for @eventTypeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get eventTypeAll;
+
   /// No description provided for @otherLabel.
   ///
   /// In en, this message translates to:
