@@ -51,7 +51,6 @@ class AppRoutes {
   static const orderDetail = '/orders/detail';
   static const rentalDetail = '/orders/rental-detail';
   static const cancelOrder = '/orders/cancel';
-  static const requestRefund = '/orders/refund';
 
   static const notifications = '/notifications';
   static const favourites = '/favourites';

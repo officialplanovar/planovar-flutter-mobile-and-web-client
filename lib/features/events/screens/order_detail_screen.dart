@@ -8,6 +8,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../shared/models/booking_model.dart';
 import '../../../shared/models/listing_model.dart';
+import '../../../shared/widgets/off_platform_notice.dart';
 import '../../../l10n/app_localizations.dart';
 
 class OrderDetailScreen extends StatefulWidget {
@@ -174,6 +175,11 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                   if (booking != null && booking.milestones.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     _buildPaymentHistoryCard(context, booking),
+                  ],
+                  if (booking != null &&
+                      (booking.milestones.isNotEmpty || booking.feeLines.isNotEmpty)) ...[
+                    const SizedBox(height: 12),
+                    const OffPlatformPaymentNotice(),
                   ],
                   if (booking?.requirements?.isNotEmpty == true) ...[
                     const SizedBox(height: 16),
@@ -487,9 +493,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       if ((b.deliveryFee ?? 0) > 0) {
         rows.add(_feeRow(context, t.orderDeliveryFee, Formatters.currency(b.deliveryFee!)));
       }
-      if ((b.platformFee ?? 0) > 0) {
-        rows.add(_feeRow(context, t.orderPlatformFee, Formatters.currency(b.platformFee!)));
-      }
       if ((b.depositAmount ?? 0) > 0) {
         rows.add(_feeRow(context, t.orderDeposit, Formatters.currency(b.depositAmount!)));
       }
@@ -601,10 +604,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
       return const SizedBox.shrink();
     }
     if (isCompleted) {
-      return _RedOutlineButton(
-        label: t.requestRefundWarn,
-        onPressed: () => context.push(AppRoutes.requestRefund),
-      );
+      return const SizedBox.shrink();
     }
     return _RedOutlineButton(
       label: t.cancelOrderWarn,

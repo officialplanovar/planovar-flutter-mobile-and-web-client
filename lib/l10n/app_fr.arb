@@ -576,7 +576,7 @@
       }
     }
   },
-  "quoteAcceptedInvoice": "Devis accepté — une facture a été ajoutée à votre discussion.",
+  "quoteAcceptedInvoice": "Devis accepté — organisez le paiement directement avec le prestataire.",
   "couldNotAcceptQuote": "Impossible d'accepter le devis : {error}",
   "@couldNotAcceptQuote": {
     "placeholders": {
@@ -676,7 +676,7 @@
       }
     }
   },
-  "quoteAcceptedInvoiceCreated": "Devis accepté — facture créée 🎉",
+  "quoteAcceptedInvoiceCreated": "Devis accepté — organisez le paiement directement avec le prestataire 🎉",
   "quoteDeclined": "Devis refusé",
   "quoteVersionValid": "Version {version} · valable jusqu'au {date}",
   "@quoteVersionValid": {
@@ -698,23 +698,7 @@
   "reviewSubmittedStar": "Avis envoyé ⭐",
   "submitting": "Envoi…",
   "submitReviewBtn": "Envoyer l'avis",
-  "couldNotOpenPayment": "Impossible d'ouvrir la page de paiement",
-  "finishPayment": "Finaliser le paiement",
-  "finishPaymentBody": "Appuyez sur « J'ai payé » une fois le paiement de ₦{charge} effectué (frais de transaction de ₦{fee} inclus) sur Paystack.",
-  "@finishPaymentBody": {
-    "placeholders": {
-      "charge": {
-        "type": "String"
-      },
-      "fee": {
-        "type": "String"
-      }
-    }
-  },
   "notYet": "Pas encore",
-  "ivePaid": "J'ai payé",
-  "paymentReceived": "Paiement reçu 🎉",
-  "paymentStillProcessing": "Le paiement est en cours de traitement — nous le mettrons à jour sous peu",
   "today": "Aujourd'hui",
   "chatFallback": "Discussion",
   "sayHello": "Dites bonjour 👋",
@@ -913,7 +897,6 @@
   "orderFeeBreakdown": "Détail des frais",
   "orderSubtotal": "Sous-total",
   "orderDeliveryFee": "Frais de livraison",
-  "orderPlatformFee": "Frais de plateforme",
   "orderDeposit": "Caution remboursable",
   "orderTotal": "Total",
   "orderPaymentHistory": "Historique des paiements",

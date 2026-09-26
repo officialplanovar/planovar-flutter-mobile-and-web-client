@@ -47,7 +47,6 @@ import '../../features/events/screens/review_screen.dart';
 import '../../features/events/screens/order_detail_screen.dart';
 import '../../features/events/screens/rental_detail_screen.dart';
 import '../../features/events/screens/cancel_order_screen.dart';
-import '../../features/events/screens/request_refund_screen.dart';
 import '../../features/events/screens/create_event_step1_screen.dart';
 import '../../features/events/screens/create_event_step2_screen.dart';
 import '../../features/events/screens/create_event_step3_screen.dart';
@@ -285,12 +284,6 @@ GoRouter createRouter() {
       GoRoute(
         path: AppRoutes.cancelOrder,
         builder: (_, __) => const CancelOrderScreen(),
-      ),
-
-      // Request refund
-      GoRoute(
-        path: AppRoutes.requestRefund,
-        builder: (_, __) => const RequestRefundScreen(),
       ),
 
       // Leave review

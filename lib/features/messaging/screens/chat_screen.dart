@@ -3,8 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'package:url_launcher/url_launcher.dart';
-
 import '../../../core/services/chat_socket.dart';
 import '../../../core/services/messaging_service.dart';
 import '../../../core/services/chat_orders_service.dart';
@@ -12,7 +10,6 @@ import '../../calls/call_screen.dart';
 import '../../../core/router/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../shared/models/conversation_model.dart';
-import '../../../shared/models/invoice_model.dart';
 import '../../../shared/models/message_model.dart';
 import '../../../shared/models/quote_model.dart';
 import '../../../shared/widgets/chat_order_cards.dart';
@@ -219,16 +216,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 ...q.lineItems.map((li) => row(li.label, _money(li.amount))),
                 const Divider(height: 20),
                 row(loc.total, _money(q.amount), bold: true),
-                if (q.paymentTerms.isNotEmpty) ...[
+                if ((q.paymentTerms ?? '').isNotEmpty) ...[
                   const SizedBox(height: 14),
                   Text(loc.paymentTerms,
                       style: GoogleFonts.urbanist(
                           fontSize: 13, fontWeight: FontWeight.w700, color: context.c.textSecondary)),
                   const SizedBox(height: 4),
-                  ...q.paymentTerms.map((t) => row(
-                        '${t.label}${t.dueLabel != null ? ' · ${t.dueLabel}' : ''}',
-                        '${t.percentage.toInt()}%',
-                      )),
+                  Text(q.paymentTerms!,
+                      style: GoogleFonts.urbanist(fontSize: 13.5, color: context.c.textPrimary)),
                 ],
                 if (((q.notes ?? q.description) ?? '').isNotEmpty) ...[
                   const SizedBox(height: 14),
@@ -351,51 +346,6 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> _payMilestone(PaymentMilestone m) async {
-    MilestoneCheckout checkout;
-    try {
-      checkout = await _orders.payMilestone(m.id);
-    } catch (e) {
-      _snack(_err(e));
-      return;
-    }
-    final launched = await launchUrl(
-      Uri.parse(checkout.authorizationUrl),
-      mode: LaunchMode.externalApplication,
-    );
-    if (!mounted) return;
-    if (!launched) {
-      _snack(AppLocalizations.of(context).couldNotOpenPayment);
-      return;
-    }
-    final loc = AppLocalizations.of(context);
-    final done = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(loc.finishPayment,
-            style: GoogleFonts.urbanist(fontWeight: FontWeight.w800)),
-        content: Text(
-          loc.finishPaymentBody(checkout.chargeAmount.toStringAsFixed(0), checkout.feeAmount.toStringAsFixed(0)),
-          style: GoogleFonts.urbanist(),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(loc.notYet)),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(loc.ivePaid)),
-        ],
-      ),
-    );
-    if (done != true) return;
-    try {
-      final confirmed = await _orders.verifyPayment(checkout.reference);
-      await _load();
-      _snack(confirmed
-          ? loc.paymentReceived
-          : loc.paymentStillProcessing);
-    } catch (e) {
-      _snack(_err(e));
-    }
   }
 
   void _scrollToBottom() {
@@ -563,7 +513,7 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     }
     if (msg.type == 'invoice' && msg.invoice != null) {
-      return InvoiceCard(invoice: msg.invoice!, onPay: _payMilestone);
+      return InvoiceCard(invoice: msg.invoice!);
     }
     if (msg.type == 'order_request' && msg.booking != null) {
       return OrderRequestCard(booking: msg.booking!);

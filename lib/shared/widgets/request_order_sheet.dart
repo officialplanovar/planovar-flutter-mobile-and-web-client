@@ -196,7 +196,7 @@ class _RequestOrderSheetState extends State<RequestOrderSheet> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'The vendor reviews your request, then sends an invoice you can pay directly.',
+                  'The vendor reviews your request, then confirms the booking. Payment is arranged directly with the vendor, off-platform.',
                   style: GoogleFonts.urbanist(fontSize: 11.5, color: context.c.textHint),
                 ),
               ],

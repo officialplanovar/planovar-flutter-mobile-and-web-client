@@ -34,7 +34,7 @@ class QuoteModel extends Equatable {
   final String? description;
   final String? notes; // vendor's "Note to client"
   final List<QuoteLineItem> lineItems;
-  final List<QuotePaymentTerm> paymentTerms;
+  final String? paymentTerms; // free-text; payment is arranged off-platform
   final DateTime validUntil;
   final String status; // pending | accepted | rejected | expired | superseded
   final int version;
@@ -50,7 +50,7 @@ class QuoteModel extends Equatable {
     this.description,
     this.notes,
     required this.lineItems,
-    this.paymentTerms = const [],
+    this.paymentTerms,
     required this.validUntil,
     required this.status,
     this.version = 1,
@@ -73,9 +73,7 @@ class QuoteModel extends Equatable {
       lineItems: (json['lineItems'] as List? ?? [])
           .map((e) => QuoteLineItem.fromJson(Map<String, dynamic>.from(e)))
           .toList(),
-      paymentTerms: (json['paymentTerms'] as List? ?? [])
-          .map((e) => QuotePaymentTerm.fromJson(Map<String, dynamic>.from(e)))
-          .toList(),
+      paymentTerms: json['paymentTerms'] as String?,
       validUntil: DateTime.parse(json['validUntil'] as String),
       status: (json['status'] as String? ?? 'pending').toLowerCase(),
       version: (json['version'] as num?)?.toInt() ?? 1,
@@ -85,25 +83,4 @@ class QuoteModel extends Equatable {
 
   @override
   List<Object?> get props => [id, bookingId, vendorId, amount, status, version];
-}
-
-class QuotePaymentTerm extends Equatable {
-  final String label;
-  final double percentage;
-  final String? dueLabel;
-
-  const QuotePaymentTerm({
-    required this.label,
-    required this.percentage,
-    this.dueLabel,
-  });
-
-  factory QuotePaymentTerm.fromJson(Map<String, dynamic> j) => QuotePaymentTerm(
-        label: j['label'] as String? ?? '',
-        percentage: numToDouble(j['percentage']),
-        dueLabel: j['dueLabel'] as String?,
-      );
-
-  @override
-  List<Object?> get props => [label, percentage];
 }

@@ -7,6 +7,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../shared/models/booking_model.dart';
 import '../../../shared/models/listing_model.dart';
+import '../../../shared/widgets/off_platform_notice.dart';
 import '../../../l10n/app_localizations.dart';
 
 class RentalDetailScreen extends StatefulWidget {
@@ -162,6 +163,8 @@ class _RentalDetailScreenState extends State<RentalDetailScreen> {
                   if (booking != null && booking.milestones.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     _buildPaymentHistoryCard(context, booking),
+                    const SizedBox(height: 12),
+                    const OffPlatformPaymentNotice(),
                   ],
                   if (booking?.requirements?.isNotEmpty == true) ...[
                     const SizedBox(height: 16),

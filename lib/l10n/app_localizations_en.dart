@@ -1249,7 +1249,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quoteAcceptedInvoice =>
-      'Quote accepted — an invoice has been added to your chat.';
+      'Quote accepted — arrange payment directly with the vendor.';
 
   @override
   String couldNotAcceptQuote(String error) {
@@ -1413,7 +1413,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quoteAcceptedInvoiceCreated =>
-      'Quote accepted — invoice created 🎉';
+      'Quote accepted — arrange payment directly with the vendor 🎉';
 
   @override
   String get quoteDeclined => 'Quote declined';
@@ -1451,28 +1451,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get submitReviewBtn => 'Submit review';
 
   @override
-  String get couldNotOpenPayment => 'Could not open the payment page';
-
-  @override
-  String get finishPayment => 'Finish payment';
-
-  @override
-  String finishPaymentBody(String charge, String fee) {
-    return 'Tap \"I\'ve paid\" once you\'ve completed the ₦$charge payment (incl. ₦$fee transaction fee) on Paystack.';
-  }
-
-  @override
   String get notYet => 'Not yet';
-
-  @override
-  String get ivePaid => 'I\'ve paid';
-
-  @override
-  String get paymentReceived => 'Payment received 🎉';
-
-  @override
-  String get paymentStillProcessing =>
-      'Payment is still processing — we\'ll update it shortly';
 
   @override
   String get today => 'Today';
@@ -1994,9 +1973,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get orderDeliveryFee => 'Delivery Fee';
-
-  @override
-  String get orderPlatformFee => 'Platform Fee';
 
   @override
   String get orderDeposit => 'Refundable Deposit';

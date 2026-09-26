@@ -1272,7 +1272,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get quoteAcceptedInvoice =>
-      'Devis accepté — une facture a été ajoutée à votre discussion.';
+      'Devis accepté — organisez le paiement directement avec le prestataire.';
 
   @override
   String couldNotAcceptQuote(String error) {
@@ -1438,7 +1438,8 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
-  String get quoteAcceptedInvoiceCreated => 'Devis accepté — facture créée 🎉';
+  String get quoteAcceptedInvoiceCreated =>
+      'Devis accepté — organisez le paiement directement avec le prestataire 🎉';
 
   @override
   String get quoteDeclined => 'Devis refusé';
@@ -1476,28 +1477,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get submitReviewBtn => 'Envoyer l\'avis';
 
   @override
-  String get couldNotOpenPayment => 'Impossible d\'ouvrir la page de paiement';
-
-  @override
-  String get finishPayment => 'Finaliser le paiement';
-
-  @override
-  String finishPaymentBody(String charge, String fee) {
-    return 'Appuyez sur « J\'ai payé » une fois le paiement de ₦$charge effectué (frais de transaction de ₦$fee inclus) sur Paystack.';
-  }
-
-  @override
   String get notYet => 'Pas encore';
-
-  @override
-  String get ivePaid => 'J\'ai payé';
-
-  @override
-  String get paymentReceived => 'Paiement reçu 🎉';
-
-  @override
-  String get paymentStillProcessing =>
-      'Le paiement est en cours de traitement — nous le mettrons à jour sous peu';
 
   @override
   String get today => 'Aujourd\'hui';
@@ -2032,9 +2012,6 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get orderDeliveryFee => 'Frais de livraison';
-
-  @override
-  String get orderPlatformFee => 'Frais de plateforme';
 
   @override
   String get orderDeposit => 'Caution remboursable';

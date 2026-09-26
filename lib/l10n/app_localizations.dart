@@ -2399,7 +2399,7 @@ abstract class AppLocalizations {
   /// No description provided for @quoteAcceptedInvoice.
   ///
   /// In en, this message translates to:
-  /// **'Quote accepted — an invoice has been added to your chat.'**
+  /// **'Quote accepted — arrange payment directly with the vendor.'**
   String get quoteAcceptedInvoice;
 
   /// No description provided for @couldNotAcceptQuote.
@@ -2663,7 +2663,7 @@ abstract class AppLocalizations {
   /// No description provided for @quoteAcceptedInvoiceCreated.
   ///
   /// In en, this message translates to:
-  /// **'Quote accepted — invoice created 🎉'**
+  /// **'Quote accepted — arrange payment directly with the vendor 🎉'**
   String get quoteAcceptedInvoiceCreated;
 
   /// No description provided for @quoteDeclined.
@@ -2732,47 +2732,11 @@ abstract class AppLocalizations {
   /// **'Submit review'**
   String get submitReviewBtn;
 
-  /// No description provided for @couldNotOpenPayment.
-  ///
-  /// In en, this message translates to:
-  /// **'Could not open the payment page'**
-  String get couldNotOpenPayment;
-
-  /// No description provided for @finishPayment.
-  ///
-  /// In en, this message translates to:
-  /// **'Finish payment'**
-  String get finishPayment;
-
-  /// No description provided for @finishPaymentBody.
-  ///
-  /// In en, this message translates to:
-  /// **'Tap \"I\'ve paid\" once you\'ve completed the ₦{charge} payment (incl. ₦{fee} transaction fee) on Paystack.'**
-  String finishPaymentBody(String charge, String fee);
-
   /// No description provided for @notYet.
   ///
   /// In en, this message translates to:
   /// **'Not yet'**
   String get notYet;
-
-  /// No description provided for @ivePaid.
-  ///
-  /// In en, this message translates to:
-  /// **'I\'ve paid'**
-  String get ivePaid;
-
-  /// No description provided for @paymentReceived.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment received 🎉'**
-  String get paymentReceived;
-
-  /// No description provided for @paymentStillProcessing.
-  ///
-  /// In en, this message translates to:
-  /// **'Payment is still processing — we\'ll update it shortly'**
-  String get paymentStillProcessing;
 
   /// No description provided for @today.
   ///
@@ -3751,12 +3715,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delivery Fee'**
   String get orderDeliveryFee;
-
-  /// No description provided for @orderPlatformFee.
-  ///
-  /// In en, this message translates to:
-  /// **'Platform Fee'**
-  String get orderPlatformFee;
 
   /// No description provided for @orderDeposit.
   ///

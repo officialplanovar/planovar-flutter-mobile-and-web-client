@@ -576,7 +576,7 @@
       }
     }
   },
-  "quoteAcceptedInvoice": "Quote accepted — an invoice has been added to your chat.",
+  "quoteAcceptedInvoice": "Quote accepted — arrange payment directly with the vendor.",
   "couldNotAcceptQuote": "Could not accept quote: {error}",
   "@couldNotAcceptQuote": {
     "placeholders": {
@@ -676,7 +676,7 @@
       }
     }
   },
-  "quoteAcceptedInvoiceCreated": "Quote accepted — invoice created 🎉",
+  "quoteAcceptedInvoiceCreated": "Quote accepted — arrange payment directly with the vendor 🎉",
   "quoteDeclined": "Quote declined",
   "quoteVersionValid": "Version {version} · valid till {date}",
   "@quoteVersionValid": {
@@ -698,23 +698,7 @@
   "reviewSubmittedStar": "Review submitted ⭐",
   "submitting": "Submitting…",
   "submitReviewBtn": "Submit review",
-  "couldNotOpenPayment": "Could not open the payment page",
-  "finishPayment": "Finish payment",
-  "finishPaymentBody": "Tap \"I've paid\" once you've completed the ₦{charge} payment (incl. ₦{fee} transaction fee) on Paystack.",
-  "@finishPaymentBody": {
-    "placeholders": {
-      "charge": {
-        "type": "String"
-      },
-      "fee": {
-        "type": "String"
-      }
-    }
-  },
   "notYet": "Not yet",
-  "ivePaid": "I've paid",
-  "paymentReceived": "Payment received 🎉",
-  "paymentStillProcessing": "Payment is still processing — we'll update it shortly",
   "today": "Today",
   "chatFallback": "Chat",
   "sayHello": "Say hello 👋",
@@ -913,7 +897,6 @@
   "orderFeeBreakdown": "Fee Breakdown",
   "orderSubtotal": "Subtotal",
   "orderDeliveryFee": "Delivery Fee",
-  "orderPlatformFee": "Platform Fee",
   "orderDeposit": "Refundable Deposit",
   "orderTotal": "Total",
   "orderPaymentHistory": "Payment History",

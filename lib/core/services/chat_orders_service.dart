@@ -2,32 +2,6 @@ import '../api/api_client.dart';
 import '../api/api_utils.dart';
 import '../../shared/models/invoice_model.dart';
 
-/// Result of starting a milestone payment — the client opens [authorizationUrl]
-/// (Paystack checkout), then verifies with [reference].
-class MilestoneCheckout {
-  final String authorizationUrl;
-  final String reference;
-  final double netAmount;
-  final double feeAmount;
-  final double chargeAmount;
-
-  const MilestoneCheckout({
-    required this.authorizationUrl,
-    required this.reference,
-    required this.netAmount,
-    required this.feeAmount,
-    required this.chargeAmount,
-  });
-
-  factory MilestoneCheckout.fromJson(Map<String, dynamic> j) => MilestoneCheckout(
-        authorizationUrl: j['authorizationUrl'] as String,
-        reference: j['reference'] as String,
-        netAmount: (j['netAmount'] as num?)?.toDouble() ?? 0,
-        feeAmount: (j['feeAmount'] as num?)?.toDouble() ?? 0,
-        chargeAmount: (j['chargeAmount'] as num?)?.toDouble() ?? 0,
-      );
-}
-
 /// Client-side actions on the chat-order flow (/chat-orders). Vendor-only
 /// actions (send/revise quote, accept/decline order) live in the vendor app.
 class ChatOrdersService {
@@ -36,7 +10,9 @@ class ChatOrdersService {
 
   // ── Quotes ────────────────────────────────────────────────────────────────
 
-  /// Accept a quote → the API creates the invoice + booking and returns it.
+  /// Accept a quote → the API records the agreement and returns the resulting
+  /// invoice as a DISPLAY-ONLY record. Payment is arranged directly with the
+  /// vendor, off-platform.
   Future<InvoiceModel> acceptQuote(String quoteId) async {
     final res = await _api.dio.post('/chat-orders/quotes/$quoteId/accept');
     ensureOk(res);
@@ -46,21 +22,6 @@ class ChatOrdersService {
   Future<void> declineQuote(String quoteId) async {
     final res = await _api.dio.post('/chat-orders/quotes/$quoteId/decline');
     ensureOk(res);
-  }
-
-  // ── Milestone payments (direct client→vendor via Paystack) ────────────────
-
-  Future<MilestoneCheckout> payMilestone(String milestoneId) async {
-    final res = await _api.dio.post('/chat-orders/milestones/$milestoneId/pay');
-    ensureOk(res);
-    return MilestoneCheckout.fromJson(Map<String, dynamic>.from(res.data));
-  }
-
-  /// Confirm a payment after the Paystack checkout returns (idempotent).
-  Future<bool> verifyPayment(String reference) async {
-    final res = await _api.dio.post('/chat-orders/payments/$reference/verify');
-    ensureOk(res);
-    return (res.data as Map?)?['confirmed'] as bool? ?? false;
   }
 
   // ── Direct orders (product / rental) ──────────────────────────────────────
