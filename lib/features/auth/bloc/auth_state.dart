@@ -26,6 +26,12 @@ class AuthUnauthenticated extends AuthState {
   const AuthUnauthenticated();
 }
 
+/// Password was correct but the account has 2FA enabled — a TOTP code is
+/// required to complete sign-in.
+class AuthTwoFactorRequired extends AuthState {
+  const AuthTwoFactorRequired();
+}
+
 class AuthOtpSent extends AuthState {
   final String email;
   final String purpose;

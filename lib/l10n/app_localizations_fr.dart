@@ -2033,4 +2033,83 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get orderPending => 'En attente';
+
+  @override
+  String get currentPassword => 'Mot de passe actuel';
+
+  @override
+  String get enterCurrentPassword => 'Saisissez le mot de passe actuel';
+
+  @override
+  String get passwordChanged => 'Mot de passe modifié avec succès';
+
+  @override
+  String get twofaConfirmPasswordTitle => 'Confirmez votre mot de passe';
+
+  @override
+  String get twofaContinue => 'Continuer';
+
+  @override
+  String get twofaEnable => 'Activer';
+
+  @override
+  String get twofaDisable => 'Désactiver';
+
+  @override
+  String get twofaStatusOn => 'L\'authentification à deux facteurs est activée';
+
+  @override
+  String get twofaStatusOff =>
+      'L\'authentification à deux facteurs est désactivée';
+
+  @override
+  String get twofaOnDesc =>
+      'Votre compte est protégé par une application d\'authentification.';
+
+  @override
+  String get twofaOffDesc =>
+      'Ajoutez une couche de sécurité supplémentaire avec une application d\'authentification.';
+
+  @override
+  String get twofaEnabledMsg => 'Authentification à deux facteurs activée';
+
+  @override
+  String get twofaDisabledMsg => 'Authentification à deux facteurs désactivée';
+
+  @override
+  String get twofaSetupTitle => 'Configurer l\'authentificateur';
+
+  @override
+  String get twofaSetupHint =>
+      'Scannez ce code QR avec votre application d\'authentification, puis saisissez le code à 6 chiffres pour terminer.';
+
+  @override
+  String get twofaCantScan =>
+      'Impossible de scanner ? Saisissez cette clé manuellement :';
+
+  @override
+  String get twofaSecretCopied => 'Clé copiée';
+
+  @override
+  String get twofaBackupCodesTitle => 'Codes de secours';
+
+  @override
+  String get twofaBackupCodesHint =>
+      'Conservez-les en lieu sûr. Chacun ne peut servir qu\'une fois.';
+
+  @override
+  String get twofaEnterCode => 'Saisissez le code à 6 chiffres';
+
+  @override
+  String get twofaVerifyEnable => 'Vérifier et activer';
+
+  @override
+  String get tfaChallengeTitle => 'Vérification à deux facteurs';
+
+  @override
+  String get tfaChallengeSubtitle =>
+      'Saisissez le code à 6 chiffres de votre application d\'authentification pour continuer.';
+
+  @override
+  String get tfaVerify => 'Vérifier';
 }

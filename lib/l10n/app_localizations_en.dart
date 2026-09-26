@@ -1994,4 +1994,81 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get orderPending => 'Pending';
+
+  @override
+  String get currentPassword => 'Current Password';
+
+  @override
+  String get enterCurrentPassword => 'Enter current password';
+
+  @override
+  String get passwordChanged => 'Password changed successfully';
+
+  @override
+  String get twofaConfirmPasswordTitle => 'Confirm your password';
+
+  @override
+  String get twofaContinue => 'Continue';
+
+  @override
+  String get twofaEnable => 'Enable';
+
+  @override
+  String get twofaDisable => 'Disable';
+
+  @override
+  String get twofaStatusOn => 'Two-factor authentication is on';
+
+  @override
+  String get twofaStatusOff => 'Two-factor authentication is off';
+
+  @override
+  String get twofaOnDesc =>
+      'Your account is protected with an authenticator app.';
+
+  @override
+  String get twofaOffDesc =>
+      'Add an extra layer of security using an authenticator app.';
+
+  @override
+  String get twofaEnabledMsg => 'Two-factor authentication enabled';
+
+  @override
+  String get twofaDisabledMsg => 'Two-factor authentication disabled';
+
+  @override
+  String get twofaSetupTitle => 'Set up authenticator';
+
+  @override
+  String get twofaSetupHint =>
+      'Scan this QR code with your authenticator app, then enter the 6-digit code to finish.';
+
+  @override
+  String get twofaCantScan => 'Can\'t scan? Enter this key manually:';
+
+  @override
+  String get twofaSecretCopied => 'Secret copied';
+
+  @override
+  String get twofaBackupCodesTitle => 'Backup codes';
+
+  @override
+  String get twofaBackupCodesHint =>
+      'Save these somewhere safe. Each can be used once.';
+
+  @override
+  String get twofaEnterCode => 'Enter the 6-digit code';
+
+  @override
+  String get twofaVerifyEnable => 'Verify & Enable';
+
+  @override
+  String get tfaChallengeTitle => 'Two-Factor Verification';
+
+  @override
+  String get tfaChallengeSubtitle =>
+      'Enter the 6-digit code from your authenticator app to continue.';
+
+  @override
+  String get tfaVerify => 'Verify';
 }

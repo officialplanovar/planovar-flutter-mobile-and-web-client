@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/splash/splash_screen.dart';
 import '../../features/auth/screens/onboarding_screen.dart';
 import '../../features/auth/screens/login_screen.dart';
+import '../../features/auth/screens/two_factor_challenge_screen.dart';
 import '../../features/auth/screens/register_screen.dart';
 import '../../features/auth/screens/verify_otp_screen.dart';
 import '../../features/auth/screens/phone_screen.dart';
@@ -76,7 +77,7 @@ GoRouter createRouter() {
         AppRoutes.register, AppRoutes.verifyOtp, AppRoutes.phone,
         AppRoutes.locationPref, AppRoutes.categoryPref,
         AppRoutes.createPassword, AppRoutes.forgotPassword,
-        AppRoutes.resetPassword,
+        AppRoutes.resetPassword, AppRoutes.twoFactorChallenge,
       ];
       final currentPath = state.matchedLocation;
       final isOnAuthRoute = authPaths.any((p) => currentPath.startsWith(p.replaceAll(':id', '')));
@@ -96,6 +97,7 @@ GoRouter createRouter() {
         debugPrint('[router] building LoginScreen route');
         return const LoginScreen();
       }),
+      GoRoute(path: AppRoutes.twoFactorChallenge, builder: (_, __) => const TwoFactorChallengeScreen()),
       GoRoute(path: AppRoutes.register, builder: (_, __) => const RegisterScreen()),
       GoRoute(
         path: AppRoutes.verifyOtp,

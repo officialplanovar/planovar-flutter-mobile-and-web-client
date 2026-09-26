@@ -2014,4 +2014,82 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get orderPending => 'Pendiente';
+
+  @override
+  String get currentPassword => 'Contraseña actual';
+
+  @override
+  String get enterCurrentPassword => 'Introduce la contraseña actual';
+
+  @override
+  String get passwordChanged => 'Contraseña cambiada correctamente';
+
+  @override
+  String get twofaConfirmPasswordTitle => 'Confirma tu contraseña';
+
+  @override
+  String get twofaContinue => 'Continuar';
+
+  @override
+  String get twofaEnable => 'Activar';
+
+  @override
+  String get twofaDisable => 'Desactivar';
+
+  @override
+  String get twofaStatusOn => 'La autenticación en dos pasos está activada';
+
+  @override
+  String get twofaStatusOff => 'La autenticación en dos pasos está desactivada';
+
+  @override
+  String get twofaOnDesc =>
+      'Tu cuenta está protegida con una app de autenticación.';
+
+  @override
+  String get twofaOffDesc =>
+      'Añade una capa extra de seguridad con una app de autenticación.';
+
+  @override
+  String get twofaEnabledMsg => 'Autenticación en dos pasos activada';
+
+  @override
+  String get twofaDisabledMsg => 'Autenticación en dos pasos desactivada';
+
+  @override
+  String get twofaSetupTitle => 'Configurar autenticador';
+
+  @override
+  String get twofaSetupHint =>
+      'Escanea este código QR con tu app de autenticación e introduce el código de 6 dígitos para finalizar.';
+
+  @override
+  String get twofaCantScan =>
+      '¿No puedes escanear? Introduce esta clave manualmente:';
+
+  @override
+  String get twofaSecretCopied => 'Clave copiada';
+
+  @override
+  String get twofaBackupCodesTitle => 'Códigos de respaldo';
+
+  @override
+  String get twofaBackupCodesHint =>
+      'Guárdalos en un lugar seguro. Cada uno se puede usar una vez.';
+
+  @override
+  String get twofaEnterCode => 'Introduce el código de 6 dígitos';
+
+  @override
+  String get twofaVerifyEnable => 'Verificar y activar';
+
+  @override
+  String get tfaChallengeTitle => 'Verificación en dos pasos';
+
+  @override
+  String get tfaChallengeSubtitle =>
+      'Introduce el código de 6 dígitos de tu app de autenticación para continuar.';
+
+  @override
+  String get tfaVerify => 'Verificar';
 }

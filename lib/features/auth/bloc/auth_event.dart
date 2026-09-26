@@ -18,6 +18,14 @@ class AuthSignInRequested extends AuthEvent {
   List<Object?> get props => [email, password];
 }
 
+/// Submit a TOTP code to complete a 2FA sign-in challenge.
+class AuthTwoFactorSubmitted extends AuthEvent {
+  final String code;
+  const AuthTwoFactorSubmitted({required this.code});
+  @override
+  List<Object?> get props => [code];
+}
+
 class AuthSignUpRequested extends AuthEvent {
   final String fullName;
   final String email;
