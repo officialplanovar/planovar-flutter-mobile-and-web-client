@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/api/api_error.dart';
 import 'package:go_router/go_router.dart';
 import '../../../core/services/booking_service.dart';
 import '../../../core/services/listing_service.dart';
@@ -98,7 +99,7 @@ class _NewBookingScreenState extends State<NewBookingScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: AppColors.error),
+          SnackBar(content: Text(humanizeError(e)), backgroundColor: AppColors.error),
         );
       }
     } finally {

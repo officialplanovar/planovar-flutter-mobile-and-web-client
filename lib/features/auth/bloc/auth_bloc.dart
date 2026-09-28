@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../core/api/api_error.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/auth_repository.dart';
 import 'auth_event.dart';
@@ -46,7 +47,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await prefs.setBool('isLoggedIn', true);
       emit(AuthAuthenticated(user: result.user!));
     } catch (e) {
-      emit(AuthError(message: e.toString()));
+      emit(AuthError(message: humanizeError(e)));
     }
   }
 
@@ -59,7 +60,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await prefs.setBool('isLoggedIn', true);
       emit(AuthAuthenticated(user: user));
     } catch (e) {
-      emit(AuthError(message: e.toString()));
+      emit(AuthError(message: humanizeError(e)));
     }
   }
 
@@ -73,7 +74,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       emit(AuthOtpSent(email: event.email, purpose: 'register'));
     } catch (e) {
-      emit(AuthError(message: e.toString()));
+      emit(AuthError(message: humanizeError(e)));
     }
   }
 
@@ -91,7 +92,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         emit(const AuthError(message: 'Invalid OTP. Please try again.'));
       }
     } catch (e) {
-      emit(AuthError(message: e.toString()));
+      emit(AuthError(message: humanizeError(e)));
     }
   }
 
@@ -101,7 +102,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await _authService.forgotPassword(email: event.email);
       emit(const AuthPasswordResetSent());
     } catch (e) {
-      emit(AuthError(message: e.toString()));
+      emit(AuthError(message: humanizeError(e)));
     }
   }
 
@@ -115,7 +116,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
       emit(const AuthUnauthenticated());
     } catch (e) {
-      emit(AuthError(message: e.toString()));
+      emit(AuthError(message: humanizeError(e)));
     }
   }
 

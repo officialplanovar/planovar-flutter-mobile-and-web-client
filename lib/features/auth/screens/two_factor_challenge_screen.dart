@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/api/api_error.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -45,7 +46,7 @@ class _TwoFactorChallengeScreenState extends State<TwoFactorChallengeScreen> {
           context.go(AppRoutes.homeFeed);
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(state.message.replaceFirst('Exception: ', '')),
+            content: Text(humanizeError(state.message)),
             backgroundColor: AppColors.error,
           ));
         }

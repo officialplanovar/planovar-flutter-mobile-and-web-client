@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/api/api_error.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -126,7 +127,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     } catch (e) {
       if (!mounted) return;
       messenger.showSnackBar(SnackBar(
-        content: Text(e.toString().replaceFirst('Exception: ', '')),
+        content: Text(humanizeError(e)),
         backgroundColor: AppColors.error,
       ));
     } finally {
@@ -489,7 +490,7 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
     } catch (e) {
       if (!mounted) return;
       messenger.showSnackBar(SnackBar(
-        content: Text(e.toString().replaceFirst('Exception: ', '')),
+        content: Text(humanizeError(e)),
         backgroundColor: AppColors.error,
       ));
     } finally {
@@ -521,7 +522,7 @@ class _TwoFactorScreenState extends State<TwoFactorScreen> {
     } catch (e) {
       if (!mounted) return;
       messenger.showSnackBar(SnackBar(
-        content: Text(e.toString().replaceFirst('Exception: ', '')),
+        content: Text(humanizeError(e)),
         backgroundColor: AppColors.error,
       ));
     } finally {
