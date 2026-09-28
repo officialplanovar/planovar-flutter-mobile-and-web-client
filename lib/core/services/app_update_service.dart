@@ -1,6 +1,5 @@
-import 'dart:io' show Platform;
-
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart'
+    show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:in_app_update/in_app_update.dart';
 
 /// Google Play in-app update checker.
@@ -19,7 +18,7 @@ class AppUpdateService {
   static Future<void> checkForUpdate() async {
     if (_checked) return;
     _checked = true;
-    if (kIsWeb || !Platform.isAndroid) return;
+    if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) return;
     try {
       final info = await InAppUpdate.checkForUpdate();
       if (info.updateAvailability != UpdateAvailability.updateAvailable) return;

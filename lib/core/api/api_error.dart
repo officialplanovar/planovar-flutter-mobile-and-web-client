@@ -1,6 +1,10 @@
-import 'dart:io' show SocketException;
-
 import 'package:dio/dio.dart';
+
+/// Web-safe socket-error detection (avoids importing `dart:io`, which breaks
+/// `flutter build web`). On web there is no `SocketException`, so this is false
+/// and Dio's `connectionError` covers connectivity failures instead.
+bool _isSocketError(Object? e) =>
+    e != null && e.runtimeType.toString() == 'SocketException';
 
 /// User-facing error handling for the networking layer.
 ///
@@ -183,12 +187,12 @@ String humanizeError(Object? error) {
         final code = error.response?.statusCode ?? 0;
         return messageForStatus(code, error.response?.data);
       case DioExceptionType.unknown:
-        if (error.error is SocketException) return _kNoInternet;
+        if (_isSocketError(error.error)) return _kNoInternet;
         return _kGeneric;
     }
   }
 
-  if (error is SocketException) return _kNoInternet;
+  if (_isSocketError(error)) return _kNoInternet;
 
   // Our own thrown Exception(...) values already hold friendly text; unwrap the
   // "Exception: " prefix. Anything that still looks technical is replaced.
