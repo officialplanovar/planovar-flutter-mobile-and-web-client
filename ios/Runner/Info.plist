@@ -41,8 +41,12 @@
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Planovar uses the camera to take photos for your profile and for in-app video calls.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Planovar needs the microphone for in-app voice calls.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Planovar needs access to your photos to upload images to your profile and messages.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
