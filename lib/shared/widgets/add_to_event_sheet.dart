@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/api/api_error.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../core/router/app_routes.dart';
@@ -108,7 +109,7 @@ Future<void> confirmAddListingToEvent(
     router.go(AppRoutes.eventDetail, extra: {'eventId': eventId});
   } catch (e) {
     messenger.showSnackBar(
-      SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+      SnackBar(content: Text(humanizeError(e))),
     );
   }
 }
@@ -151,7 +152,7 @@ class _AddToEventSheetState extends State<AddToEventSheet> {
     } catch (e) {
       if (mounted) setState(() => _adding = false);
       messenger.showSnackBar(
-        SnackBar(content: Text(e.toString().replaceFirst('Exception: ', ''))),
+        SnackBar(content: Text(humanizeError(e))),
       );
     }
   }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import '../../core/api/api_error.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -65,7 +66,7 @@ class _CallScreenState extends State<CallScreen> {
       if (!mounted) return;
       setState(() {
         _connecting = false;
-        _error = e.toString().replaceFirst('Exception: ', '');
+        _error = humanizeError(e);
       });
     }
   }

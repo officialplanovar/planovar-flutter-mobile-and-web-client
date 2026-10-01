@@ -8,6 +8,15 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Firebase / FCM. The google-services plugin hard-fails the build when
+// `google-services.json` is missing, so apply it only once the file is present.
+// Drop the Firebase-downloaded file at android/app/google-services.json (it must
+// contain every applicationId variant — base, .dev and .staging) and FCM then
+// activates automatically; without it the app still builds and runs (push off).
+if (rootProject.file("app/google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 // Release signing is read from android/key.properties (git-ignored). When that
 // file is absent (e.g. a fresh checkout, CI without secrets) we fall back to the
 // debug keystore so the project still builds — but such a build is NOT
