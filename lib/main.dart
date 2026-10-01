@@ -1,7 +1,9 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/api/token_store.dart';
+import 'core/services/push_service.dart';
 import 'core/locale/locale_cubit.dart';
 import 'core/router/app_routes.dart';
 import 'core/router/router.dart';
@@ -14,6 +16,19 @@ import 'features/auth/bloc/auth_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Firebase Cloud Messaging (mobile only). Guarded so the app still boots —
+  // including `flutter build web` — when the Firebase config files
+  // (google-services.json / GoogleService-Info.plist) have not been added yet.
+  if (!kIsWeb &&
+      (defaultTargetPlatform == TargetPlatform.android ||
+          defaultTargetPlatform == TargetPlatform.iOS)) {
+    try {
+      await Firebase.initializeApp();
+      await PushService.instance.init();
+    } catch (_) {
+      // Firebase not configured yet — push disabled, app runs normally.
+    }
+  }
   // Google sign-in return trip. Web: the token relay appends the bearer token
   // to the app URL — capture it before boot, then scrub it from the address
   // bar. Native: the relay redirects to the planovar:// deep link — capture the

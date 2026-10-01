@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/api/api_error.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/auth_repository.dart';
+import '../../../core/services/push_service.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -29,6 +30,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final user = await _authService.getMe();
       await prefs.setBool('isLoggedIn', true);
       emit(AuthAuthenticated(user: user));
+      PushService.instance.registerForUser();
     } catch (_) {
       await prefs.setBool('isLoggedIn', false);
       emit(const AuthUnauthenticated());
@@ -46,6 +48,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
       emit(AuthAuthenticated(user: result.user!));
+      PushService.instance.registerForUser();
     } catch (e) {
       emit(AuthError(message: humanizeError(e)));
     }
@@ -59,6 +62,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
       emit(AuthAuthenticated(user: user));
+      PushService.instance.registerForUser();
     } catch (e) {
       emit(AuthError(message: humanizeError(e)));
     }
@@ -121,6 +125,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onSignOut(AuthSignOutRequested event, Emitter<AuthState> emit) async {
+    // Deregister the push token while the bearer token is still valid.
+    await PushService.instance.unregister();
     try {
       await _authService.signOut();
     } catch (_) {}
